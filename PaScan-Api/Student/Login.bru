@@ -1,0 +1,21 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:5258/auth/login/student
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  StudentNumber: 20230001
+  Password: student123
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

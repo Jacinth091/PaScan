@@ -22,6 +22,7 @@ public class AppDbContext : DbContext
     public DbSet<QRToken> QRTokens { get; set; } = null!;
     public DbSet<RFIDCard> RFIDCards { get; set; } = null!;
     public DbSet<GateScanLog> GateScanLogs { get; set; } = null!;
+    public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -40,6 +41,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<QRToken>().HasQueryFilter(e => e.DeletedAt == null);
         modelBuilder.Entity<RFIDCard>().HasQueryFilter(e => e.DeletedAt == null);
         modelBuilder.Entity<GateScanLog>().HasQueryFilter(e => e.DeletedAt == null);
+        modelBuilder.Entity<RefreshToken>().HasQueryFilter(e => e.DeletedAt == null);
 
         // Define string conversion for Enums
         modelBuilder.Entity<User>().Property(e => e.Role).HasConversion<string>();
