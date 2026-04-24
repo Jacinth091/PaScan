@@ -1,0 +1,28 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:5258/auth/login/admin
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "admin@pascan.edu",
+    "password": "admin123"
+  }
+}
+
+body:form-urlencoded {
+  Email: admin@pascan.edu
+  Password: admin123
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
