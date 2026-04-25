@@ -1,5 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PaScan.Data;
@@ -10,7 +12,10 @@ DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Conventions.Add(new ApiPrefixConvention("api"));
+});
 
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -23,8 +28,8 @@ builder.Services.AddAuthentication(options =>
     })
     .AddCookie("Cookies", options =>
     {
-        options.LoginPath = "/auth/login";
-        options.AccessDeniedPath = "/auth/access-denied";
+        options.LoginPath = "/api/auth/login";
+        options.AccessDeniedPath = "/api/auth/access-denied";
     })
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
@@ -62,6 +67,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
+    name: "api",
+    pattern: "api/{controller}/{action}/{id?}");
+
+app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
@@ -74,3 +83,31 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+public class ApiPrefixConvention : IApplicationModelConvention
+{
+    private readonly AttributeRouteModel _routePrefix;
+
+    public ApiPrefixConvention(string prefix)
+    {
+        _routePrefix = new AttributeRouteModel(new RouteAttribute(prefix));
+    }
+
+    public void Apply(ApplicationModel application)
+    {
+        foreach (var controller in application.Controllers)
+        {
+            // Optional: Skip HomeController to keep it at the root
+            if (controller.ControllerName == "Home") continue;
+
+            foreach (var selector in controller.Selectors)
+            {
+                if (selector.AttributeRouteModel != null)
+                {
+                    selector.AttributeRouteModel = AttributeRouteModel.CombineAttributeRouteModel(_routePrefix, selector.AttributeRouteModel);
+                }
+            }
+        }
+    }
+}
+

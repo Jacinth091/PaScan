@@ -51,13 +51,13 @@ Each module has:
 Set up the Azure SQL database using Entity Framework Core code-first migrations. This is the foundation everything else depends on. No other module can start until the database is live and seeded.
 
 ### What to build
-- [ ] Create `AppDbContext` with all `DbSet<>` properties
-- [ ] Create all EF Core model classes matching the DBML schema
-- [ ] Add all enums as C# enums
-- [ ] Configure relationships in `OnModelCreating` (foreign keys, unique constraints, soft delete filters)
-- [ ] Write and run the initial migration
-- [ ] Connect to Azure SQL — update `appsettings.json` with connection string
-- [ ] Seed data: at least 3 courses, 1 admin account, 1 student account, 1 scanner account
+- [x] Create `AppDbContext` with all `DbSet<>` properties
+- [x] Create all EF Core model classes matching the DBML schema
+- [x] Add all enums as C# enums
+- [x] Configure relationships in `OnModelCreating` (foreign keys, unique constraints, soft delete filters)
+- [x] Write and run the initial migration
+- [x] Connect to Azure SQL — update `appsettings.json` with connection string
+- [x] Seed data: at least 3 courses, 1 admin account, 1 student account, 1 scanner account
 
 ### Tables to create
 ```
