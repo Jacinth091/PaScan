@@ -6,6 +6,7 @@ using PaScan.Data;
 using PaScan.Enums;
 using PaScan.Models;
 using PaScan.Models.ViewModels;
+using QRCoder;
 
 namespace PaScan.Controllers
 {
@@ -19,71 +20,123 @@ namespace PaScan.Controllers
         {
             _context = context;
         }
+        // GET: device/student/
+        [HttpGet("student")]
+        public async Task<IActionResult> MyDevices()
+        {
+            var studentIdStr = HttpContext.Session.GetString("StudentId");
+            if (string.IsNullOrEmpty(studentIdStr) || !Guid.TryParse(studentIdStr, out var studentId))
+            {
+                return RedirectToAction("StudentLogin", "Auth");
+            }
+
+            var devices = await _context.Devices
+               .Where(d => d.StudentId == studentId)
+                .Select(d => new DeviceListItem
+                {
+                    Id = d.Id,
+                    DeviceName = d.DeviceName,
+                    DeviceType = d.DeviceType,
+                    Brand = d.Brand,
+                    Model = d.Model,
+                    Status = d.Status
+                })
+            .ToListAsync();
+
+            return View(devices);
+        }
 
         [HttpGet("student/register")]
         public IActionResult Register()
         {
-            return View(new DeviceRequestViewModel());
+            var model = new DeviceRequestViewModel();
+            return View(model);
         }
 
         [HttpPost("student/register")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(DeviceRequestViewModel model)
+        public async Task<IActionResult> Register(DeviceRequestViewModel request)
         {
+            // Remove empty accessories from the list so they don't trigger validation errors
+            if (request.Accessories != null)
+            {
+                request.Accessories.RemoveAll(a => string.IsNullOrWhiteSpace(a.AccessoryName));
+            }
+
+            // Re-validate the model after cleanup
+            ModelState.Clear();
+            TryValidateModel(request);
+
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View(request);
             }
-            var studentIdStr = HttpContext.Session.GetString("StudentId");
-            if (studentIdStr == null || !Guid.TryParse(studentIdStr, out var studentId))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-            bool exists = await _context.DeviceRequests
-            .AnyAsync(d => d.StudentId == studentId && d.SerialNumber == model.SerialNumber && d.DeletedAt == null);
-            if (exists)
-            {
-                ModelState.AddModelError("SerialNumber", "You have already registered this device.");
-                return View(model);
-            }
-            var deviceRequest = new DeviceRequest
-            {
-                Id = Guid.NewGuid(),
-                StudentId = studentId,
-                Purpose = model.Purpose,
-                DeviceName = model.DeviceName,
-                DeviceType = model.DeviceType,
-                Brand = model.Brand,
-                Model = model.Model,
-                SerialNumber = model.SerialNumber,
-                OperatingSystem = model.OperatingSystem,
-                Color = model.Color,
-                Processor = model.Processor,
-                Motherboard = model.Motherboard,
-                Memory = model.Memory,
-                Storage = model.Storage,
-                MonitorSize = model.MonitorSize,
-                Casing = model.Casing,
-                HasCdRom = model.HasCdRom,
-                Status = RegisterStatus.PENDING,
-                CreatedAt = DateTime.Now,
-            };
-            _context.DeviceRequests.Add(deviceRequest);
 
-            foreach (var a in model.Accessories.Where(x => !string.IsNullOrWhiteSpace(x.AccessoryName)))
+            try
             {
-                _context.DeviceRequestAccessories.Add(new DeviceRequestAccessory
+                var studentIdStr = HttpContext.Session.GetString("StudentId");
+                if (studentIdStr == null || !Guid.TryParse(studentIdStr, out var studentId))
+                {
+                    return RedirectToAction("StudentLogin", "Auth");
+                }
+
+                bool exists = await _context.DeviceRequests
+                    .AnyAsync(d => d.StudentId == studentId && d.SerialNumber == request.SerialNumber && d.DeletedAt == null);
+
+                if (exists)
+                {
+                    ModelState.AddModelError("SerialNumber", "You have already registered a request for this serial number.");
+                    return View(request);
+                }
+
+                var deviceRequest = new DeviceRequest
                 {
                     Id = Guid.NewGuid(),
-                    DeviceRequestId = deviceRequest.Id,
-                    AccessoryName = a.AccessoryName,
-                    Quantity = a.Quantity
-                });
-            }
+                    StudentId = studentId,
+                    Purpose = request.Purpose,
+                    DeviceName = request.DeviceName,
+                    DeviceType = request.DeviceType,
+                    Brand = request.Brand,
+                    Model = request.Model,
+                    SerialNumber = request.SerialNumber,
+                    OperatingSystem = request.OperatingSystem,
+                    Color = request.Color,
+                    Processor = request.Processor,
+                    Motherboard = request.Motherboard,
+                    Memory = request.Memory,
+                    Storage = request.Storage,
+                    MonitorSize = request.MonitorSize,
+                    Casing = request.Casing,
+                    HasCdRom = request.HasCdRom,
+                    Status = RegisterStatus.PENDING,
+                    CreatedAt = DateTime.Now,
+                };
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Detail", new { id = deviceRequest.Id });
-            // return RedirectToAction("Dashboard", "Student");
+                _context.DeviceRequests.Add(deviceRequest);
+
+                if (request.Accessories != null)
+                {
+                    foreach (var a in request.Accessories.Where(x => !string.IsNullOrWhiteSpace(x.AccessoryName)))
+                    {
+                        _context.DeviceRequestAccessories.Add(new DeviceRequestAccessory
+                        {
+                            Id = Guid.NewGuid(),
+                            DeviceRequestId = deviceRequest.Id,
+                            AccessoryName = a.AccessoryName,
+                            Quantity = a.Quantity
+                        });
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Details", new { id = deviceRequest.Id });
+            }
+            catch (Exception ex)
+            {
+                // This will display the actual database error at the top of the form
+                ModelState.AddModelError("", "Database Error: " + ex.Message);
+                return View(request);
+            }
         }
 
         [HttpGet("student/{id:guid}")]
@@ -92,7 +145,7 @@ namespace PaScan.Controllers
             var studentIdStr = HttpContext.Session.GetString("StudentId");
             if (string.IsNullOrEmpty(studentIdStr) || !Guid.TryParse(studentIdStr, out var studentId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("StudentLogin", "Auth");
             }
 
             var request = await _context.DeviceRequests
@@ -134,67 +187,43 @@ namespace PaScan.Controllers
             // return View(model);
         }
 
-        // GET: DeviceController/Create
-        public ActionResult Create()
+        [HttpGet("/student/approved/{deviceId:guid}")]
+        public async Task<IActionResult> DeviceDetail(Guid deviceId)
         {
-            return View();
-        }
+            var studentIdStr = HttpContext.Session.GetString("StudentId");
+            if (string.IsNullOrEmpty(studentIdStr) || !Guid.TryParse(studentIdStr, out var studentId))
+            {
+                return RedirectToAction("StudentLogin", "Auth");
+            }
+            var device = await _context.Devices
+            .Include(d => d.Accessories)
+            .FirstOrDefaultAsync(d => d.Id == deviceId && d.StudentId == studentId);
 
-        // POST: DeviceController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+            if (device == null) return NotFound();
 
-        // GET: DeviceController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
+            var qrToken = await _context.QRTokens
+            .Where(t => t.DeviceId == deviceId)
+            .OrderByDescending(t => t.CreatedAt)
+            .FirstOrDefaultAsync();
 
-        // POST: DeviceController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
+            string? qrImageBase64 = null;
+            if (qrToken != null && qrToken.Status != TokenStatus.REVOKED)
             {
-                return RedirectToAction(nameof(Index));
+                using var qrGenerator = new QRCodeGenerator();
+                var qrData = qrGenerator.CreateQrCode(qrToken.TokenValue, QRCodeGenerator.ECCLevel.Q);
+                using var qrCode = new PngByteQRCode(qrData);
+                var qrBytes = qrCode.GetGraphic(10);
+                qrImageBase64 = Convert.ToBase64String(qrBytes);
             }
-            catch
-            {
-                return View();
-            }
-        }
 
-        // GET: DeviceController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
+            var viewModel = new DeviceDetailViewModel
+            {
+                Device = device,
+                QrToken = qrToken,
+                QrImageBase64 = qrImageBase64
+            };
 
-        // POST: DeviceController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            return View(viewModel);
         }
     }
 }

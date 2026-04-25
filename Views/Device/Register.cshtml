@@ -1,0 +1,146 @@
+@using PaScan.Enums
+@model PaScan.Models.ViewModels.DeviceRequestViewModel
+@{
+    ViewData["Title"] = "Register Device";
+}
+
+<h1>Register New Device</h1>
+<a asp-controller="Student" asp-action="Dashboard">Cancel</a>
+
+<form asp-action="Register" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" style="color: red;"></div>
+    
+    <fieldset>
+        <legend>Basic Information</legend>
+        <div>
+            <label asp-for="DeviceName"></label>
+            <input asp-for="DeviceName" />
+            <span asp-validation-for="DeviceName" style="color: red;"></span>
+        </div>
+        
+        <div>
+            <label asp-for="DeviceType"></label>
+            <select asp-for="DeviceType" asp-items="Html.GetEnumSelectList<DeviceType>()"></select>
+            <span asp-validation-for="DeviceType" style="color: red;"></span>
+        </div>
+
+        <div>
+            <label asp-for="Brand"></label>
+            <input asp-for="Brand" />
+            <span asp-validation-for="Brand" style="color: red;"></span>
+        </div>
+
+        <div>
+            <label asp-for="Model"></label>
+            <input asp-for="Model" />
+            <span asp-validation-for="Model" style="color: red;"></span>
+        </div>
+
+        <div>
+            <label asp-for="SerialNumber"></label>
+            <input asp-for="SerialNumber" />
+            <span asp-validation-for="SerialNumber" style="color: red;"></span>
+        </div>
+
+        <div>
+            <label asp-for="Purpose"></label>
+            <textarea asp-for="Purpose"></textarea>
+            <span asp-validation-for="Purpose" style="color: red;"></span>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Hardware Specifications (Optional)</legend>
+        <div>
+            <label asp-for="OperatingSystem"></label>
+            <input asp-for="OperatingSystem" />
+            <span asp-validation-for="OperatingSystem" style="color: red;"></span>
+        </div>
+        <div>
+            <label asp-for="Color"></label>
+            <input asp-for="Color" />
+            <span asp-validation-for="Color" style="color: red;"></span>
+        </div>
+        <div>
+            <label asp-for="Processor"></label>
+            <input asp-for="Processor" />
+            <span asp-validation-for="Processor" style="color: red;"></span>
+        </div>
+        <div>
+            <label asp-for="Motherboard"></label>
+            <input asp-for="Motherboard" />
+            <span asp-validation-for="Motherboard" style="color: red;"></span>
+        </div>
+        <div>
+            <label asp-for="Memory"></label>
+            <input asp-for="Memory" />
+            <span asp-validation-for="Memory" style="color: red;"></span>
+        </div>
+        <div>
+            <label asp-for="Storage"></label>
+            <input asp-for="Storage" />
+            <span asp-validation-for="Storage" style="color: red;"></span>
+        </div>
+        <div>
+            <label asp-for="MonitorSize"></label>
+            <input asp-for="MonitorSize" />
+            <span asp-validation-for="MonitorSize" style="color: red;"></span>
+        </div>
+        <div>
+            <label asp-for="Casing"></label>
+            <input asp-for="Casing" />
+            <span asp-validation-for="Casing" style="color: red;"></span>
+        </div>
+        <div>
+            <label asp-for="HasCdRom">Has CD-ROM?</label>
+            <input asp-for="HasCdRom" type="checkbox" />
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Accessories</legend>
+        <p>List any accessories included (e.g., Charger, Bag, Mouse)</p>
+        <div id="accessories-container">
+            @for (int i = 0; i < Math.Max(1, Model.Accessories?.Count ?? 0); i++)
+            {
+                <div class="accessory-row" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+                    <label>Accessory:</label>
+                    <input name="Accessories[@i].AccessoryName" value="@(Model.Accessories != null && Model.Accessories.Count > i ? Model.Accessories[i].AccessoryName : "")" placeholder="Name" />
+                    <label>Qty:</label>
+                    <input name="Accessories[@i].Quantity" type="number" value="@(Model.Accessories != null && Model.Accessories.Count > i ? Model.Accessories[i].Quantity : 1)" min="1" style="width: 50px;" />
+                    @if (i > 0)
+                    {
+                        <button type="button" onclick="this.parentElement.remove()">Remove</button>
+                    }
+                </div>
+            }
+        </div>
+        <button type="button" id="add-accessory-btn" style="margin-top: 10px;">+ Add Accessory</button>
+    </fieldset>
+
+    <div style="margin-top: 20px;">
+        <button type="submit">Submit Request</button>
+    </div>
+</form>
+
+<script>
+    document.getElementById('add-accessory-btn').addEventListener('click', function() {
+        var container = document.getElementById('accessories-container');
+        var index = container.getElementsByClassName('accessory-row').length;
+        
+        var row = document.createElement('div');
+        row.className = 'accessory-row';
+        row.style.cssText = 'margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;';
+        
+        row.innerHTML = `
+            <label>Accessory:</label>
+            <input name="Accessories[${index}].AccessoryName" placeholder="Name" />
+            <label>Qty:</label>
+            <input name="Accessories[${index}].Quantity" type="number" value="1" min="1" style="width: 50px;" />
+            <button type="button" onclick="this.parentElement.remove()">Remove</button>
+        `;
+        
+        container.appendChild(row);
+    });
+</script>

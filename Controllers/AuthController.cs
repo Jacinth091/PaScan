@@ -50,6 +50,7 @@ public class AuthController : Controller
             return View("StudentLogin");
         }
 
+        HttpContext.Session.SetString("StudentId", user.Student.Id.ToString());
         await SignInUser(user, user.Student.Id.ToString());
         return RedirectToAction("Dashboard", "Student");
     }
@@ -74,6 +75,7 @@ public class AuthController : Controller
             return View("AdminLogin");
         }
 
+        HttpContext.Session.SetString("AdminId", user.Admin.Id.ToString());
         await SignInUser(user, user.Admin.Id.ToString());
         return RedirectToAction("Dashboard", "Admin");
     }
@@ -111,6 +113,7 @@ public class AuthController : Controller
             Expires = refreshToken.Expiry
         });
 
+        HttpContext.Session.SetString("ScannerId", user.Scanner.Id.ToString());
         await SignInUser(user, user.Scanner.Id.ToString());
         return RedirectToAction("QrScanPage", "Scan");
     }
