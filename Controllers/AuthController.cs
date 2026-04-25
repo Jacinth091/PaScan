@@ -127,7 +127,6 @@ public class AuthController : Controller
     }
 
     [HttpPost("register/student")]
-    [IgnoreAntiforgeryToken]
     public async Task<IActionResult> StudentRegisterPost(StudentRegisterViewModel model)
     {
         if (!ModelState.IsValid)
