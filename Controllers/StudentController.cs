@@ -10,6 +10,7 @@ using PaScan.Models.ViewModels;
 namespace PaScan.Controllers;
 
 [Authorize(Roles = "STUDENT")]
+[Route("student")]
 public class StudentController : Controller
 {
     private readonly AppDbContext _context;
@@ -18,6 +19,8 @@ public class StudentController : Controller
     {
         _context = context;
     }
+
+    [HttpGet("dashboard")]
     public async Task<IActionResult> Dashboard()
     {
         // Read StudentId from session
