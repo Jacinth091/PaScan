@@ -151,14 +151,6 @@ public class AuthController : Controller
             ViewBag.Courses = courses;
             return View("StudentRegister", model);
         }
-
-        if(await _context.Users.AnyAsync(u => u.StudentNumber == model.StudentNumber))
-        {
-            ModelState.AddModelError("StudentNumber", "Student number already registered");
-            var courses = await _context.Courses.Where(c => c.DeletedAt == null).ToListAsync();
-            ViewBag.Courses = courses;
-            return View("StudentRegister", model);
-        }
         try
         {
 
@@ -187,7 +179,7 @@ public class AuthController : Controller
                 ContactNumber = model.ContactNumber,
                 YearLevel = model.YearLevel,
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Now,
             };
             _context.Students.Add(student);
 
