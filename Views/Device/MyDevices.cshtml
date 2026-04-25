@@ -1,0 +1,41 @@
+@model List<PaScan.Models.ViewModels.DeviceListItem>
+@{
+    ViewData["Title"] = "My Devices";
+}
+
+<h1>My Approved Devices</h1>
+<a asp-controller="Student" asp-action="Dashboard">Back to Dashboard</a>
+
+<table border="1" style="width: 100%; margin-top: 20px;">
+    <thead>
+        <tr>
+            <th>Device Name</th>
+            <th>Type</th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var device in Model)
+        {
+            <tr>
+                <td>@device.DeviceName</td>
+                <td>@device.DeviceType</td>
+                <td>@device.Brand</td>
+                <td>@device.Model</td>
+                <td>@device.Status</td>
+                <td>
+                    <a asp-controller="Device" asp-action="DeviceDetail" asp-route-deviceId="@device.Id">View Details & QR</a>
+                </td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="6" style="text-align: center;">No approved devices found.</td>
+            </tr>
+        }
+    </tbody>
+</table>
