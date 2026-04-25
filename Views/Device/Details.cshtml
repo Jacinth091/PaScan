@@ -1,0 +1,50 @@
+@model PaScan.Models.DeviceRequest
+@{
+    ViewData["Title"] = "Request Details";
+}
+
+<h1>Device Request Details</h1>
+<a asp-controller="Student" asp-action="Dashboard">Back to Dashboard</a>
+
+<div>
+    <h3>Status: @Model.Status</h3>
+    @if (Model.Status == PaScan.Enums.RegisterStatus.REJECTED)
+    {
+        <p style="color: red;"><strong>Reason:</strong> @Model.RejectionReason</p>
+    }
+    
+    <p><strong>Submitted:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</p>
+</div>
+
+<hr />
+
+<section>
+    <h3>Device Information</h3>
+    <ul>
+        <li><strong>Name:</strong> @Model.DeviceName</li>
+        <li><strong>Type:</strong> @Model.DeviceType</li>
+        <li><strong>Brand/Model:</strong> @Model.Brand @Model.Model</li>
+        <li><strong>Serial Number:</strong> @Model.SerialNumber</li>
+        <li><strong>Purpose:</strong> @Model.Purpose</li>
+    </ul>
+</section>
+
+<section>
+    <h3>Specs</h3>
+    <ul>
+        <li><strong>OS:</strong> @(Model.OperatingSystem ?? "N/A")</li>
+        <li><strong>Processor:</strong> @(Model.Processor ?? "N/A")</li>
+        <li><strong>Memory:</strong> @(Model.Memory ?? "N/A")</li>
+        <li><strong>Storage:</strong> @(Model.Storage ?? "N/A")</li>
+    </ul>
+</section>
+
+<section>
+    <h3>Accessories</h3>
+    <ul>
+        @foreach (var acc in Model.Accessories)
+        {
+            <li>@acc.AccessoryName (Qty: @acc.Quantity)</li>
+        }
+    </ul>
+</section>
