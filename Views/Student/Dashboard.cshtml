@@ -1,0 +1,84 @@
+@model PaScan.Models.ViewModels.StudentDashboardViewModel
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+
+<h1>Student Dashboard</h1>
+
+<section>
+    <h3>Profile</h3>
+    <p>Name: @Model.FirstName @Model.LastName</p>
+    <p>Student Number: @Model.StudentNumber</p>
+    <p>Course: @Model.CourseName</p>
+</section>
+
+<section>
+    <h3>RFID Status</h3>
+    @if (Model.IsRfidEnabled)
+    {
+        <p style="color: green;">✅ Active</p>
+        <p>Expires: @(Model.RfidExpiresAt?.ToString("MMM dd, yyyy") ?? "N/A")</p>
+    }
+    else
+    {
+        <p style="color: gray;">⚪ Not Enabled</p>
+    }
+</section>
+
+<hr />
+
+<section>
+    <h3>Device Requests <a asp-controller="Device" asp-action="Register">[Register New Device]</a></h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Device Name</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var request in Model.Requests)
+            {
+                <tr>
+                    <td>@request.DeviceName</td>
+                    <td>@request.DeviceType</td>
+                    <td>@request.Status</td>
+                    <td>@request.SubmittedAt.ToShortDateString()</td>
+                    <td>
+                        <a asp-controller="Device" asp-action="Details" asp-route-id="@request.Id">View Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+<section>
+    <h3>Approved Devices <a asp-controller="Device" asp-action="MyDevices">[View All My Devices]</a></h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Device Name</th>
+                <th>Brand/Model</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var device in Model.Devices)
+            {
+                <tr>
+                    <td>@device.DeviceName</td>
+                    <td>@device.Brand @device.Model</td>
+                    <td>@device.Status</td>
+                    <td>
+                        <a asp-controller="Device" asp-action="DeviceDetail" asp-route-deviceId="@device.Id">View QR / Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
