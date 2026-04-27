@@ -1,7 +1,35 @@
-@{ ViewData["Title"] = "Select Login"; }
-<h2>Login</h2>
-<ul>
-    <li><a href="/auth/login/student">Student</a></li>
-    <li><a href="/auth/login/admin">Admin</a></li>
-    <li><a href="/auth/login/scanner">Scanner</a></li>
-</ul>
+@{
+    ViewData["Title"] = "Login";
+}
+
+<section class="utility-page">
+    <div class="shell">
+        <article class="apple-panel">
+            <p class="eyebrow">Secure Access</p>
+            <h1 class="utility-title">Login to PaScan</h1>
+            <p class="utility-lead">
+                Select your login area. Your credentials are validated using the role-specific
+                route defined in the current authentication controller.
+            </p>
+
+            <div class="auth-role-grid" aria-label="Login options">
+                <a class="auth-role-card" href="/api/auth/login/student">
+                    <span class="auth-role-title">Student Login</span>
+                    <span class="auth-role-note">Use student number and password</span>
+                </a>
+
+                <a class="auth-role-card" href="/api/auth/login/admin">
+                    <span class="auth-role-title">Admin Login</span>
+                    <span class="auth-role-note">Use admin email and password</span>
+                </a>
+
+                <a class="auth-role-card" href="/api/auth/login/scanner">
+                    <span class="auth-role-title">Scanner Login</span>
+                    <span class="auth-role-note">Use scanner account credentials</span>
+                </a>
+            </div>
+
+            <p class="auth-help">If access fails, verify your account role with the system administrator.</p>
+        </article>
+    </div>
+</section>

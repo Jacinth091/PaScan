@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using BCrypt.Net;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using PaScan.Data;
 using PaScan.Enums;
 using PaScan.Models;
+using PaScan.Models.ViewModels;
 
 namespace PaScan.Controllers;
 
@@ -48,6 +50,7 @@ public class AuthController : Controller
             return View("StudentLogin");
         }
 
+        HttpContext.Session.SetString("StudentId", user.Student.Id.ToString());
         await SignInUser(user, user.Student.Id.ToString());
         return RedirectToAction("Dashboard", "Student");
     }
@@ -72,6 +75,7 @@ public class AuthController : Controller
             return View("AdminLogin");
         }
 
+        HttpContext.Session.SetString("AdminId", user.Admin.Id.ToString());
         await SignInUser(user, user.Admin.Id.ToString());
         return RedirectToAction("Dashboard", "Admin");
     }
@@ -109,8 +113,86 @@ public class AuthController : Controller
             Expires = refreshToken.Expiry
         });
 
+        HttpContext.Session.SetString("ScannerId", user.Scanner.Id.ToString());
         await SignInUser(user, user.Scanner.Id.ToString());
         return RedirectToAction("QrScanPage", "Scan");
+    }
+
+    [HttpGet("register/student")]
+    public async Task<IActionResult> StudentRegister()
+    {
+        var courses = await _context.Courses.Where(c => c.DeletedAt == null).ToListAsync();
+        ViewBag.Courses = courses;
+        return View();
+    }
+
+    [HttpPost("register/student")]
+    public async Task<IActionResult> StudentRegisterPost(StudentRegisterViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            var courses = await _context.Courses.Where(c => c.DeletedAt == null).ToListAsync();
+            ViewBag.Courses = courses;
+            return View("StudentRegister", model);
+        }
+
+        if(await _context.Users.AnyAsync(u => u.StudentNumber == model.StudentNumber))
+        {
+            ModelState.AddModelError("StudentNumber", "Student number already registered");
+            var courses = await _context.Courses.Where(c => c.DeletedAt == null).ToListAsync();
+            ViewBag.Courses = courses;
+            return View("StudentRegister", model);
+        }
+
+        if(await _context.Users.AnyAsync(u => u.Email == model.Email))
+        {
+            ModelState.AddModelError("Email", "Email is already taken");
+            var courses = await _context.Courses.Where(c => c.DeletedAt == null).ToListAsync();
+            ViewBag.Courses = courses;
+            return View("StudentRegister", model);
+        }
+        try
+        {
+
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                StudentNumber = model.StudentNumber,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
+                Email = model.Email,
+                Role = Role.STUDENT,
+                IsActive = true,
+                CreatedAt = DateTime.Now,
+            };
+            _context.Users.Add(user);
+
+            var student = new Student
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                CourseId = model.CourseId,
+                StudentNumber = model.StudentNumber,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                MiddleName = model.MiddleName,
+                Email = model.Email,
+                ContactNumber = model.ContactNumber,
+                YearLevel = model.YearLevel,
+                IsActive = true,
+                CreatedAt = DateTime.Now,
+            };
+            _context.Students.Add(student);
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Registration successful! Please log in.";
+            return RedirectToAction("StudentLogin");
+        }
+        catch 
+        {
+            ModelState.AddModelError("", "An error occurred during registration. Please try again.");         
+            return View(model);
+        }
     }
 
     private async Task SignInUser(User user, string profileId)

@@ -7,6 +7,11 @@ namespace PaScan.Models.ViewModels;
 
 public class DeviceRequestViewModel
 {
+    // Tracking properties (populated by system/details view)
+    public Guid? Id { get; set; }
+    public RegisterStatus? Status { get; set; }
+    public DateTime? CreatedAt { get; set; }
+
     [Required(ErrorMessage = "Purpose is required.")]
     [StringLength(500, ErrorMessage = "Purpose cannot exceed 500 characters.")]
     public string Purpose { get; set; } = null!;

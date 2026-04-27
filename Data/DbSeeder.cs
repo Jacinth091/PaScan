@@ -1,5 +1,5 @@
-using PaScan.Models;
 using PaScan.Enums;
+using PaScan.Models;
 
 namespace PaScan.Data;
 
@@ -50,7 +50,7 @@ public static class DbSeeder
         var studentUser = new User
         {
             Id = studentUserId,
-            StudentNumber = "20230001",
+            StudentNumber = "23784994",
             PasswordHash = "student123",
             Role = Role.STUDENT,
             IsActive = true,
@@ -62,10 +62,11 @@ public static class DbSeeder
             Id = Guid.NewGuid(),
             UserId = studentUserId,
             CourseId = courses[0].Id,
-            StudentNumber = "20230001",
-            FirstName = "John",
-            LastName = "Doe",
-            YearLevel = 1,
+            StudentNumber = "23784994",
+            FirstName = "Jacinth Cedric",
+            MiddleName = "Curitao",
+            LastName = "Barral",
+            YearLevel = 3,
             IsRfidEnabled = false,
             RfidRenewalCount = 0,
             IsActive = true,
@@ -100,6 +101,126 @@ public static class DbSeeder
         context.Admins.Add(admin);
         context.Students.Add(student);
         context.Scanners.Add(scanner);
+
+        // Seed Device Requests
+        var laptopRequestId = Guid.NewGuid();
+        var laptopRequest = new DeviceRequest
+        {
+            Id = laptopRequestId,
+            StudentId = student.Id,
+            DeviceName = "Academic Laptop",
+            DeviceType = DeviceType.LAPTOP,
+            Brand = "Dell",
+            Model = "XPS 15",
+            SerialNumber = "DELL-XPS-98765",
+            Purpose = "Primary device for programming and research",
+            OperatingSystem = "Windows 11 Pro",
+            Processor = "Intel Core i9-13900H",
+            Memory = "32GB DDR5",
+            Storage = "1TB NVMe SSD",
+            Status = RegisterStatus.APPROVED,
+            ReviewedBy = admin.Id,
+            ReviewedAt = DateTime.UtcNow.AddDays(-5),
+            CreatedAt = DateTime.UtcNow.AddDays(-7)
+        };
+
+        var tabletRequestId = Guid.NewGuid();
+        var tabletRequest = new DeviceRequest
+        {
+            Id = tabletRequestId,
+            StudentId = student.Id,
+            DeviceName = "Study Tablet",
+            DeviceType = DeviceType.TABLET,
+            Brand = "Apple",
+            Model = "iPad Air",
+            SerialNumber = "IPAD-AIR-54321",
+            Purpose = "Note-taking and reading digital textbooks",
+            Color = "Space Gray",
+            Storage = "256GB",
+            Status = RegisterStatus.PENDING,
+            CreatedAt = DateTime.UtcNow.AddDays(-1)
+        };
+
+        var rejectedRequestId = Guid.NewGuid();
+        var rejectedRequest = new DeviceRequest
+        {
+            Id = rejectedRequestId,
+            StudentId = student.Id,
+            DeviceName = "Personal Phone",
+            DeviceType = DeviceType.PHONE,
+            Brand = "Samsung",
+            Model = "S23 Ultra",
+            SerialNumber = "SAMSUNG-S23-000",
+            Purpose = "Personal communication",
+            Status = RegisterStatus.REJECTED,
+            ReviewedBy = admin.Id,
+            ReviewedAt = DateTime.UtcNow.AddDays(-2),
+            RejectionReason = "Personal mobile phones do not require campus registration.",
+            CreatedAt = DateTime.UtcNow.AddDays(-3)
+        };
+
+        context.DeviceRequests.AddRange(laptopRequest, tabletRequest, rejectedRequest);
+
+        // Seed Approved Device
+        var approvedDevice = new Device
+        {
+            Id = Guid.NewGuid(),
+            StudentId = student.Id,
+            OriginalRequestId = laptopRequestId,
+            DeviceName = "Academic Laptop",
+            DeviceType = DeviceType.LAPTOP,
+            Brand = "Dell",
+            Model = "XPS 15",
+            SerialNumber = "DELL-XPS-98765",
+            Purpose = "Primary device for programming and research",
+            OperatingSystem = "Windows 11 Pro",
+            Processor = "Intel Core i9-13900H",
+            Memory = "32GB DDR5",
+            Storage = "1TB NVMe SSD",
+            Status = DeviceStatus.ACTIVE,
+            ApprovedBy = admin.Id,
+            ApprovedAt = DateTime.UtcNow.AddDays(-5),
+            CreatedAt = DateTime.UtcNow.AddDays(-5)
+        };
+
+        context.Devices.Add(approvedDevice);
+
+        // Seed Accessories
+        var charger = new DeviceAccessory
+        {
+            Id = Guid.NewGuid(),
+            DeviceId = approvedDevice.Id,
+            AccessoryName = "130W USB-C Charger",
+            Quantity = 1,
+            CreatedAt = DateTime.UtcNow.AddDays(-5)
+        };
+
+        var mouse = new DeviceAccessory
+        {
+            Id = Guid.NewGuid(),
+            DeviceId = approvedDevice.Id,
+            AccessoryName = "Wireless Mouse",
+            Quantity = 1,
+            CreatedAt = DateTime.UtcNow.AddDays(-5)
+        };
+
+        context.DeviceAccessories.AddRange(charger, mouse);
+
+        // Seed QR Token for the approved device
+        var qrToken = new QRToken
+        {
+            Id = Guid.NewGuid(),
+            DeviceId = approvedDevice.Id,
+            StudentId = student.Id,
+            TokenValue = $"PASCAN-{approvedDevice.SerialNumber}-{Guid.NewGuid().ToString().Substring(0, 8)}",
+            IssuedAt = DateTime.UtcNow.AddDays(-5),
+            ExpiresAt = DateTime.UtcNow.AddDays(25),
+            Status = TokenStatus.ACTIVE,
+            RenewalNumber = 0,
+            CreatedAt = DateTime.UtcNow.AddDays(-5)
+        };
+
+        context.QRTokens.Add(qrToken);
 
         context.SaveChanges();
     }

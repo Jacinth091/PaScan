@@ -1,0 +1,52 @@
+@model PaScan.Models.ViewModels.DeviceDetailViewModel
+@{
+    ViewData["Title"] = "Approved Device Details";
+}
+
+<h1>Approved Device Details</h1>
+<a asp-controller="Student" asp-action="Dashboard">Back to Dashboard</a>
+
+<div style="display: flex; gap: 40px; margin-top: 20px;">
+    <!-- Left: QR Code -->
+    <div style="text-align: center; border: 1px solid #ccc; padding: 20px;">
+        <h3>Gate Access QR</h3>
+        @if (!string.IsNullOrEmpty(Model.QrImageBase64))
+        {
+            <img src="data:image/png;base64,@Model.QrImageBase64" alt="Device QR Code" style="width: 250px;" />
+            <p><strong>Status:</strong> @Model.QrToken?.Status</p>
+            <p><strong>Expires:</strong> @(Model.QrToken?.ExpiresAt.ToString("MMM dd, yyyy") ?? "N/A")</p>
+        }
+        else
+        {
+            <p style="color: red;">No active QR token found or token is revoked.</p>
+            <button disabled>Renew QR (Coming Soon)</button>
+        }
+    </div>
+
+    <!-- Right: Device Info -->
+    <div>
+        <h3>Device Info</h3>
+        <ul>
+            <li><strong>Device Name:</strong> @Model.Device.DeviceName</li>
+            <li><strong>Brand/Model:</strong> @Model.Device.Brand @Model.Device.Model</li>
+            <li><strong>Serial:</strong> @Model.Device.SerialNumber</li>
+            <li><strong>Status:</strong> @Model.Device.Status</li>
+        </ul>
+
+        <h4>Hardware Specs</h4>
+        <ul>
+            <li><strong>OS:</strong> @(Model.Device.OperatingSystem ?? "N/A")</li>
+            <li><strong>Processor:</strong> @(Model.Device.Processor ?? "N/A")</li>
+            <li><strong>Memory:</strong> @(Model.Device.Memory ?? "N/A")</li>
+            <li><strong>Storage:</strong> @(Model.Device.Storage ?? "N/A")</li>
+        </ul>
+
+        <h4>Accessories</h4>
+        <ul>
+            @foreach (var acc in Model.Device.Accessories)
+            {
+                <li>@acc.AccessoryName (Qty: @acc.Quantity)</li>
+            }
+        </tbody>
+    </div>
+</div>
