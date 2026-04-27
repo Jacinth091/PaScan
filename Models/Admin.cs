@@ -20,6 +20,9 @@ public class Admin : BaseEntity
     [StringLength(50, ErrorMessage = "Middle name cannot exceed 50 characters.")]
     public string? MiddleName { get; set; }
 
+    [StringLength(100, ErrorMessage = "Position cannot exceed 100 characters.")]
+    public string? Position { get; set; }
+
     [StringLength(100, ErrorMessage = "Department name cannot exceed 100 characters.")]
     public string? Department { get; set; }
 
