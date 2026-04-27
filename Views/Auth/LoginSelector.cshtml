@@ -13,17 +13,17 @@
             </p>
 
             <div class="auth-role-grid" aria-label="Login options">
-                <a class="auth-role-card" href="/api/auth/login/student">
+                <a class="auth-role-card" asp-controller="Auth" asp-action="StudentLogin">
                     <span class="auth-role-title">Student Login</span>
                     <span class="auth-role-note">Use student number and password</span>
                 </a>
 
-                <a class="auth-role-card" href="/api/auth/login/admin">
+                <a class="auth-role-card" asp-controller="Auth" asp-action="AdminLogin">
                     <span class="auth-role-title">Admin Login</span>
                     <span class="auth-role-note">Use admin email and password</span>
                 </a>
 
-                <a class="auth-role-card" href="/api/auth/login/scanner">
+                <a class="auth-role-card" asp-controller="Auth" asp-action="ScannerLogin">
                     <span class="auth-role-title">Scanner Login</span>
                     <span class="auth-role-note">Use scanner account credentials</span>
                 </a>
