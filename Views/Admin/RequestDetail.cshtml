@@ -1,0 +1,154 @@
+@model PaScan.Models.ViewModels.AdminRequestDetailViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Review Request";
+    var req = Model.Request;
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">Review Device Request</h2>
+            <p class="text-muted small">Submitted on @req.SubmittedAt.ToString("MMMM dd, yyyy HH:mm")</p>
+        </div>
+        <a asp-action="Requests" class="btn btn-sm btn-link text-decoration-none">
+            <i class="bi bi-arrow-left"></i> Back to Queue
+        </a>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <!-- Student Information -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4 border-bottom pb-2">Student Information</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Name</label>
+                            <p class="fw-bold mb-0">@req.StudentName</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small text-uppercase fw-bold d-block">ID Number</label>
+                            <p class="fw-bold mb-0">@req.StudentNumber</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Course</label>
+                            <p class="fw-bold mb-0">@req.CourseName</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Device Information -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4 border-bottom pb-2">Device Details</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Device Type</label>
+                            <p class="fw-bold mb-0 fs-5 text-primary">@req.DeviceType</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Brand / Model</label>
+                            <p class="fw-bold mb-0">@req.Brand @req.Model</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Device Name</label>
+                            <p class="mb-0">@req.DeviceName</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Serial Number</label>
+                            <p class="fw-bold mb-0 font-monospace">@req.SerialNumber</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 border-top pt-3">
+                        <div class="col-md-4">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Processor</label>
+                            <p class="small mb-0">@(req.Processor ?? "N/A")</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Storage</label>
+                            <p class="small mb-0">@(req.Storage ?? "N/A")</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Memory</label>
+                            <p class="small mb-0">@(req.Memory ?? "N/A")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accessories -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4 border-bottom pb-2">Accessories</h5>
+                    @if (req.Accessories.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var acc in req.Accessories)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <span>@acc.AccessoryName</span>
+                                    <span class="badge bg-secondary rounded-pill">x@acc.Quantity</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No accessories listed.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 sticky-top" style="top: 2rem;">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4">Decision</h5>
+                    
+                    @if (req.Status == PaScan.Enums.RegisterStatus.PENDING)
+                    {
+                        <form asp-action="Approve" asp-route-id="@req.Id" method="post" class="mb-3">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-success w-100 py-2 fw-bold rounded-pill shadow-sm">
+                                <i class="bi bi-check-circle me-1"></i> Approve & Issue QR
+                            </button>
+                        </form>
+
+                        <div class="border-top pt-4 mt-4 text-center">
+                            <h6 class="text-danger mb-3">Reject Request</h6>
+                            <form asp-action="Reject" asp-route-id="@req.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <div class="mb-3">
+                                    <textarea name="rejectionReason" class="form-control form-control-sm" placeholder="Reason for rejection..." required style="min-height: 100px;"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100 rounded-pill">
+                                    Reject Request
+                                </button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <div class="mb-2">This request has been processed.</div>
+                            <span class="badge @(req.Status == PaScan.Enums.RegisterStatus.APPROVED ? "bg-success" : "bg-danger") fs-6 px-3">
+                                @req.Status
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

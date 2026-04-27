@@ -1,0 +1,57 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "System Settings";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">System Settings</h2>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 border-top border-danger border-4">
+                <div class="card-body p-4">
+                    <h5 class="card-title text-danger mb-3">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> End Academic Year
+                    </h5>
+                    <p class="text-muted mb-4">
+                        This action will expire all currently <strong>ACTIVE</strong> devices, QR tokens, and RFID cards across the entire campus.
+                        This should only be done at the very end of the school year, prior to the new enrollment/registration period.
+                    </p>
+                    
+                    <div class="bg-light p-4 rounded mb-4">
+                        <ul class="mb-0 text-muted small">
+                            <li>All <code>ACTIVE</code> Devices will become <code>EXPIRED</code>.</li>
+                            <li>All <code>ACTIVE</code> QR Tokens will become <code>EXPIRED</code>.</li>
+                            <li>All <code>ACTIVE</code> RFID Cards will become <code>EXPIRED</code>.</li>
+                            <li>Students will need to click "Renew Device" to trigger an admin re-verification.</li>
+                        </ul>
+                    </div>
+
+                    <form asp-action="EndAcademicYear" method="post" onsubmit="return confirm('DANGER: Are you absolutely sure you want to END THE ACADEMIC YEAR? This will expire all active devices and tokens. This action cannot be undone.');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-danger fw-bold px-4 py-2">
+                            End Academic Year
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

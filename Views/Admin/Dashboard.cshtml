@@ -1,0 +1,173 @@
+@model PaScan.Models.ViewModels.AdminDashboardViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Administrative Overview</h2>
+        <span class="text-muted small">@DateTime.Now.ToString("dddd, MMMM dd, yyyy")</span>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3 h-100">
+                <div class="text-warning mb-2"><i class="bi bi-clock-history fs-2"></i></div>
+                <h3 class="fw-bold mb-0">@Model.PendingRequestCount</h3>
+                <p class="text-muted small mb-2">Pending Requests</p>
+                <a asp-action="Requests" class="btn btn-sm btn-outline-warning rounded-pill">View Queue</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3 h-100">
+                <div class="text-success mb-2"><i class="bi bi-laptop fs-2"></i></div>
+                <h3 class="fw-bold mb-0">@Model.ActiveDeviceCount</h3>
+                <p class="text-muted small mb-0">Active Devices</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3 h-100">
+                <div class="text-primary mb-2"><i class="bi bi-people fs-2"></i></div>
+                <h3 class="fw-bold mb-0">@Model.TotalStudentCount</h3>
+                <p class="text-muted small mb-0">Total Students</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3 h-100">
+                <div class="text-info mb-2"><i class="bi bi-qr-code-scan fs-2"></i></div>
+                <h3 class="fw-bold mb-0">@Model.TodayScanCount</h3>
+                <p class="text-muted small mb-0">Today's Scans</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Recent Requests -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Pending Requests</h5>
+                    <a asp-action="Requests" class="small text-decoration-none">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @if (Model.RecentPendingRequests.Any())
+                        {
+                            @foreach (var req in Model.RecentPendingRequests)
+                            {
+                                <div class="list-group-item py-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">@req.StudentName</h6>
+                                            <p class="small text-muted mb-0">@req.Brand @req.Model (@req.DeviceType)</p>
+                                        </div>
+                                        <a asp-action="RequestDetail" asp-route-id="@req.Id" class="btn btn-sm btn-light border rounded-pill px-3">Review</a>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="p-4 text-center text-muted">No pending requests</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Health / Scanners -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Active Scanners</h5>
+                    <a asp-action="Scanners" class="small text-decoration-none">Manage</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @if (Model.ActiveScanners.Any())
+                        {
+                            @foreach (var scanner in Model.ActiveScanners)
+                            {
+                                <div class="list-group-item py-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">@scanner.Name</h6>
+                                            <p class="small text-muted mb-0">@scanner.Location &bull; @scanner.ScannerType</p>
+                                        </div>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">ACTIVE</span>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="p-4 text-center text-muted">No active scanners</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Logs -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="mb-0">Recent Gate Activity</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th class="ps-4">Student</th>
+                                <th>Device</th>
+                                <th>Scanner</th>
+                                <th>Time</th>
+                                <th class="text-end pe-4">Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RecentScanLogs.Any())
+                            {
+                                @foreach (var log in Model.RecentScanLogs)
+                                {
+                                    <tr>
+                                        <td class="ps-4">@log.StudentName</td>
+                                        <td>@log.DeviceName <span class="badge bg-light text-dark small border">@log.ScanType</span></td>
+                                        <td>@log.ScannerName</td>
+                                        <td>@log.ScannedAt.ToString("HH:mm")</td>
+                                        <td class="text-end pe-4">
+                                            @if (log.IsAllowed)
+                                            {
+                                                <span class="badge bg-success">ALLOWED</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger" title="@log.DenialReason">DENIED</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">No scan logs today</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

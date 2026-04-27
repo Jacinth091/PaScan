@@ -1,0 +1,101 @@
+@model PaScan.Models.ViewModels.AdminRfidListViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "RFID Management";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">RFID Master List</h2>
+        <span class="text-muted small">@Model.RfidCards.Count Total Issued Cards</span>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Card UID</th>
+                        <th>Student / Owner</th>
+                        <th>Issued At</th>
+                        <th>Semester Expiry</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.RfidCards.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <p class="mb-0">No RFID cards issued yet.</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var card in Model.RfidCards)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <span class="font-monospace fw-bold">@card.CardUid</span>
+                                </td>
+                                <td>
+                                    @if (card.Student != null)
+                                    {
+                                        <a asp-action="StudentDetail" asp-route-id="@card.StudentId" class="text-decoration-none fw-bold">
+                                            @card.Student.FirstName @card.Student.LastName
+                                        </a>
+                                        <div class="small text-muted">@card.Student.StudentNumber</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Orphaned Card</span>
+                                    }
+                                </td>
+                                <td>@card.IssuedAt.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @card.SemesterExpiresAt.ToString("MMM dd, yyyy")
+                                    @if (card.SemesterExpiresAt < DateTime.UtcNow && card.Status == PaScan.Enums.TokenStatus.ACTIVE)
+                                    {
+                                        <span class="ms-1 text-danger small" title="Semester Expired"><i class="bi bi-exclamation-triangle"></i></span>
+                                    }
+                                </td>
+                                <td>
+                                    @switch (card.Status)
+                                    {
+                                        case PaScan.Enums.TokenStatus.ACTIVE:
+                                            <span class="badge bg-success">ACTIVE</span>
+                                            break;
+                                        case PaScan.Enums.TokenStatus.REVOKED:
+                                            <span class="badge bg-danger">REVOKED</span>
+                                            break;
+                                        case PaScan.Enums.TokenStatus.EXPIRED:
+                                            <span class="badge bg-secondary">EXPIRED</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-dark">@card.Status</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="StudentDetail" asp-route-id="@card.StudentId" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                        Manage Owner
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
