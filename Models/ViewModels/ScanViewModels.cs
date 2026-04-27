@@ -10,6 +10,7 @@ public class QrScanResultViewModel
     public string? DenialReason { get; set; }
     public string? DeviceName { get; set; }
     public string? StudentName { get; set; }
+    public string? StudentNumber { get; set; }
 }
 
 public class RfidScanRequest
@@ -22,5 +23,6 @@ public class RfidScanResultViewModel
     public bool Allowed { get; set; }
     public string? DenialReason { get; set; }
     public string? StudentName { get; set; }
+    public string? StudentNumber { get; set; }
     public int DeviceCount { get; set; }
 }
