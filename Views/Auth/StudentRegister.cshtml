@@ -1,0 +1,98 @@
+@model PaScan.Models.ViewModels.StudentRegisterViewModel
+@{
+    ViewData["Title"] = "Student Registration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <h2>@ViewData["Title"]</h2>
+    
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <div asp-validation-summary="All"></div>
+        </div>
+    }
+
+    <form asp-controller="Auth" asp-action="StudentRegisterPost" method="post">
+        @Html.AntiForgeryToken()
+
+        <!-- Name Fields -->
+        <div class="row mb-3">
+            <div class="col">
+                <label asp-for="FirstName" class="form-label">First Name</label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label asp-for="MiddleName" class="form-label">Middle Name</label>
+                <input asp-for="MiddleName" class="form-control" />
+                <span asp-validation-for="MiddleName" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label asp-for="LastName" class="form-label">Last Name</label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Academic Info -->
+        <div class="row mb-3">
+            <div class="col">
+                <label asp-for="StudentNumber" class="form-label">Student Number</label>
+                <input asp-for="StudentNumber" class="form-control" />
+                <span asp-validation-for="StudentNumber" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label asp-for="CourseId" class="form-label">Course</label>
+                <select asp-for="CourseId" class="form-select">
+                    <option value="">-- Select Course --</option>
+                    @if (ViewBag.Courses != null)
+                    {
+                        @foreach (var course in ViewBag.Courses)
+                        {
+                            <option value="@course.Id">@course.Name</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="CourseId" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label asp-for="YearLevel" class="form-label">Year Level</label>
+                <input asp-for="YearLevel" type="number" min="1" max="6" class="form-control" />
+                <span asp-validation-for="YearLevel" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="row mb-3">
+            <div class="col">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" type="email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label asp-for="ContactNumber" class="form-label">Contact Number</label>
+                <input asp-for="ContactNumber" class="form-control" />
+                <span asp-validation-for="ContactNumber" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Password -->
+        <div class="row mb-3">
+            <div class="col">
+                <label asp-for="Password" class="form-label">Password</label>
+                <input asp-for="Password" type="password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Register</button>
+        <a asp-controller="Auth" asp-action="StudentLogin" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>
