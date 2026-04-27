@@ -27,7 +27,7 @@
 
 - Students **register their devices online** through a structured form
 - Admins **review and approve** requests from a web dashboard
-- Approved devices receive a **unique QR code** (valid 30 days) or use the student's **RFID school ID** (valid per semester)
+- Approved devices receive a **unique QR code** or use the student's **RFID school ID**, both valid for the entire school year.
 - At the gate, a **phone camera scans QR codes** or the **RFID hardware reader** taps the ID — both are autonomous, no guard needed
 - Every scan attempt is **logged** with full context
 
@@ -36,7 +36,7 @@
 |---|---|
 | Paper pink slip filled at gate | Online device registration form |
 | Guard manually checks slip | Autonomous gate scan (QR or RFID) |
-| No expiry or revocation | 30-day QR / semester RFID with renewal |
+| No expiry or revocation | Valid per school year with annual renewal |
 | No audit trail | Full scan log per device per event |
 | Slips can be lost or faked | Unique token per device, admin-controlled |
 
