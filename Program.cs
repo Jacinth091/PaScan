@@ -12,14 +12,28 @@ DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews(options =>
-{
-    options.Conventions.Add(new ApiPrefixConvention("api"));
-});
+builder.Services.AddControllersWithViews();
 
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+// Repositories
+builder.Services.AddScoped<PaScan.Repositories.Interfaces.IDeviceRequestRepository, PaScan.Repositories.DeviceRequestRepository>();
+builder.Services.AddScoped<PaScan.Repositories.Interfaces.IDeviceRepository, PaScan.Repositories.DeviceRepository>();
+builder.Services.AddScoped<PaScan.Repositories.Interfaces.IStudentRepository, PaScan.Repositories.StudentRepository>();
+builder.Services.AddScoped<PaScan.Repositories.Interfaces.IQrTokenRepository, PaScan.Repositories.QrTokenRepository>();
+builder.Services.AddScoped<PaScan.Repositories.Interfaces.IRfidCardRepository, PaScan.Repositories.RfidCardRepository>();
+builder.Services.AddScoped<PaScan.Repositories.Interfaces.IScanLogRepository, PaScan.Repositories.ScanLogRepository>();
+builder.Services.AddScoped<PaScan.Repositories.Interfaces.IScannerRepository, PaScan.Repositories.ScannerRepository>();
+
+// Services
+builder.Services.AddScoped<PaScan.Services.Interfaces.IAuthService, PaScan.Services.AuthService>();
+builder.Services.AddScoped<PaScan.Services.Interfaces.IDeviceService, PaScan.Services.DeviceService>();
+builder.Services.AddScoped<PaScan.Services.Interfaces.IAdminService, PaScan.Services.AdminService>();
+builder.Services.AddScoped<PaScan.Services.Interfaces.IRfidService, PaScan.Services.RfidService>();
+builder.Services.AddScoped<PaScan.Services.Interfaces.IScanService, PaScan.Services.ScanService>();
+builder.Services.AddScoped<PaScan.Services.Interfaces.IQrTokenService, PaScan.Services.QrTokenService>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -28,8 +42,8 @@ builder.Services.AddAuthentication(options =>
     })
     .AddCookie("Cookies", options =>
     {
-        options.LoginPath = "/api/auth/login";
-        options.AccessDeniedPath = "/api/auth/access-denied";
+        options.LoginPath = "/auth/login";
+        options.AccessDeniedPath = "/auth/access-denied";
     })
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
@@ -77,10 +91,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "api",
-    pattern: "api/{controller}/{action}/{id?}");
-
-app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
@@ -93,31 +103,3 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
-
-public class ApiPrefixConvention : IApplicationModelConvention
-{
-    private readonly AttributeRouteModel _routePrefix;
-
-    public ApiPrefixConvention(string prefix)
-    {
-        _routePrefix = new AttributeRouteModel(new RouteAttribute(prefix));
-    }
-
-    public void Apply(ApplicationModel application)
-    {
-        foreach (var controller in application.Controllers)
-        {
-            // Optional: Skip HomeController to keep it at the root
-            if (controller.ControllerName == "Home") continue;
-
-            foreach (var selector in controller.Selectors)
-            {
-                if (selector.AttributeRouteModel != null)
-                {
-                    selector.AttributeRouteModel = AttributeRouteModel.CombineAttributeRouteModel(_routePrefix, selector.AttributeRouteModel);
-                }
-            }
-        }
-    }
-}
-
