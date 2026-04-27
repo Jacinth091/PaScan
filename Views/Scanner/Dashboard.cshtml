@@ -1,0 +1,186 @@
+@{
+    ViewData["Title"] = "Scanner Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-qr-code-scan"></i> Gate QR Scanner</h5>
+                    <span id="scannerStatus" class="badge bg-warning text-dark">Initializing...</span>
+                </div>
+                <div class="card-body text-center bg-light">
+                    <!-- Scanner Viewport -->
+                    <div id="videoContainer" class="position-relative d-inline-block rounded overflow-hidden" style="max-width: 100%; border: 3px solid #ccc; background-color: #000;">
+                        <video id="preview" style="width: 100%; max-width: 500px; height: auto; object-fit: cover;"></video>
+                        <canvas id="canvas" style="display:none;"></canvas>
+                        
+                        <div id="scanOverlay" class="position-absolute top-50 start-50 translate-middle text-white text-center" style="display: none; background: rgba(0,0,0,0.7); padding: 20px; border-radius: 10px; width: 80%;">
+                            <h3 id="scanResultStatus" class="mb-2"></h3>
+                            <p id="scanResultName" class="mb-1 fw-bold fs-5"></p>
+                            <p id="scanResultDevice" class="mb-0"></p>
+                            <p id="scanResultReason" class="mb-0 text-warning"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button id="btnStart" class="btn btn-success me-2"><i class="bi bi-play-fill"></i> Start Camera</button>
+                        <button id="btnStop" class="btn btn-danger" disabled><i class="bi bi-stop-fill"></i> Stop Camera</button>
+                    </div>
+                </div>
+                <div class="card-footer text-muted small text-center">
+                    Please ensure the camera has clear visibility of the QR Code.
+                </div>
+            </div>
+            
+            <div id="errorAlert" class="alert alert-danger mt-3" style="display: none;"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- jsQR Library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    
+    <script>
+        const video = document.getElementById("preview");
+        const canvasElement = document.getElementById("canvas");
+        const canvas = canvasElement.getContext("2d");
+        
+        const btnStart = document.getElementById("btnStart");
+        const btnStop = document.getElementById("btnStop");
+        const scannerStatus = document.getElementById("scannerStatus");
+        const scanOverlay = document.getElementById("scanOverlay");
+        const errorAlert = document.getElementById("errorAlert");
+        
+        let scanning = false;
+        let scanPaused = false; // Pause after a successful scan
+        
+        function updateStatus(text, bgClass) {
+            scannerStatus.textContent = text;
+            scannerStatus.className = `badge ${bgClass}`;
+        }
+        
+        btnStart.addEventListener("click", () => {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.setAttribute("playsinline", true); // required for iOS Safari
+                    video.play();
+                    
+                    scanning = true;
+                    scanPaused = false;
+                    requestAnimationFrame(tick);
+                    
+                    btnStart.disabled = true;
+                    btnStop.disabled = false;
+                    updateStatus("Scanning Active", "bg-success");
+                    scanOverlay.style.display = "none";
+                    errorAlert.style.display = "none";
+                })
+                .catch(function(err) {
+                    updateStatus("Camera Error", "bg-danger");
+                    errorAlert.textContent = "Could not access camera: " + err.message;
+                    errorAlert.style.display = "block";
+                });
+        });
+        
+        btnStop.addEventListener("click", () => {
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            scanning = false;
+            btnStart.disabled = false;
+            btnStop.disabled = true;
+            updateStatus("Stopped", "bg-secondary");
+            scanOverlay.style.display = "none";
+        });
+        
+        function tick() {
+            if (!scanning) return;
+            
+            if (video.readyState === video.HAVE_ENOUGH_DATA && !scanPaused) {
+                canvasElement.height = video.videoHeight;
+                canvasElement.width = video.videoWidth;
+                canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+                
+                var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                var code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+                
+                if (code) {
+                    processScan(code.data);
+                }
+            }
+            
+            requestAnimationFrame(tick);
+        }
+        
+        function processScan(tokenValue) {
+            scanPaused = true;
+            updateStatus("Processing...", "bg-warning text-dark");
+            
+            fetch('/scan/qr', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tokenValue: tokenValue })
+            })
+            .then(async res => {
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    throw new Error(errorData.error || `Server returned ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(data => {
+                showScanResult(data);
+                
+                // Resume scanning after 3 seconds
+                setTimeout(() => {
+                    scanOverlay.style.display = "none";
+                    if (scanning) {
+                        scanPaused = false;
+                        updateStatus("Scanning Active", "bg-success");
+                    }
+                }, 3000);
+            })
+            .catch(err => {
+                showScanResult({ allowed: false, denialReason: 'NETWORK_ERROR', studentName: err.message || 'Error connecting to server' });
+                setTimeout(() => {
+                    scanOverlay.style.display = "none";
+                    if (scanning) {
+                        scanPaused = false;
+                        updateStatus("Scanning Active", "bg-success");
+                    }
+                }, 3000);
+            });
+        }
+        
+        function showScanResult(data) {
+            scanOverlay.style.display = "block";
+            const statusEl = document.getElementById("scanResultStatus");
+            
+            document.getElementById("scanResultName").textContent = data.studentName || "Unknown Student";
+            document.getElementById("scanResultDevice").textContent = data.deviceName || "";
+            document.getElementById("scanResultReason").textContent = data.denialReason || "";
+            
+            if (data.allowed) {
+                scanOverlay.style.background = "rgba(40, 167, 69, 0.9)";
+                statusEl.innerHTML = '<i class="bi bi-check-circle-fill"></i> ACCESS GRANTED';
+                updateStatus("Granted", "bg-success");
+            } else {
+                scanOverlay.style.background = "rgba(220, 53, 69, 0.9)";
+                statusEl.innerHTML = '<i class="bi bi-x-circle-fill"></i> ACCESS DENIED';
+                updateStatus("Denied", "bg-danger");
+            }
+        }
+        
+        // Auto-start if ready
+        updateStatus("Ready to Start", "bg-primary");
+    </script>
+}
