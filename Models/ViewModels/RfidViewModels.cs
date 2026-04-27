@@ -8,7 +8,7 @@ namespace PaScan.Models.ViewModels;
 public class IssueRfidViewModel
 {
     public Guid StudentId { get; set; }
-    public string StudentName { get; set; } = null!;
+    public string? StudentName { get; set; }
 
     [Required(ErrorMessage = "Card UID is required.")]
     [StringLength(50, ErrorMessage = "Card UID cannot exceed 50 characters.")]
