@@ -41,8 +41,8 @@ public class RFIDCard : BaseEntity
     public InvalidationReason? InvalidationReason { get; set; }
 
     // Navigation
-    public Student Student { get; set; } = null!;
-    public Admin AdminIssuer { get; set; } = null!;
+    public Student? Student { get; set; }
+    public Admin? AdminIssuer { get; set; }
     public Admin? AdminInvalidator { get; set; }
     public ICollection<GateScanLog> GateScanLogs { get; set; } = new List<GateScanLog>();
 }
