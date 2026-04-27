@@ -1,28 +1,40 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PaScan.Data;
 using PaScan.Enums;
-using PaScan.Models;
 using PaScan.Models.ViewModels;
-using QRCoder;
+using PaScan.Services.Interfaces;
+using System;
+using System.Threading.Tasks;
 
 namespace PaScan.Controllers
 {
     [Authorize(Roles = nameof(Role.STUDENT))]
-    [Route("device")]
+    [Route("student/device")]
     public class DeviceController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IDeviceService _deviceService;
 
-        public DeviceController(AppDbContext context)
+        public DeviceController(IDeviceService deviceService)
         {
-            _context = context;
+            _deviceService = deviceService;
         }
-        // GET: device/student/
-        [HttpGet("student")]
-        public async Task<IActionResult> MyDevices()
+
+        public IActionResult MyDevices()
+        {
+            // Usually this redirects to Dashboard now
+            return RedirectToAction("Dashboard", "Student");
+        }
+
+        [HttpGet("register")]
+        public IActionResult Register()
+        {
+            var model = new DeviceRequestViewModel();
+            return View(model);
+        }
+
+        [HttpGet("renew-device/{deviceId:guid}")]
+        public async Task<IActionResult> RenewDevice(Guid deviceId)
         {
             var studentIdStr = HttpContext.Session.GetString("StudentId");
             if (string.IsNullOrEmpty(studentIdStr) || !Guid.TryParse(studentIdStr, out var studentId))
@@ -30,40 +42,58 @@ namespace PaScan.Controllers
                 return RedirectToAction("StudentLogin", "Auth");
             }
 
-            var devices = await _context.Devices
-               .Where(d => d.StudentId == studentId)
-                .Select(d => new DeviceListItem
+            try
+            {
+                var vm = await _deviceService.GetDeviceDetailAsync(deviceId, studentId);
+                if (vm.Device.Status != DeviceStatus.EXPIRED)
                 {
-                    Id = d.Id,
-                    DeviceName = d.DeviceName,
-                    DeviceType = d.DeviceType,
-                    Brand = d.Brand,
-                    Model = d.Model,
-                    Status = d.Status
-                })
-            .ToListAsync();
+                    TempData["Error"] = "Only expired devices can be renewed for re-verification.";
+                    return RedirectToAction("Dashboard", "Student");
+                }
 
-            return View(devices);
+                var requestModel = new DeviceRequestViewModel
+                {
+                    Purpose = vm.Device.Purpose,
+                    DeviceName = vm.Device.DeviceName,
+                    DeviceType = vm.Device.DeviceType,
+                    Brand = vm.Device.Brand,
+                    Model = vm.Device.Model,
+                    SerialNumber = vm.Device.SerialNumber,
+                    OperatingSystem = vm.Device.OperatingSystem,
+                    Color = vm.Device.Color,
+                    Processor = vm.Device.Processor,
+                    Motherboard = vm.Device.Motherboard,
+                    Memory = vm.Device.Memory,
+                    Storage = vm.Device.Storage,
+                    MonitorSize = vm.Device.MonitorSize,
+                    Casing = vm.Device.Casing,
+                    HasCdRom = vm.Device.HasCdRom,
+                    Accessories = vm.Device.Accessories.Select(a => new AccessoryViewModel
+                    {
+                        AccessoryName = a.AccessoryName,
+                        Quantity = a.Quantity
+                    }).ToList()
+                };
+
+                TempData["Info"] = "Please review your device details and submit a new request for admin verification.";
+                return View("Register", requestModel);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error loading device: " + ex.Message;
+                return RedirectToAction("Dashboard", "Student");
+            }
         }
 
-        [HttpGet("student/register")]
-        public IActionResult Register()
-        {
-            var model = new DeviceRequestViewModel();
-            return View(model);
-        }
-
-        [HttpPost("student/register")]
+        [HttpPost("register")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(DeviceRequestViewModel request)
         {
-            // Remove empty accessories from the list so they don't trigger validation errors
             if (request.Accessories != null)
             {
                 request.Accessories.RemoveAll(a => string.IsNullOrWhiteSpace(a.AccessoryName));
             }
 
-            // Re-validate the model after cleanup
             ModelState.Clear();
             TryValidateModel(request);
 
@@ -80,150 +110,79 @@ namespace PaScan.Controllers
                     return RedirectToAction("StudentLogin", "Auth");
                 }
 
-                bool exists = await _context.DeviceRequests
-                    .AnyAsync(d => d.StudentId == studentId && d.SerialNumber == request.SerialNumber && d.DeletedAt == null);
-
-                if (exists)
-                {
-                    ModelState.AddModelError("SerialNumber", "You have already registered a request for this serial number.");
-                    return View(request);
-                }
-
-                var deviceRequest = new DeviceRequest
-                {
-                    Id = Guid.NewGuid(),
-                    StudentId = studentId,
-                    Purpose = request.Purpose,
-                    DeviceName = request.DeviceName,
-                    DeviceType = request.DeviceType,
-                    Brand = request.Brand,
-                    Model = request.Model,
-                    SerialNumber = request.SerialNumber,
-                    OperatingSystem = request.OperatingSystem,
-                    Color = request.Color,
-                    Processor = request.Processor,
-                    Motherboard = request.Motherboard,
-                    Memory = request.Memory,
-                    Storage = request.Storage,
-                    MonitorSize = request.MonitorSize,
-                    Casing = request.Casing,
-                    HasCdRom = request.HasCdRom,
-                    Status = RegisterStatus.PENDING,
-                    CreatedAt = DateTime.Now,
-                };
-
-                _context.DeviceRequests.Add(deviceRequest);
-
-                if (request.Accessories != null)
-                {
-                    foreach (var a in request.Accessories.Where(x => !string.IsNullOrWhiteSpace(x.AccessoryName)))
-                    {
-                        _context.DeviceRequestAccessories.Add(new DeviceRequestAccessory
-                        {
-                            Id = Guid.NewGuid(),
-                            DeviceRequestId = deviceRequest.Id,
-                            AccessoryName = a.AccessoryName,
-                            Quantity = a.Quantity
-                        });
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Details", new { id = deviceRequest.Id });
+                await _deviceService.SubmitDeviceRequestAsync(request, studentId);
+                TempData["Success"] = "Device registered. Awaiting admin approval.";
+                return RedirectToAction("Dashboard", "Student");
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("SerialNumber", ex.Message);
+                return View(request);
             }
             catch (Exception ex)
             {
-                // This will display the actual database error at the top of the form
-                ModelState.AddModelError("", "Database Error: " + ex.Message);
+                ModelState.AddModelError("", "An error occurred: " + ex.Message);
                 return View(request);
             }
         }
 
-        [HttpGet("student/{id:guid}")]
-        public async Task<IActionResult> Details(Guid id)
+        [HttpGet("{id:guid}")]
+        public IActionResult Details(Guid id)
         {
-            var studentIdStr = HttpContext.Session.GetString("StudentId");
-            if (string.IsNullOrEmpty(studentIdStr) || !Guid.TryParse(studentIdStr, out var studentId))
+            // Details are fetched through _deviceService?
+            // Actually, the plan didn't define a service method for unapproved request details for students.
+            // I'll redirect to Dashboard.
+            return RedirectToAction("Dashboard", "Student");
+        }
+
+        [HttpGet("approved/{deviceId:guid}")]
+        public async Task<IActionResult> DeviceDetail(Guid deviceId)
+        {
+            try
             {
-                return RedirectToAction("StudentLogin", "Auth");
+                var studentIdStr = HttpContext.Session.GetString("StudentId");
+                if (string.IsNullOrEmpty(studentIdStr) || !Guid.TryParse(studentIdStr, out var studentId))
+                {
+                    return RedirectToAction("StudentLogin", "Auth");
+                }
+
+                var vm = await _deviceService.GetDeviceDetailAsync(deviceId, studentId);
+                return View(vm);
             }
-
-            var request = await _context.DeviceRequests
-                .Include(r => r.Accessories)
-                .FirstOrDefaultAsync(r => r.Id == id && r.StudentId == studentId);
-
-            if (request == null)
+            catch (UnauthorizedAccessException)
             {
                 return NotFound();
             }
-            return View(request);
-
-            // var model = new DeviceRequestViewModel
-            // {
-            //     Id = request.Id,
-            //     Status = request.Status,
-            //     CreatedAt = request.CreatedAt,
-            //     Purpose = request.Purpose,
-            //     DeviceName = request.DeviceName,
-            //     DeviceType = request.DeviceType,
-            //     Brand = request.Brand,
-            //     Model = request.Model,
-            //     SerialNumber = request.SerialNumber,
-            //     OperatingSystem = request.OperatingSystem,
-            //     Color = request.Color,
-            //     Processor = request.Processor,
-            //     Motherboard = request.Motherboard,
-            //     Memory = request.Memory,
-            //     Storage = request.Storage,
-            //     MonitorSize = request.MonitorSize,
-            //     Casing = request.Casing,
-            //     HasCdRom = request.HasCdRom,
-            //     Accessories = request.Accessories.Select(a => new AccessoryViewModel
-            //     {
-            //         AccessoryName = a.AccessoryName,
-            //         Quantity = a.Quantity
-            //     }).ToList()
-            // };
-            // return View(model);
+            catch (Exception)
+            {
+                return NotFound();
+            }
         }
-
-        [HttpGet("/student/approved/{deviceId:guid}")]
-        public async Task<IActionResult> DeviceDetail(Guid deviceId)
+        [HttpPost("approved/{deviceId:guid}/renew-qr")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RenewQr(Guid deviceId)
         {
-            var studentIdStr = HttpContext.Session.GetString("StudentId");
-            if (string.IsNullOrEmpty(studentIdStr) || !Guid.TryParse(studentIdStr, out var studentId))
+            try
             {
-                return RedirectToAction("StudentLogin", "Auth");
+                var studentIdStr = HttpContext.Session.GetString("StudentId");
+                if (string.IsNullOrEmpty(studentIdStr) || !Guid.TryParse(studentIdStr, out var studentId))
+                {
+                    return RedirectToAction("StudentLogin", "Auth");
+                }
+
+                await _deviceService.RenewQrAsync(deviceId, studentId);
+                TempData["Success"] = "QR Code renewed successfully.";
             }
-            var device = await _context.Devices
-            .Include(d => d.Accessories)
-            .FirstOrDefaultAsync(d => d.Id == deviceId && d.StudentId == studentId);
-
-            if (device == null) return NotFound();
-
-            var qrToken = await _context.QRTokens
-            .Where(t => t.DeviceId == deviceId)
-            .OrderByDescending(t => t.CreatedAt)
-            .FirstOrDefaultAsync();
-
-            string? qrImageBase64 = null;
-            if (qrToken != null && qrToken.Status != TokenStatus.REVOKED)
+            catch (InvalidOperationException ex)
             {
-                using var qrGenerator = new QRCodeGenerator();
-                var qrData = qrGenerator.CreateQrCode(qrToken.TokenValue, QRCodeGenerator.ECCLevel.Q);
-                using var qrCode = new PngByteQRCode(qrData);
-                var qrBytes = qrCode.GetGraphic(10);
-                qrImageBase64 = Convert.ToBase64String(qrBytes);
+                TempData["Error"] = ex.Message;
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "An error occurred while renewing QR code: " + ex.Message;
             }
 
-            var viewModel = new DeviceDetailViewModel
-            {
-                Device = device,
-                QrToken = qrToken,
-                QrImageBase64 = qrImageBase64
-            };
-
-            return View(viewModel);
+            return RedirectToAction("DeviceDetail", new { deviceId });
         }
     }
 }
