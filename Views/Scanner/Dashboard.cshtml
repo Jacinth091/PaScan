@@ -57,6 +57,16 @@
         
         let scanning = false;
         let scanPaused = false; // Pause after a successful scan
+
+        // Audio files
+        const successSound = new Audio('/assets/sounds/scanner-success.mp3');
+        const errorSound = new Audio('/assets/sounds/scanner-error.mp3');
+        
+        function playScanSound(isSuccess = true) {
+            const sound = isSuccess ? successSound : errorSound;
+            sound.currentTime = 0; // Reset to beginning for rapid scans
+            sound.play().catch(err => console.warn("Audio playback delayed or blocked:", err));
+        }
         
         function updateStatus(text, bgClass) {
             scannerStatus.textContent = text;
@@ -64,6 +74,10 @@
         }
         
         btnStart.addEventListener("click", () => {
+            // Warm up audio context for mobile/modern browsers
+            successSound.play().then(() => { successSound.pause(); successSound.currentTime = 0; }).catch(() => {});
+            errorSound.play().then(() => { errorSound.pause(); errorSound.currentTime = 0; }).catch(() => {});
+
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
                 .then(function(stream) {
                     video.srcObject = stream;
@@ -173,10 +187,12 @@
                 scanOverlay.style.background = "rgba(40, 167, 69, 0.9)";
                 statusEl.innerHTML = '<i class="bi bi-check-circle-fill"></i> ACCESS GRANTED';
                 updateStatus("Granted", "bg-success");
+                playScanSound(true);
             } else {
                 scanOverlay.style.background = "rgba(220, 53, 69, 0.9)";
                 statusEl.innerHTML = '<i class="bi bi-x-circle-fill"></i> ACCESS DENIED';
                 updateStatus("Denied", "bg-danger");
+                playScanSound(false);
             }
         }
         
