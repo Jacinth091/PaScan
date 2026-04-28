@@ -1,0 +1,537 @@
+@model PaScan.Models.ViewModels.StudentRegisterViewModel
+@{ ViewData["Title"] = "Create Account"; }
+
+<style>
+  @@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Inter:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black:       #000000;
+    --gray-f5:     #f5f5f7;
+    --ink:         #1d1d1f;
+    --blue:        #0071e3;
+    --blue-dark:   #0066cc;
+    --blue-light:  #2997ff;
+    --white:       #ffffff;
+    --gray-6e:     #6e6e73;
+    --border-soft: #d2d2d7;
+    --border-mid:  #86868b;
+    --graphite-a:  #272729;
+    --graphite-b:  #262629;
+    --graphite-c:  #28282b;
+    --graphite-d:  #2a2a2c;
+  }
+
+  html, body {
+    min-height: 100%;
+    background: var(--gray-f5);
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── Page shell ─── */
+  .reg-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--gray-f5);
+  }
+
+  /* ─── Main content area ─── */
+  .reg-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 52px 24px 0px;
+  }
+
+  .badge-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--blue);
+  }
+
+
+
+  /* ─── Big card ─── */
+  .reg-card {
+    width: 100%;
+    max-width: 720px;
+    background: var(--white);
+    border-radius: 20px;
+    border: 1px solid var(--border-soft);
+    box-shadow:
+      0 2px 4px rgba(0,0,0,0.04),
+      0 8px 40px rgba(0,0,0,0.07);
+    overflow: hidden;
+  }
+
+  /* ─── Card header strip ─── */
+  .card-header-strip {
+    background: var(--black);
+    padding: 28px 36px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-header-strip::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 90% 50%, rgba(0,113,227,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 10% 50%, rgba(41,151,255,0.10) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .header-step-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .step-circle.active {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: var(--white);
+  }
+
+  .step-circle.done {
+    background: rgba(0,113,227,0.25);
+    border-color: rgba(0,113,227,0.4);
+    color: var(--blue-light);
+  }
+
+  .step-connector {
+    width: 32px;
+    height: 1px;
+    background: rgba(255,255,255,0.12);
+    position: relative;
+  }
+
+  .step-label-group {
+    margin-left: auto;
+    position: relative;
+    z-index: 1;
+    text-align: right;
+  }
+
+  .step-label-main {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 25px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: -0.01em;
+  }
+
+  .step-label-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+  }
+
+  /* ─── Alerts ─── */
+  .alert-wrap {
+    padding: 0 36px;
+    margin-top: 24px;
+  }
+
+  .auth-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid;
+  }
+
+  .auth-alert--error {
+    background: rgba(255,59,48,0.06);
+    border-color: rgba(255,59,48,0.18);
+  }
+
+  .auth-alert--success {
+    background: rgba(52,199,89,0.06);
+    border-color: rgba(52,199,89,0.22);
+  }
+
+  .alert-icon {
+    font-size: 15px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .auth-alert--error .alert-icon { color: #ff3b30; }
+  .auth-alert--success .alert-icon { color: #34c759; }
+
+  .auth-alert strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .auth-alert p {
+    font-size: 13px;
+    color: var(--gray-6e);
+    line-height: 1.4;
+  }
+
+  /* ─── Form body ─── */
+  .card-body {
+    padding: 36px 36px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ─── Section label ─── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--border-mid);
+    margin-bottom: 14px;
+    margin-top: 28px;
+  }
+
+  .section-label:first-child { margin-top: 0; }
+
+  .section-divider {
+    height: 1px;
+    background: var(--border-soft);
+  }
+
+  /* ─── Field rows ─── */
+  .form-row {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .form-row-2 { grid-template-columns: 1fr 1fr; }
+  .form-row-1 { grid-template-columns: 1fr; }
+
+  /* ─── Field group ─── */
+  .cortex-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .cortex-input-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+  }
+
+  .cortex-input {
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-soft);
+    background: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .cortex-input::placeholder { color: var(--border-mid); font-size: 14px; }
+
+  .cortex-input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(0,113,227,0.13);
+  }
+
+  .cortex-input:hover:not(:focus) {
+    border-color: var(--border-mid);
+  }
+
+  /* Select custom arrow */
+  .select-input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2386868b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  /* Password strength row */
+  .password-hint {
+    font-size: 12px;
+    color: var(--border-mid);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  /* ─── Card footer ─── */
+  .card-footer-strip {
+    background: var(--gray-f5);
+    border-top: 1px solid var(--border-soft);
+    padding: 24px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .footer-left {
+    font-size: 13px;
+    color: var(--gray-6e);
+    line-height: 1.5;
+  }
+
+  .footer-left a {
+    color: var(--blue-dark);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .footer-left a:hover { text-decoration: underline; }
+
+  .footer-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 18px;
+    border-radius: 980px;
+    border: 1px solid var(--border-soft);
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--gray-6e);
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--border-mid);
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 28px;
+    border-radius: 980px;
+    border: none;
+    background: var(--blue);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .btn-primary:hover  { background: var(--blue-dark); }
+  .btn-primary:active { transform: scale(0.97); }
+
+  .btn-primary svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+  }
+
+  /* ─── Responsive ─── */
+  @@media (max-width: 768px) {
+
+    .reg-main { padding: 36px 16px 60px; }
+
+    .card-header-strip { padding: 22px 24px; }
+    .step-connector { width: 20px; }
+
+    .card-body { padding: 24px 20px 20px; }
+    .alert-wrap { padding: 0 20px; }
+    .card-footer-strip { padding: 20px 20px; flex-direction: column; align-items: stretch; }
+    .footer-right { justify-content: flex-end; }
+
+    .form-row-3 { grid-template-columns: 1fr; }
+    .form-row-2 { grid-template-columns: 1fr; }
+  }
+
+  @@media (max-width: 480px) {
+    .step-label-group { display: none; }
+    .btn-primary { width: 100%; justify-content: center; }
+    .btn-ghost { font-size: 13px; }
+  }
+</style>
+
+<div class="reg-page">
+
+  <!-- ── Main content ── -->
+  <main class="reg-main">
+
+    <!-- ── Registration card ── -->
+    <div class="reg-card">
+
+      <!-- Dark header strip with title -->
+      <div class="card-header-strip" style="justify-content: flex-start; margin-left: 0;">
+        <div class="step-label-group" style="margin-left: 0; text-align: left;">
+          <div class="step-label-main">Create your account.</div>
+          <div class="step-label-sub">Register to manage your devices and access the student portal.</div>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      @if (!ViewData.ModelState.IsValid)
+      {
+        <div class="alert-wrap">
+          <div class="auth-alert auth-alert--error">
+            <span class="alert-icon">⚠</span>
+            <div>
+              <strong>Validation Error</strong>
+              <p>Please correct the highlighted errors below.</p>
+            </div>
+          </div>
+        </div>
+      }
+      @if (TempData["SuccessMessage"] != null)
+      {
+        <div class="alert-wrap">
+          <div class="auth-alert auth-alert--success">
+            <span class="alert-icon">✓</span>
+            <div>
+              <strong>Success</strong>
+              <p>@TempData["SuccessMessage"]</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Form -->
+      <form method="post" class="card-body">
+
+        <!-- Personal info section -->
+        <p class="section-label">Personal Information</p>
+
+        <div class="form-row form-row-3">
+          <div class="cortex-input-group">
+            <label for="firstName">First Name</label>
+            <input class="cortex-input" id="firstName" name="FirstName" placeholder="First name" autocomplete="given-name" required />
+          </div>
+          <div class="cortex-input-group">
+            <label for="lastName">Last Name</label>
+            <input class="cortex-input" id="lastName" name="LastName" placeholder="Last name" autocomplete="family-name" required />
+          </div>
+          <div class="cortex-input-group">
+            <label for="middleName">Middle Name</label>
+            <input class="cortex-input" id="middleName" name="MiddleName" placeholder="Middle name (optional)" autocomplete="additional-name" />
+          </div>
+        </div>
+
+        <div class="form-row form-row-3">
+          <div class="cortex-input-group">
+            <label for="studentNumber">Student ID</label>
+            <input class="cortex-input" id="studentNumber" name="StudentNumber" placeholder="e.g. 2024-00001" autocomplete="off" required />
+          </div>
+          <div class="cortex-input-group">
+            <label for="courseId">Course</label>
+            <select class="cortex-input select-input" id="courseId" name="CourseId" required>
+              <option value="">Select a course</option>
+              @if (ViewBag.Courses != null)
+              {
+                foreach (var c in ViewBag.Courses)
+                {
+                  <option value="@c.Id">@c.Code — @c.Name</option>
+                }
+              }
+            </select>
+          </div>
+          <div class="cortex-input-group">
+            <label for="contactNo">Contact No.</label>
+            <input class="cortex-input" id="contactNo" name="ContactNo" type="tel" placeholder="e.g. 09XX XXX XXXX" autocomplete="tel" required />
+          </div>
+        </div>
+
+        <div class="form-row form-row-1">
+          <div class="cortex-input-group">
+            <label for="email">Email Address</label>
+            <input class="cortex-input" id="email" name="Email" type="email" placeholder="you@school.edu" autocomplete="email" required />
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="section-divider"></div>
+
+        <!-- Security section -->
+        <p class="section-label" style="margin-top: 24px;">Security</p>
+
+        <div class="form-row form-row-2">
+          <div class="cortex-input-group">
+            <label for="password">Password</label>
+            <input class="cortex-input" id="password" name="Password" type="password" placeholder="••••••••" autocomplete="new-password" required />
+            <span class="password-hint">At least 8 characters.</span>
+          </div>
+          <div class="cortex-input-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input class="cortex-input" id="confirmPassword" name="ConfirmPassword" type="password" placeholder="••••••••" autocomplete="new-password" required />
+          </div>
+        </div>
+
+      <!-- Card footer with CTAs -->
+      <div class="card-footer-strip" style=" border-radius: 0 0 20px 20px;">
+        <div class="footer-left">
+          Already registered?<br>
+          <a href="/api/auth/login/student">Sign in to your account →</a>
+        </div>
+        <div class="footer-right">
+          <a href="/api/auth/login" class="btn-ghost">← Other Portals</a>
+          <button class="btn-primary" type="submit">
+            Create Account
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      </form>
+  </main>
+</div>

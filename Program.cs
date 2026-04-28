@@ -18,6 +18,12 @@ builder.Services.AddControllersWithViews(options =>
 });
 
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString) || connectionString.StartsWith("REPLACE_WITH", StringComparison.OrdinalIgnoreCase))
+{
+    throw new InvalidOperationException(
+        "Database connection string is not configured. Set DATABASE_URL or ConnectionStrings:DefaultConnection in appsettings.json.");
+}
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 

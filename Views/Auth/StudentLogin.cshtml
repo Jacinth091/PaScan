@@ -1,8 +1,562 @@
 @{ ViewData["Title"] = "Student Login"; }
-<h2>Student Login</h2>
-@if (ViewBag.Error != null) { <p style="color:red">@ViewBag.Error</p> }
-<form method="post">
-    <input name="studentNumber" placeholder="Student Number" required />
-    <input name="password" type="password" placeholder="Password" required />
-    <button type="submit">Login</button>
-</form>
+
+<style>
+  @@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black:       #000000;
+    --gray-f5:     #f5f5f7;
+    --ink:         #1d1d1f;
+    --blue:        #0071e3;
+    --blue-dark:   #0066cc;
+    --blue-light:  #2997ff;
+    --white:       #ffffff;
+    --gray-6e:     #6e6e73;
+    --border-soft: #d2d2d7;
+    --border-mid:  #86868b;
+    --graphite-a:  #272729;
+    --graphite-b:  #262629;
+    --graphite-c:  #28282b;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--black);
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Page shell ── */
+  .auth-page {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* ── Left: cinematic showcase panel ── */
+  .auth-showcase {
+    position: relative;
+    background: var(--black);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 56px;
+    overflow: hidden;
+  }
+
+  .auth-showcase::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 30% 20%, rgba(0,113,227,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(41,151,255,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .showcase-wordmark {
+    position: absolute;
+    top: 48px;
+    left: 56px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .wordmark-dot {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--blue);
+  }
+
+  .wordmark-text {
+    font-family: 'Inter Tight', 'Helvetica Neue', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: 0.02em;
+    opacity: 0.9;
+  }
+
+  /* Abstract device illustration */
+  .showcase-visual {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -54%);
+    width: 320px;
+    height: 320px;
+    opacity: 0.9;
+  }
+
+  .device-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.06);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+  }
+  .device-ring:nth-child(1) { width: 180px; height: 180px; border-color: rgba(0,113,227,0.35); }
+  .device-ring:nth-child(2) { width: 300px; height: 300px; border-color: rgba(255,255,255,0.08); }
+  .device-ring:nth-child(3) { width: 380px; height: 380px; border-color: rgba(255,255,255,0.05); }
+  .device-ring:nth-child(4) { width: 480px; height: 480px; border-color: rgba(255,255,255,0.03); }
+
+  .device-core {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 72px; height: 72px;
+    border-radius: 22px;
+    background: var(--graphite-a);
+    border: 1px solid rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 40px rgba(0,113,227,0.2), 0 0 80px rgba(0,113,227,0.08);
+  }
+
+  .device-core svg {
+    width: 28px; height: 28px;
+    color: var(--blue-light);
+    stroke: currentColor;
+  }
+
+  /* orbit dots */
+  .orbit-dot {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--blue);
+    top: 50%; left: 50%;
+    animation: orbit 8s linear infinite;
+    will-change: transform;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  .orbit-dot:nth-child(6) { animation-delay: -4s; opacity: 0.5; }
+
+  @@keyframes orbit {
+    from { transform: rotate(0deg) translateX(100px) rotate(0deg); }
+    to   { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
+  }
+
+  .showcase-copy {
+    position: relative;
+    z-index: 2;
+  }
+
+  .showcase-eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue-light);
+    margin-bottom: 16px;
+  }
+
+  .showcase-headline {
+    font-family: 'Inter Tight', 'Helvetica Neue', sans-serif;
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--white);
+    margin-bottom: 20px;
+  }
+
+  .showcase-headline span {
+    color: var(--blue-light);
+  }
+
+  .showcase-body {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.47;
+    color: var(--gray-6e);
+    max-width: 340px;
+  }
+
+  .showcase-pills {
+    display: flex;
+    gap: 8px;
+    margin-top: 32px;
+  }
+
+  .showcase-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 980px;
+    border: 1px solid rgba(255,255,255,0.12);
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.01em;
+  }
+
+  /* ── Right: commerce / form panel ── */
+  .auth-form-panel {
+    background: var(--gray-f5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 500px;
+    background: var(--white);
+    border-radius: 18px;
+    border: 1px solid var(--border-soft);
+    padding: 44px 40px 40px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.06);
+  }
+
+  /* Brand icon */
+  .card-icon {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    background: var(--black);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 28px;
+  }
+
+  .card-icon svg {
+    width: 20px; height: 20px;
+    stroke: var(--white);
+  }
+
+  /* Header */
+  .card-title {
+    font-family: 'Inter Tight', 'Helvetica Neue', sans-serif;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.14;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .card-subtitle {
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--gray-6e);
+    margin-bottom: 32px;
+    line-height: 1.47;
+  }
+
+  /* Error alert */
+  .auth-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    background: rgba(255,59,48,0.06);
+    border: 1px solid rgba(255,59,48,0.18);
+  }
+
+  .alert-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: #ff3b30;
+  }
+
+  .auth-alert strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .auth-alert p {
+    font-size: 13px;
+    color: var(--gray-6e);
+    line-height: 1.4;
+  }
+
+  /* Form */
+  .login-form { display: flex; flex-direction: column; gap: 16px; }
+
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .field-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .input-wrap svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px; height: 16px;
+    stroke: var(--border-mid);
+    pointer-events: none;
+    transition: stroke 0.15s;
+  }
+
+  .cortex-input {
+    width: 100%;
+    padding: 12px 14px 12px 42px;
+    border-radius: 10px;
+    border: 1px solid var(--border-soft);
+    background: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -webkit-appearance: none;
+  }
+
+  .cortex-input::placeholder { color: var(--border-mid); }
+
+  .cortex-input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
+  }
+
+  .cortex-input:focus + svg,
+  .input-wrap:has(.cortex-input:focus) svg {
+    stroke: var(--blue);
+  }
+
+  /* Workaround for older browsers without :has() */
+  .cortex-input:focus ~ svg { stroke: var(--blue); }
+
+  .field-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2px;
+  }
+
+  .forgot-link {
+    font-size: 12px;
+    color: var(--blue-dark);
+    text-decoration: none;
+    font-weight: 400;
+  }
+
+  .forgot-link:hover { text-decoration: underline; }
+
+  /* Submit button */
+  .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    border-radius: 980px;
+    border: none;
+    background: var(--blue);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .btn-primary:hover  { background: var(--blue-dark); }
+  .btn-primary:active { transform: scale(0.98); background: #005bbf; }
+
+  /* Divider */
+  .card-divider {
+    height: 1px;
+    background: var(--border-soft);
+    margin: 28px 0;
+  }
+
+  /* Footer */
+  .card-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .card-footer p {
+    font-size: 14px;
+    color: var(--gray-6e);
+  }
+
+  .card-footer p a {
+    color: var(--blue-dark);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .card-footer p a:hover { text-decoration: underline; }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--gray-6e);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 980px;
+    border: 1px solid var(--border-soft);
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .back-link:hover { color: var(--ink); border-color: var(--border-mid);  text-decoration: none; }
+
+  /* ── Responsive: stack on mobile ── */
+  @@media (max-width: 768px) {
+    .auth-page { grid-template-columns: 1fr; }
+    .auth-showcase { display: none; }
+    .auth-form-panel {
+      min-height: 100vh;
+      background: var(--black);
+      padding: 24px 20px;
+    }
+    .auth-card {
+      border-color: rgba(255,255,255,0.08);
+      background: var(--graphite-a);
+      box-shadow: none;
+    }
+    .card-title, .field-group label { color: var(--white); }
+    .card-subtitle { color: var(--gray-6e); }
+    .cortex-input {
+      background: var(--graphite-b);
+      border-color: rgba(255,255,255,0.12);
+      color: var(--white);
+    }
+    .cortex-input::placeholder { color: rgba(255,255,255,0.25); }
+    .cortex-input:focus { border-color: var(--blue-light); box-shadow: 0 0 0 3px rgba(41,151,255,0.15); }
+    .card-divider { background: rgba(255,255,255,0.08); }
+    .card-footer p { color: rgba(255,255,255,0.4); }
+    .back-link { color: rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.12); }
+    .back-link:hover { color: var(--white); }
+  }
+</style>
+
+<div class="auth-page">
+
+  <!-- ── Left: Cinematic showcase ── -->
+  <div class="auth-showcase">
+    <div class="showcase-wordmark">
+      <div class="wordmark-dot"></div>
+      <span class="wordmark-text">PaScan</span>
+    </div>
+
+    <div class="showcase-visual">
+      <div class="device-ring"></div>
+      <div class="device-ring"></div>
+      <div class="device-ring"></div>
+      <div class="device-ring"></div>
+      <div class="device-core">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div class="orbit-dot"></div>
+      <div class="orbit-dot"></div>
+    </div>
+
+    <div class="showcase-copy">
+      <p class="showcase-eyebrow">Student Portal</p>
+      <h1 class="showcase-headline">Manage your<br><span>devices.</span><br>Anywhere.</h1>
+      <p class="showcase-body">One place for all your registered devices, support requests, and account settings.</p>
+      <div class="showcase-pills">
+        <div class="showcase-pill">Device Tracking</div>
+        <div class="showcase-pill">Secure Access</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Right: Login form ── -->
+  <div class="auth-form-panel">
+    <div class="auth-card">
+      <div class="card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+
+      <h1 class="card-title">Sign in</h1>
+      <p class="card-subtitle">Student Portal</p>
+
+      @if (ViewBag.Error != null)
+      {
+        <div class="auth-alert">
+          <span class="alert-icon">⚠</span>
+          <div>
+            <strong>Login Failed</strong>
+            <p>@ViewBag.Error</p>
+          </div>
+        </div>
+      }
+
+      <form method="post" class="login-form">
+
+        <div class="field-group">
+          <label for="studentNumber">Student ID</label>
+          <div class="input-wrap">
+            <input
+              class="cortex-input"
+              id="studentNumber"
+              name="studentNumber"
+              placeholder="Student ID"
+              autocomplete="username"
+              required />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <input
+              class="cortex-input"
+              id="password"
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <div class="field-footer">
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+        </div>
+
+        <button class="btn-primary" type="submit">Sign In</button>
+      </form>
+
+      <div class="card-divider"></div>
+
+      <div class="card-footer">
+        <p>New student? <a href="/api/auth/register/student">Create account</a></p>
+        <a href="/api/auth/login" class="back-link">← Other Portals</a>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -58,6 +58,7 @@ public class AuthController : Controller
     [HttpGet("login/admin")]
     public IActionResult AdminLogin()
     {
+        ViewBag.RoleTitle = "Admin";
         return View();
     }
 
@@ -83,7 +84,8 @@ public class AuthController : Controller
     [HttpGet("login/scanner")]
     public IActionResult ScannerLogin()
     {
-        return View();
+        ViewBag.RoleTitle = "Scanner";
+        return View("AdminLogin");
     }
 
     [HttpPost("login/scanner")]
