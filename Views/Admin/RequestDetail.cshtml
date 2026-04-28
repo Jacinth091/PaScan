@@ -61,12 +61,18 @@
                             <p class="fw-bold mb-0">@req.Brand @req.Model</p>
                         </div>
                         <div class="col-md-6">
-                            <label class="text-muted small text-uppercase fw-bold d-block">Device Name</label>
+                             <label class="text-muted small text-uppercase fw-bold d-block">Device Name</label>
                             <p class="mb-0">@req.DeviceName</p>
                         </div>
                         <div class="col-md-6">
                             <label class="text-muted small text-uppercase fw-bold d-block">Serial Number</label>
                             <p class="fw-bold mb-0 font-monospace">@req.SerialNumber</p>
+                        </div>
+                        <div class="col-md-12 mt-3">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Declared Purpose</label>
+                            <div class="p-3 bg-light rounded border text-secondary fst-italic">
+                                "@req.Purpose"
+                            </div>
                         </div>
                     </div>
 

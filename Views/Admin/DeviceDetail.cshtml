@@ -56,12 +56,22 @@
                             <p class="fs-5 font-monospace">@Model.Device.SerialNumber</p>
                         </div>
                         <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Device Name</label>
+                            <p class="fs-5">@Model.Device.DeviceName</p>
+                        </div>
+                        <div class="col-md-6">
                             <label class="text-muted small text-uppercase fw-bold d-block">Operating System</label>
                             <p>@(Model.Device.OperatingSystem ?? "N/A")</p>
                         </div>
                         <div class="col-md-6">
                             <label class="text-muted small text-uppercase fw-bold d-block">Color</label>
                             <p>@(Model.Device.Color ?? "N/A")</p>
+                        </div>
+                        <div class="col-md-12 mt-3">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Declared Purpose</label>
+                            <div class="p-3 bg-light rounded border text-secondary fst-italic">
+                                "@Model.Device.Purpose"
+                            </div>
                         </div>
                     </div>
 
