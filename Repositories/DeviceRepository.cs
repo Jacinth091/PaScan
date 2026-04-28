@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using PaScan.Data;
 using PaScan.Models;
 using PaScan.Repositories.Interfaces;
-using PaScan.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace PaScan.Repositories;
 
@@ -33,6 +33,7 @@ public class DeviceRepository : IDeviceRepository
             .Where(d => d.StudentId == studentId)
             .ToListAsync();
     }
+
 
     public async Task<List<Device>> GetAllActiveAsync()
     {
