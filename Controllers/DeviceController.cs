@@ -20,10 +20,17 @@ namespace PaScan.Controllers
             _deviceService = deviceService;
         }
 
-        public IActionResult MyDevices()
+        [HttpGet("my-devices")]
+        public async Task<IActionResult> MyDevices()
         {
-            // Usually this redirects to Dashboard now
-            return RedirectToAction("Dashboard", "Student");
+            var studentIdStr = HttpContext.Session.GetString("StudentId");
+            if (string.IsNullOrEmpty(studentIdStr) || !Guid.TryParse(studentIdStr, out var studentId))
+            {
+                return RedirectToAction("StudentLogin", "Auth");
+            }
+            
+            var dashboard = await _deviceService.GetStudentDashboardAsync(studentId);
+            return View(dashboard.Devices);
         }
 
         [HttpGet("register")]
@@ -127,12 +134,23 @@ namespace PaScan.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        public IActionResult Details(Guid id)
+        public async Task<IActionResult> Details(Guid id)
         {
-            // Details are fetched through _deviceService?
-            // Actually, the plan didn't define a service method for unapproved request details for students.
-            // I'll redirect to Dashboard.
-            return RedirectToAction("Dashboard", "Student");
+            var studentIdStr = HttpContext.Session.GetString("StudentId");
+            if (string.IsNullOrEmpty(studentIdStr) || !Guid.TryParse(studentIdStr, out var studentId))
+            {
+                return RedirectToAction("StudentLogin", "Auth");
+            }
+
+            try
+            {
+                var request = await _deviceService.GetDeviceRequestAsync(id, studentId);
+                return View(request);
+            }
+            catch (Exception)
+            {
+                return RedirectToAction("Dashboard", "Student");
+            }
         }
 
         [HttpGet("approved/{deviceId:guid}")]

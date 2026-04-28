@@ -100,6 +100,15 @@ public class DeviceService : IDeviceService
         };
     }
 
+    public async Task<DeviceRequest> GetDeviceRequestAsync(Guid requestId, Guid studentId)
+    {
+        var request = await _deviceRequestRepo.GetByIdWithAccessoriesAsync(requestId);
+        if (request == null || request.StudentId != studentId)
+            throw new UnauthorizedAccessException("Request not found or access denied.");
+            
+        return request;
+    }
+
     public async Task SubmitDeviceRequestAsync(DeviceRequestViewModel vm, Guid studentId)
     {
         var existing = await _deviceRepo.GetBySerialNumberAndStudentAsync(vm.SerialNumber, studentId);
