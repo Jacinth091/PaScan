@@ -1,130 +1,171 @@
-﻿@{
+@{
     ViewData["Title"] = "PaScan";
 }
 
-<section class="hero-chapter">
-    <div class="shell hero-grid">
-        <div>
-            <p class="eyebrow">Campus Device Entry Management System</p>
-            <h1 class="hero-title">Campus device access, verified in seconds.</h1>
-            <p class="hero-copy">
-                PaScan replaces manual pink slips with a structured registration workflow,
-                admin approval queue, and live QR or RFID verification at campus gates.
-            </p>
-            <div class="hero-actions">
-                <a class="button-pill button-pill-primary" href="/api/auth/login">Login</a>
+<section class="neo-hero" aria-labelledby="neo-title">
+    <div class="neo-shell">
+        <div class="neo-head neo-rise">
+            <h1 id="neo-title">Where Campus Device Access Is Managed.</h1>
+            <p>Bring student requests, admin decisions, and gate validation into one reliable system.</p>
+            <div class="neo-actions">
+                <a class="button-pill button-pill-highlight" href="/api/auth/register/student">Create New Account</a>
+                <a class="button-pill neo-outline" href="#neo-how">How it works</a>
             </div>
-            <p class="hero-note">Built for real operations: registration, approval, issuance, and audit-ready gate logs.</p>
         </div>
 
-        <div class="metric-strip" aria-label="Platform highlights">
-            <article class="metric-card">
-                <div class="metric-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <article class="neo-showcase neo-rise neo-delay-1" aria-label="Workflow showcase">
+            <img class="neo-showcase-image neo-showcase-image-1" src="~/images/background3.jpg" alt="Illustration of PaScan workflow with student request, admin approval, and gate scan." />
+            <img class="neo-showcase-image neo-showcase-image-2" src="~/images/background4.jpg" alt="Illustration of PaScan workflow with student request, admin approval, and gate scan." />
+
+            <div class="neo-showcase-text">
+                <span class="neo-tag">Live Operations</span>
+                <h2>Efficiently transform manual gate checks into digital campus control.</h2>
+                <p>Modern loop: request, review, issue, validate, and log.</p>
+            </div>
+        </article>
+    </div>
+</section>
+
+<section id="neo-how" class="neo-how-modern" aria-labelledby="neo-how-title">
+    <div class="neo-shell">
+        <div class="neo-how-modern-header neo-rise">
+            <p class="neo-how-modern-kicker">How It Works</p>
+            <h2 id="neo-how-title" class="neo-how-modern-title">Effortless Device Access, Verified in Seconds.</h2>
+            <p class="neo-how-modern-subtitle">Experience a fluid, transparent process combining smart automated logic with robust, privacy-first security.</p>
+        </div>
+
+        <div class="neo-how-modern-timeline neo-rise neo-delay-1">
+            <div class="neo-how-modern-card card-1">
+                <div class="glass-bg"></div>
+                <div class="card-content">
+                    <div class="step-icon">
+                        <span class="icon-pulse">1</span>
+                    </div>
+                    <h3>Register Device</h3>
+                    <p>Submit device specs and ownership proof via our sleek student portal.</p>
                 </div>
-                <div>
-                    <p class="metric-value">3 Roles</p>
-                    <p class="metric-label">Student, Admin, Scanner</p>
+            </div>
+            
+            <div class="neo-how-modern-path"></div>
+
+            <div class="neo-how-modern-card card-2">
+                <div class="glass-bg"></div>
+                <div class="card-content">
+                    <div class="step-icon">
+                        <span class="icon-pulse">2</span>
+                    </div>
+                    <h3>Smart Review</h3>
+                    <p>Admins swiftly review and cross-check requests using our automated logic engine.</p>
                 </div>
-            </article>
-            <article class="metric-card">
-                <div class="metric-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            </div>
+
+            <div class="neo-how-modern-path"></div>
+
+            <div class="neo-how-modern-card card-3">
+                <div class="glass-bg"></div>
+                <div class="card-content">
+                    <div class="step-icon">
+                        <span class="icon-pulse">3</span>
+                    </div>
+                    <h3>Secure & Scan</h3>
+                    <p>Your RFID or QR code is your fast pass. Verified instantly at the gate.</p>
                 </div>
-                <div>
-                    <p class="metric-value">4 Required</p>
-                    <p class="metric-label">Core transactions</p>
-                </div>
-            </article>
-            <article class="metric-card">
-                <div class="metric-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                </div>
-                <div>
-                    <p class="metric-value">30 Days</p>
-                    <p class="metric-label">Default QR validity</p>
-                </div>
-            </article>
+            </div>
         </div>
     </div>
 </section>
 
-<section class="chapter-light">
-    <div class="shell">
-        <h2 class="section-title">One platform for registration, control, and scanning</h2>
-        <p class="section-copy">
-            PaScan is designed for day-to-day campus operations: students submit complete device details,
-            admins review and decide requests, and scanner stations validate access in real time.
-        </p>
+<section class="neo-help-modern" aria-labelledby="neo-help-title">
+    <div class="neo-shell">
+        <div class="neo-help-modern-header neo-rise">
+            <p class="neo-kicker" style="color: var(--apple-blue);">Help Center</p>
+            <h2 id="neo-help-title" class="neo-help-modern-title">Find the answers you need.</h2>
+            <p class="neo-help-modern-subtitle">Browse through our documentation or quick answers to resolve your campus access questions securely.</p>
+        </div>
 
-        <div class="feature-grid">
-            <article class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                </div>
-                <div class="feature-content">
-                    <h3>Student Portal</h3>
-                    <p>Submit device requests with serial and accessory details, then track status from one dashboard.</p>
-                </div>
-            </article>
-            <article class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                </div>
-                <div class="feature-content">
-                    <h3>Admin Operations</h3>
-                    <p>Process pending requests, issue RFID access, and maintain scanner readiness across all gates.</p>
+        <div class="neo-help-modern-grid neo-rise neo-delay-1">
+            
+            <article class="neo-help-modern-card doc-card">
+                <div class="card-glow"></div>
+                <div class="card-content">
+                    <div class="help-icon" style="color: var(--apple-blue);"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div>
+                    <h3>Documentation</h3>
+                    <p>Review process guides for requests, approvals, and gate scans.</p>
+                    <a class="help-modern-link" href="#neo-how">View Guides &rarr;</a>
                 </div>
             </article>
-            <article class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="8" y="8" width="8" height="8" rx="1"></rect></svg>
-                </div>
-                <div class="feature-content">
-                    <h3>Gate Verification</h3>
-                    <p>Validate QR or RFID credentials and return clear allow or deny outcomes with logged reasons.</p>
+
+            <article class="neo-help-modern-card">
+                <div class="card-glow" style="background: #32d74b;"></div>
+                <div class="card-content">
+                    <div class="help-icon" style="color: #32d74b;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.2 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg></div>
+                    <h3>Common Questions</h3>
+                    <p>Got a quick question? Take a look at the most frequently asked questions.</p>
+                    <a class="help-modern-link" href="#neo-faq-title">Browse FAQs &rarr;</a>
                 </div>
             </article>
+
+            <article class="neo-help-modern-card">
+                <div class="card-glow" style="background: #a951f5;"></div>
+                <div class="card-content">
+                    <div class="help-icon" style="color: #a951f5;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                    <h3>Campus Policies</h3>
+                    <p>Understand the rules and compliance standards for safe campus device use.</p>
+                    <a class="help-modern-link" href="/Home/Privacy">Read Policies &rarr;</a>
+                </div>
+            </article>
+
         </div>
     </div>
 </section>
 
-<section class="chapter-white">
-    <div class="shell">
-        <h2 class="section-title">Operational flow from request to gate entry</h2>
-        <p class="section-copy">Every step is tracked and auditable, from student submission to final scan decision.</p>
+<section class="neo-faq-modern" aria-labelledby="neo-faq-title">
+    <div class="neo-shell neo-faq-modern-layout">
+        <div class="neo-rise neo-faq-modern-content">
+            <p class="neo-faq-modern-kicker">FAQ</p>
+            <h2 id="neo-faq-title" class="neo-faq-modern-title">Questions teams ask most often.</h2>
+            <div class="neo-faq-modern-list">
+                
+                <details class="neo-faq-modern-item" open>
+                    <summary>
+                        <h3>How long is QR access valid?</h3>
+                        <span class="faq-icon-cross"></span>
+                    </summary>
+                    <div class="faq-answer">
+                        <p>Default QR validity is 30 days unless revoked or renewed. You can configure this duration in the admin settings based on your campus policies.</p>
+                    </div>
+                </details>
 
-        <div class="workflow">
-            <article class="workflow-step">
-                <h3>Submit Device Request</h3>
-                <p>Students register device information, purpose, and accessories for review.</p>
-            </article>
-            <article class="workflow-step">
-                <h3>Review and Provision Access</h3>
-                <p>Admins approve or reject requests, then issue QR tokens or RFID access as needed.</p>
-            </article>
-            <article class="workflow-step">
-                <h3>Validate at Gate</h3>
-                <p>Scanner stations verify credential state and record every allow or deny event.</p>
-            </article>
+                <details class="neo-faq-modern-item">
+                    <summary>
+                        <h3>What does denied scan mean?</h3>
+                        <span class="faq-icon-cross"></span>
+                    </summary>
+                    <div class="faq-answer">
+                        <p>Denied outcomes include precise reason logs, allowing admins to quickly troubleshoot and students to understand the rejection instantly.</p>
+                    </div>
+                </details>
+
+                <details class="neo-faq-modern-item">
+                    <summary>
+                        <h3>Where are statuses visible?</h3>
+                        <span class="faq-icon-cross"></span>
+                    </summary>
+                    <div class="faq-answer">
+                        <p>Real-time statuses are completely transparent. Students and admins can track everything clearly through their dedicated live dashboards.</p>
+                    </div>
+                </details>
+                
+            </div>
         </div>
+        <aside class="neo-faq-modern-side neo-rise neo-delay-1" aria-label="Support callout">
+            <div class="glass-orb"></div>
+            <div class="side-content">
+                <h3>Need immediate action?</h3>
+                <p>Open the login hub and use admin logs to resolve gate issues instantly. Experience zero downtime and complete visibility.</p>
+                <a class="button-pill faq-modern-btn" href="/api/auth/login">Go to Login Hub <span class="arrow">&rarr;</span></a>
+            </div>
+        </aside>
     </div>
 </section>
 
-<section class="chapter-light">
-    <div class="shell status-board">
-        <h2 class="section-title">Clear status lifecycle across the whole system</h2>
-        <div class="status-chip-row" aria-label="Status examples">
-            <span class="status-chip status-chip--pending">PENDING</span>
-            <span class="status-chip status-chip--approved">APPROVED</span>
-            <span class="status-chip status-chip--rejected">REJECTED</span>
-            <span class="status-chip status-chip--active">ACTIVE</span>
-            <span class="status-chip status-chip--expired">EXPIRED</span>
-            <span class="status-chip status-chip--revoked">REVOKED</span>
-        </div>
-        <p class="section-copy">
-            Status labels and actions are mapped directly to backend enums, so students, admins,
-            and scanners always see the same source of truth.
-        </p>
-    </div>
-</section>
