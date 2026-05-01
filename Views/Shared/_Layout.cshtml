@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -6,35 +6,104 @@
     <title>@ViewData["Title"] - PaScan</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PaScan.styles.css" asp-append-version="true" />
+
+    <style>
+
+    .wordmark-dot {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: #0071e3;
+    }
+
+    .brand-text:hover {
+        text-decoration: none;
+    }    
+    </style>
 </head>
+
+
 <body>
-    <header class="global-nav" role="banner">
-        <div class="shell nav-shell">
-            <a class="brand" asp-area="" asp-controller="Home" asp-action="Index">PaScan</a>
-            <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="primary-menu" data-menu-toggle>
-                <span class="menu-toggle-line"></span>
-                <span class="menu-toggle-line"></span>
-            </button>
-            <div id="primary-menu" class="menu-panel" data-menu-panel>
-                <nav class="menu-links" aria-label="Primary navigation">
-                    <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                </nav>
-                <a class="button-pill button-pill-primary menu-cta" href="/api/auth/login">Login</a>
-            </div>
+    @{
+        bool isAuthPage = Context.Request.Path.StartsWithSegments("/api/auth");
+    }
+
+    @if (!isAuthPage)
+    {
+        <div class="dynamic-navbar-island">
+            <a class="dynamic-brand" asp-area="" asp-controller="Home" asp-action="Index" >
+                <div class="wordmark-dot"></div>
+                <span class="brand-text">PaScan</span>
+            </a>
+            
+            <input type="checkbox" id="nav-toggle" class="nav-toggle-checkbox" />
+            <label for="nav-toggle" class="nav-toggle-label">
+                <span class="hamburger"></span>
+            </label>
+            
+            <nav class="dynamic-nav-links" aria-label="Primary navigation">
+                <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                <a href="/#neo-help-title">Help</a>
+                <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                <a href="/#neo-faq-title">FAQ</a>
+                <a class="dynamic-nav-cta mobile-cta" href="/api/auth/login">Login</a>
+            </nav>
+
+            <a class="dynamic-nav-cta desktop-cta" href="/api/auth/login">Login</a>
         </div>
-    </header>
+    }
 
     <main class="page-root" role="main">
         @RenderBody()
     </main>
 
-    <footer class="global-footer">
-        <div class="shell footer-shell">
-            <p>&copy; 2026 PaScan. Campus Device Entry Management System.</p>
-            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    @if (!isAuthPage)
+    {
+        <footer class="neo-footer-modern">
+            <div class="shell neo-footer-grid">
+                <div class="footer-brand-col">
+                    <a class="footer-brand" asp-area="" asp-controller="Home" asp-action="Index">PaScan</a>
+                    <p>Campus device entry management with status clarity, scan security, and full traceability. Protecting your campus one scan at a time.</p>
+                    <div class="footer-socials">
+                        <a href="#" aria-label="Twitter"><span class="social-icon"></span></a>
+                        <a href="#" aria-label="LinkedIn"><span class="social-icon"></span></a>
+                        <a href="#" aria-label="Github"><span class="social-icon"></span></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links-col">
+                    <h3>Platform</h3>
+                    <a href="/#neo-how">How it Works</a>
+                    <a href="/api/auth/register/student">Register Device</a>
+                    <a href="/api/auth/login">Admin Dashboard</a>
+                </div>
+
+                <div class="footer-links-col">
+                    <h3>Support</h3>
+                    <a href="#">Help Center</a>
+                    <a href="#">Gate Scanning Guides</a>
+                    <a href="#">API Documentation</a>
+                </div>
+
+                <div class="footer-links-col">
+                    <h3>Legal</h3>
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Data Security</a>
+                </div>
+            </div>
+            
+            <div class="shell">
+                <div class="footer-bottom">
+                    <p>&copy; 2026 Admin Gate Systems &amp; PaScan. All rights reserved.</p>
+                    <div class="footer-bottom-links">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-glow glow-1"></div>
+            <div class="footer-glow glow-2"></div>
+        </footer>
+    }
 
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

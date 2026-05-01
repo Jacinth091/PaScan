@@ -1,47 +1,372 @@
 ﻿@{
-    ViewData["Title"] = "Privacy";
+    ViewData["Title"] = "Privacy Policy";
 }
 
-<section class="utility-page">
-    <div class="shell">
-        <article class="apple-panel">
-            <p class="eyebrow">Privacy and Security</p>
-            <h1 class="utility-title">PaScan Data and Privacy</h1>
-            <p class="utility-lead">
-                PaScan processes only the data required for campus security operations,
-                role-based account access, and audit-traceable gate verification.
-            </p>
+<style>
+  @@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap');
 
-            <div class="utility-list">
-                <div>
-                    <h2>Data Collected</h2>
-                    <p>
-                        Student identity data, device registration details, token lifecycle records,
-                        and gate scan logs linked to scanner station activity.
-                    </p>
-                </div>
-                <div>
-                    <h2>Operational Use</h2>
-                    <p>
-                        Information is used for approval workflows, access validation decisions,
-                        and incident review through searchable transaction history.
-                    </p>
-                </div>
-                <div>
-                    <h2>Retention and Audit</h2>
-                    <p>
-                        Historical records are retained to preserve audit integrity, including
-                        token renewals, card replacements, and each gate scan decision.
-                    </p>
-                </div>
-                <div>
-                    <h2>Access Governance</h2>
-                    <p>
-                        Access is enforced by role and route authorization. Unauthorized users are
-                        denied protected actions and redirected to approved login endpoints.
-                    </p>
-                </div>
-            </div>
-        </article>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #000000;
+    --ink: #1d1d1f;
+    --gray-f5: #f5f5f7;
+    --gray-6e: #6e6e73;
+    --white: #ffffff;
+    --blue: #0071e3;
+    --blue-dark: #0066cc;
+    --blue-light: #2997ff;
+    --border-soft: #d2d2d7;
+    --border-mid: #86868b;
+  }
+
+  html, body {
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: var(--white);
+    color: var(--ink);
+  }
+
+  /* Hero Section */
+  .privacy-hero {
+    background: linear-gradient(135deg, #f5f5f7 0%, #ffffff 100%);
+    padding: 95px 24px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .privacy-hero-content {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .privacy-eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 16px;
+  }
+
+  .privacy-title {
+    font-family: 'Inter Tight', 'Helvetica Neue', sans-serif;
+    font-size: 56px;
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+
+  .privacy-subtitle {
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--gray-6e);
+  }
+
+  /* Main Content */
+  .privacy-container {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 80px 24px;
+  }
+
+  /* Policy Grid */
+  .policy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 32px;
+    margin-bottom: 80px;
+  }
+
+  .policy-card {
+    background: var(--white);
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    padding: 32px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  .policy-card:hover {
+    border-color: var(--blue);
+    box-shadow: 0 8px 24px rgba(0,113,227,0.12);
+    transform: translateY(-4px);
+  }
+
+  .card-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: rgba(0,113,227,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 28px;
+    color: var(--blue);
+  }
+
+  .card-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke: var(--blue);
+  }
+
+  .policy-card h2 {
+    font-family: 'Inter Tight', 'Helvetica Neue', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+
+  .policy-card p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--gray-6e);
+  }
+
+  /* Detailed Sections */
+  .privacy-section {
+    margin-bottom: 60px;
+  }
+
+  .section-title {
+    font-family: 'Inter Tight', 'Helvetica Neue', sans-serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    color: var(--ink);
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--blue);
+    display: inline-block;
+  }
+
+  .section-content {
+    display: grid;
+    gap: 20px;
+  }
+
+  .content-block {
+    padding: 24px;
+    background: var(--gray-f5);
+    border-radius: 12px;
+    border-left: 4px solid var(--blue);
+  }
+
+  .content-block h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--ink);
+  }
+
+  .content-block p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--gray-6e);
+  }
+
+  .content-block ul {
+    font-size: 14px;
+    color: var(--gray-6e);
+    line-height: 1.8;
+    margin-left: 20px;
+    margin-top: 10px;
+  }
+
+  .content-block li {
+    margin-bottom: 8px;
+  }
+
+  /* CTA Section */
+  .privacy-cta {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+    border-radius: 18px;
+    padding: 48px 40px;
+    text-align: center;
+    color: var(--white);
+    margin-top: 80px;
+  }
+
+  .privacy-cta h2 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .privacy-cta p {
+    font-size: 16px;
+    line-height: 1.6;
+    opacity: 0.95;
+    margin-bottom: 24px;
+  }
+
+  .privacy-cta a {
+    display: inline-block;
+    padding: 12px 32px;
+    background: var(--white);
+    color: var(--blue);
+    text-decoration: none;
+    border-radius: 980px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .privacy-cta a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+
+
+  /* Responsive */
+  @@media (max-width: 768px) {
+    .privacy-title { font-size: 36px; }
+    .privacy-subtitle { font-size: 16px; }
+    .privacy-hero { padding: 60px 20px; }
+    .privacy-container { padding: 60px 20px; }
+    .policy-grid { gap: 24px; }
+    .policy-card { padding: 24px; }
+    .section-title { font-size: 24px; }
+    .privacy-cta { padding: 36px 24px; }
+  }
+</style>
+
+<div class="privacy-hero">
+  <div class="privacy-hero-content">
+    <p class="privacy-eyebrow">Transparent Operations</p>
+    <h1 class="privacy-title">Privacy & Data Protection</h1>
+    <p class="privacy-subtitle">
+      PaScan is built on the principle of data minimization. We collect only what's necessary for campus security and operational efficiency.
+    </p>
+  </div>
+</div>
+
+<div class="privacy-container">
+
+  <!-- Quick Overview Cards -->
+  <div class="policy-grid">
+    <div class="policy-card">
+      <div class="card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <h2>Data Collected</h2>
+      <p>Student identity, device registration details, token records, and gate scan logs—only data essential for operations.</p>
     </div>
-</section>
+    <div class="policy-card">
+      <div class="card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h2>How We Use It</h2>
+      <p>For approval workflows, access validation, incident review, and generating audit-traceable transaction history.</p>
+    </div>
+    <div class="policy-card">
+      <div class="card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9l12-0"/>
+          <path d="M6 13l12-0"/>
+          <path d="M6 17l12-0"/>
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+        </svg>
+      </div>
+      <h2>Data Retention</h2>
+      <p>Records are retained to maintain audit integrity, including token renewals, card replacements, and access decisions.</p>
+    </div>
+    <div class="policy-card">
+      <div class="card-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <h2>Access Control</h2>
+      <p>Role-based authorization ensures only approved staff can access sensitive information and protected operations.</p>
+    </div>
+  </div>
+
+  <!-- Detailed Sections -->
+  <div class="privacy-section">
+    <h2 class="section-title">Data Collected</h2>
+    <div class="section-content">
+      <div class="content-block">
+        <h3>Student & User Data</h3>
+        <p>We collect the minimum information needed for account creation and device access management:</p>
+        <ul>
+          <li>Name, student ID, email, and contact information</li>
+          <li>Course enrollment for institutional verification</li>
+          <li>Authentication credentials for secure account access</li>
+        </ul>
+      </div>
+      <div class="content-block">
+        <h3>Device & Access Information</h3>
+        <p>Device registration data enables campus-wide asset tracking and security:</p>
+        <ul>
+          <li>Device specifications and ownership verification</li>
+          <li>Serial numbers and unique identifiers</li>
+          <li>Request and approval timestamps</li>
+        </ul>
+      </div>
+      <div class="content-block">
+        <h3>Operational Logs</h3>
+        <p>Gate scan logs and token lifecycle events create an auditable record:</p>
+        <ul>
+          <li>Token generation, renewal, and revocation events</li>
+          <li>Gate access attempts with timestamp and scanner location</li>
+          <li>Admin approval decisions and rejection reasons</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="privacy-section">
+    <h2 class="section-title">How We Use Your Data</h2>
+    <div class="section-content">
+      <div class="content-block">
+        <h3>Approval & Verification</h3>
+        <p>Student device requests are evaluated against institutional policies. Admins review submissions and make informed access decisions based on provided information.</p>
+      </div>
+      <div class="content-block">
+        <h3>Gate Access Control</h3>
+        <p>Valid tokens are verified at gate scanners to confirm authorization. Rejected tokens are logged for incident investigation and compliance reporting.</p>
+      </div>
+      <div class="content-block">
+        <h3>Audit & Investigation</h3>
+        <p>Complete transaction history enables security teams to investigate anomalies, track device history, and generate compliance reports when needed.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="privacy-section">
+    <h2 class="section-title">Your Rights & Security</h2>
+    <div class="section-content">
+      <div class="content-block">
+        <h3>Data Access & Updates</h3>
+        <p>Students can view their registered devices, token status, and access history through the student portal dashboard at any time.</p>
+      </div>
+      <div class="content-block">
+        <h3>Token Management</h3>
+        <p>You can request token invalidation, card replacement, or device removal. Admins will process these requests in accordance with institutional policy.</p>
+      </div>
+      <div class="content-block">
+        <h3>Data Security</h3>
+        <p>PaScan encrypts sensitive data, enforces role-based access control, and maintains audit logs of all administrative actions for transparency.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="privacy-cta">
+    <h2>Questions About Your Privacy?</h2>
+    <p>Contact your institution's IT support or security office for privacy inquiries, data access requests, or concerns.</p>
+    <a href="/">← Back to Home</a>
+  </div>
+</div>
+
