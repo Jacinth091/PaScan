@@ -7,15 +7,15 @@
 <h1>Register New Device</h1>
 <a asp-controller="Student" asp-action="Dashboard">Cancel</a>
 
-<form asp-action="Register" method="post">
+<form asp-action="Register" method="post" id="deviceRegisterForm">
     @Html.AntiForgeryToken()
     <div asp-validation-summary="All" style="color: red;"></div>
     
     <fieldset>
         <legend>Basic Information</legend>
-        <div>
-            <label asp-for="DeviceName"></label>
-            <input asp-for="DeviceName" />
+        <div class="mb-3">
+            <label asp-for="DeviceName" class="form-label fw-bold">Device Name <span class="text-muted fw-normal">(e.g., "My Study Laptop")</span></label>
+            <input asp-for="DeviceName" class="form-control" placeholder="What do you call this device?" />
             <span asp-validation-for="DeviceName" style="color: red;"></span>
         </div>
         
@@ -43,9 +43,9 @@
             <span asp-validation-for="SerialNumber" style="color: red;"></span>
         </div>
 
-        <div>
-            <label asp-for="Purpose"></label>
-            <textarea asp-for="Purpose"></textarea>
+        <div class="mb-3 mt-3">
+            <label asp-for="Purpose" class="form-label fw-bold">Purpose on Campus <span class="text-muted fw-normal">(Why do you need to bring this?)</span></label>
+            <textarea asp-for="Purpose" class="form-control" rows="3" placeholder="e.g., For thesis research, IT class requirement..."></textarea>
             <span asp-validation-for="Purpose" style="color: red;"></span>
         </div>
     </fieldset>
@@ -120,7 +120,7 @@
     </fieldset>
 
     <div style="margin-top: 20px;">
-        <button type="submit">Submit Request</button>
+        <button type="submit" id="submitBtn">Submit Request</button>
     </div>
 </form>
 
@@ -143,4 +143,17 @@
         
         container.appendChild(row);
     });
+
+    // Prevent double form submission
+    document.getElementById('deviceRegisterForm').addEventListener('submit', function() {
+        var btn = document.getElementById('submitBtn');
+        if (btn) {
+            // setTimeout ensures the form still submits correctly before the button gets disabled
+            setTimeout(function() {
+                btn.disabled = true;
+                btn.innerText = 'Submitting...';
+            }, 0);
+        }
+    });
 </script>
+

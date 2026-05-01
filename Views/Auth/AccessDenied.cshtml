@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<section class="utility-page">
+    <div class="shell">
+        <article class="apple-panel" style="text-align: center; padding: 4rem 2rem;">
+            <div style="font-size: 5rem; color: #d93025; margin-bottom: 1.5rem;">
+                <i class="bi bi-shield-lock"></i>
+            </div>
+            <p class="eyebrow" style="color: #d93025;">Security Restriction</p>
+            <h1 class="utility-title">Access Denied</h1>
+            <p class="utility-lead">
+                You do not have the required permissions to access this page. 
+                Please ensure you are logged in with the correct account role.
+            </p>
+
+            <div style="margin-top: 2.5rem; display: flex; gap: 1rem; justify-content: center;">
+                <a asp-controller="Home" asp-action="Index" class="button-pill">Back to Home</a>
+                <a asp-controller="Auth" asp-action="LoginSelector" class="button-pill button-pill-primary">Try Different Login</a>
+            </div>
+
+            <p class="auth-help" style="margin-top: 3rem;">
+                If you believe this is an error, please contact your system administrator.
+            </p>
+        </article>
+    </div>
+</section>

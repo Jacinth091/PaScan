@@ -1,0 +1,130 @@
+@model PaScan.Models.ViewModels.AdminStudentDetailViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Replace RFID Card";
+    var deviceId = Environment.MachineName; // Link browser session to bridge app
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0 text-danger">Replace Card</h2>
+                <a asp-action="ManageRfid" asp-route-id="@Model.Student.Id" class="btn btn-sm btn-link text-decoration-none">
+                    <i class="bi bi-arrow-left"></i> Back to Manage
+                </a>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4 text-center">
+                    <h5 class="mb-1">@Model.Student.FirstName @Model.Student.LastName</h5>
+                    <p class="text-muted small mb-0">@Model.Student.StudentNumber</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 border-top border-danger border-4">
+                <div class="card-body p-4 p-md-5">
+                    @if (Model.ActiveRfid != null)
+                    {
+                        <div class="alert alert-warning mb-4">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> Replacing will permanently invalidate the current card <strong>@Model.ActiveRfid.CardUid</strong>.
+                        </div>
+
+                        <div id="scanStatus" class="alert alert-info d-flex align-items-center mb-4">
+                            <div class="spinner-border spinner-border-sm me-3" role="status"></div>
+                            <span>Waiting for physical card tap...</span>
+                        </div>
+
+                        <form asp-action="ReplaceRfid" asp-route-studentId="@Model.Student.Id" method="post" id="replaceForm">
+                            @Html.AntiForgeryToken()
+                            
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-uppercase">New Card UID</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-broadcast"></i></span>
+                                    <input type="text" id="cardUidInput" name="newCardUid" class="form-control form-control-lg font-monospace" required placeholder="UID will appear here" readonly />
+                                </div>
+                                <div class="form-text text-muted">Scan the <strong>new</strong> card on the reader now. Listening to <strong>@deviceId</strong>.</div>
+                            </div>
+
+                            <div class="mb-5">
+                                <label class="form-label small fw-bold text-uppercase">Reason for Replacement</label>
+                                <select name="reason" class="form-select form-select-lg" required>
+                                    <option value="LOST_CARD">Lost Card</option>
+                                    <option value="STOLEN_CARD">Stolen Card</option>
+                                    <option value="DAMAGED_CARD">Damaged Card</option>
+                                    <option value="ADMIN_REVOKED">Admin Revoked</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" id="submitBtn" class="btn btn-danger w-100 py-2 fw-bold rounded-pill shadow-sm" disabled onclick="return confirm('Replace card? This will permanently invalidate the current card.')">
+                                Confirm Replacement
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const deviceId = "@deviceId";
+        const cardInput = document.getElementById('cardUidInput');
+        const statusAlert = document.getElementById('scanStatus');
+        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('replaceForm');
+
+        let isPolling = true;
+
+        async function startPoll() {
+            try {
+                await fetch(`/scan/start-poll/${deviceId}`);
+                console.log("Server notified: Admin is waiting for scan on this device.");
+            } catch (e) { console.error("Failed to notify server:", e); }
+        }
+
+        async function pollForScan() {
+            if (!isPolling) return;
+
+            try {
+                const response = await fetch(`/scan/check-scan/${deviceId}`);
+                const data = await response.json();
+
+                if (data.tagId) {
+                    // Success! Card found
+                    cardInput.value = data.tagId;
+                    
+                    statusAlert.classList.remove('alert-info');
+                    statusAlert.classList.add('alert-success');
+                    statusAlert.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> New card detected successfully!';
+                    
+                    submitBtn.disabled = false;
+                    isPolling = false; // Stop polling after success
+
+                    // Visual feedback: brief highlight
+                    cardInput.classList.add('is-valid');
+                }
+            } catch (error) {
+                console.error('Polling error:', error);
+            }
+
+            if (isPolling) {
+                setTimeout(pollForScan, 2000); // Check every 2 seconds
+            }
+        }
+
+        // Initialize
+        startPoll().then(() => pollForScan());
+
+        // Safety: If user manually types (un-readonly-ing via devtools), enable button
+        cardInput.addEventListener('input', function() {
+            if (this.value.trim().length > 0) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        });
+    </script>
+}

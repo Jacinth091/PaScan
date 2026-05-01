@@ -1,0 +1,175 @@
+@model PaScan.Models.ViewModels.AdminDeviceDetailViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Device Detail";
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Devices">Devices</a></li>
+            <li class="breadcrumb-item active">@Model.Device.Brand @Model.Device.Model</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Device Information</h2>
+        <div>
+            @if (Model.Device.Status == PaScan.Enums.DeviceStatus.ACTIVE)
+            {
+                <span class="badge bg-success fs-6">ACTIVE</span>
+            }
+            else
+            {
+                <span class="badge bg-danger fs-6">@Model.Device.Status</span>
+            }
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4">Specifications</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Device Type</label>
+                            <p class="fs-5">@Model.Device.DeviceType</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Serial Number</label>
+                            <p class="fs-5 font-monospace">@Model.Device.SerialNumber</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Device Name</label>
+                            <p class="fs-5">@Model.Device.DeviceName</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Operating System</label>
+                            <p>@(Model.Device.OperatingSystem ?? "N/A")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Color</label>
+                            <p>@(Model.Device.Color ?? "N/A")</p>
+                        </div>
+                        <div class="col-md-12 mt-3">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Declared Purpose</label>
+                            <div class="p-3 bg-light rounded border text-secondary fst-italic">
+                                "@Model.Device.Purpose"
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <h5 class="card-title mb-3">Hardware Details</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Processor</label>
+                            <p>@(Model.Device.Processor ?? "N/A")</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Memory</label>
+                            <p>@(Model.Device.Memory ?? "N/A")</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-muted small text-uppercase fw-bold d-block">Storage</label>
+                            <p>@(Model.Device.Storage ?? "N/A")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4">Accessories</h5>
+                    @if (Model.Device.Accessories != null && Model.Device.Accessories.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var acc in Model.Device.Accessories)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <span>@acc.AccessoryName</span>
+                                    <span class="badge bg-secondary rounded-pill">x@acc.Quantity</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No accessories registered.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-4 text-center">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4">Access Credentials</h5>
+                    @if (Model.QrToken != null && Model.QrToken.Status == PaScan.Enums.TokenStatus.ACTIVE)
+                    {
+                        <div class="bg-light p-4 rounded mb-3">
+                            <i class="bi bi-qr-code fs-1 d-block mb-2"></i>
+                            <span class="badge bg-success mb-2">ACTIVE QR</span>
+                            <p class="small text-muted mb-0">Expires: @Model.QrToken.ExpiresAt.ToString("MMM dd, yyyy")</p>
+                        </div>
+                        <form asp-action="RevokeQr" asp-route-id="@Model.Device.Id" method="post" onsubmit="return confirm('Are you sure you want to revoke this QR token?');">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <select name="reason" class="form-select form-select-sm mb-3">
+                                    <option value="ADMIN_REVOKED">Admin Revoked</option>
+                                    <option value="DEVICE_LOST">Device Lost</option>
+                                    <option value="DEVICE_STOLEN">Device Stolen</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-danger w-100">Revoke Token</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="bg-light p-4 rounded mb-3">
+                            <i class="bi bi-qr-code fs-1 d-block mb-2 text-muted"></i>
+                            <span class="badge bg-secondary mb-2">NO ACTIVE QR</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3">Owner</h5>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar-md bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; font-weight: bold;">
+                            @Model.Device.Student.FirstName[0]@Model.Device.Student.LastName[0]
+                        </div>
+                        <div>
+                            <h6 class="mb-0">@Model.Device.Student.FirstName @Model.Device.Student.LastName</h6>
+                            <p class="small text-muted mb-0">@Model.Device.Student.StudentNumber</p>
+                        </div>
+                    </div>
+                    <div class="small mb-3">
+                        <div class="text-muted text-uppercase fw-bold mb-1" style="font-size: 0.65rem;">Course</div>
+                        <div>@(Model.Device.Student.Course?.Name ?? "N/A")</div>
+                    </div>
+                    <a asp-action="StudentDetail" asp-route-id="@Model.Device.StudentId" class="btn btn-sm btn-outline-primary w-100 rounded-pill">View Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

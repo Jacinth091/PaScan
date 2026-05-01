@@ -1,0 +1,77 @@
+@model PaScan.Models.ViewModels.AdminRequestListViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Pending Requests";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Device Approval Queue</h2>
+        <a asp-action="Dashboard" class="btn btn-sm btn-link text-decoration-none">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Student</th>
+                        <th>Device Type</th>
+                        <th>Brand / Model</th>
+                        <th>Submitted</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Requests.Any())
+                    {
+                        @foreach (var req in Model.Requests)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold">@req.StudentName</div>
+                                    <small class="text-muted">@req.StudentNumber</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">@req.DeviceType</span>
+                                </td>
+                                <td>@req.Brand @req.Model</td>
+                                <td>@req.SubmittedAt.ToString("MMM dd, yyyy")</td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="RequestDetail" asp-route-id="@req.Id" class="btn btn-sm btn-primary rounded-pill px-3">
+                                        Review
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-5">
+                                <p class="mb-0">No pending requests found.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
