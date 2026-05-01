@@ -28,7 +28,7 @@
 
 <body>
     @{
-        bool isAuthPage = Context.Request.Path.StartsWithSegments("/api/auth");
+        bool isAuthPage = Context.Request.Path.StartsWithSegments("/auth");
     }
 
     @if (!isAuthPage)
@@ -49,10 +49,10 @@
                 <a href="/#neo-help-title">Help</a>
                 <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                 <a href="/#neo-faq-title">FAQ</a>
-                <a class="dynamic-nav-cta mobile-cta" href="/api/auth/login">Login</a>
+                <a class="dynamic-nav-cta mobile-cta" href="/auth/login">Login</a>
             </nav>
 
-            <a class="dynamic-nav-cta desktop-cta" href="/api/auth/login">Login</a>
+            <a class="dynamic-nav-cta desktop-cta" href="/auth/login">Login</a>
         </div>
     }
 
@@ -77,8 +77,8 @@
                 <div class="footer-links-col">
                     <h3>Platform</h3>
                     <a href="/#neo-how">How it Works</a>
-                    <a href="/api/auth/register/student">Register Device</a>
-                    <a href="/api/auth/login">Admin Dashboard</a>
+                    <a href="/auth/register/student">Register Device</a>
+                    <a href="/auth/login">Admin Dashboard</a>
                 </div>
 
                 <div class="footer-links-col">

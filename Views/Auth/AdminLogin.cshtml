@@ -441,7 +441,7 @@
         </div>
       }
 
-      <form method="post" class="login-form" id="staff-form" action="/api/auth/login/admin">
+      <form method="post" class="login-form" id="staff-form" action="/auth/login/admin">
         <input type="hidden" name="role" id="role-input" value="admin" />
 
         <div class="field-group">
@@ -489,7 +489,7 @@
       <div class="card-divider"></div>
 
       <div class="card-footer">
-        <a href="/api/auth/login" class="back-link">← Other Portals</a>
+        <a href="/auth/login" class="back-link">← Other Portals</a>
       </div>
     </div>
   </div>
@@ -512,8 +512,8 @@
     // Update hidden input & form action
     document.getElementById('role-input').value = role;
     document.getElementById('staff-form').action = isAdmin
-      ? '/api/auth/login/admin'
-      : '/api/auth/login/scanner';
+      ? '/auth/login/admin'
+      : '/auth/login/scanner';
 
     // Update copy
     document.getElementById('card-subtitle').textContent = isAdmin ? 'Admin Console' : 'Gate Scanner';
