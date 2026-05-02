@@ -4,141 +4,162 @@
     ViewData["Title"] = "Register Device";
 }
 
-<h1>Register New Device</h1>
-<a asp-controller="Student" asp-action="Dashboard">Cancel</a>
-
-<form asp-action="Register" method="post" id="deviceRegisterForm">
-    @Html.AntiForgeryToken()
-    <div asp-validation-summary="All" style="color: red;"></div>
-    
-    <fieldset>
-        <legend>Basic Information</legend>
-        <div class="mb-3">
-            <label asp-for="DeviceName" class="form-label fw-bold">Device Name <span class="text-muted fw-normal">(e.g., "My Study Laptop")</span></label>
-            <input asp-for="DeviceName" class="form-control" placeholder="What do you call this device?" />
-            <span asp-validation-for="DeviceName" style="color: red;"></span>
-        </div>
-        
-        <div>
-            <label asp-for="DeviceType"></label>
-            <select asp-for="DeviceType" asp-items="Html.GetEnumSelectList<DeviceType>()"></select>
-            <span asp-validation-for="DeviceType" style="color: red;"></span>
-        </div>
-
-        <div>
-            <label asp-for="Brand"></label>
-            <input asp-for="Brand" />
-            <span asp-validation-for="Brand" style="color: red;"></span>
-        </div>
-
-        <div>
-            <label asp-for="Model"></label>
-            <input asp-for="Model" />
-            <span asp-validation-for="Model" style="color: red;"></span>
-        </div>
-
-        <div>
-            <label asp-for="SerialNumber"></label>
-            <input asp-for="SerialNumber" />
-            <span asp-validation-for="SerialNumber" style="color: red;"></span>
-        </div>
-
-        <div class="mb-3 mt-3">
-            <label asp-for="Purpose" class="form-label fw-bold">Purpose on Campus <span class="text-muted fw-normal">(Why do you need to bring this?)</span></label>
-            <textarea asp-for="Purpose" class="form-control" rows="3" placeholder="e.g., For thesis research, IT class requirement..."></textarea>
-            <span asp-validation-for="Purpose" style="color: red;"></span>
-        </div>
-    </fieldset>
-
-    <fieldset>
-        <legend>Hardware Specifications (Optional)</legend>
-        <div>
-            <label asp-for="OperatingSystem"></label>
-            <input asp-for="OperatingSystem" />
-            <span asp-validation-for="OperatingSystem" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="Color"></label>
-            <input asp-for="Color" />
-            <span asp-validation-for="Color" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="Processor"></label>
-            <input asp-for="Processor" />
-            <span asp-validation-for="Processor" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="Motherboard"></label>
-            <input asp-for="Motherboard" />
-            <span asp-validation-for="Motherboard" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="Memory"></label>
-            <input asp-for="Memory" />
-            <span asp-validation-for="Memory" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="Storage"></label>
-            <input asp-for="Storage" />
-            <span asp-validation-for="Storage" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="MonitorSize"></label>
-            <input asp-for="MonitorSize" />
-            <span asp-validation-for="MonitorSize" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="Casing"></label>
-            <input asp-for="Casing" />
-            <span asp-validation-for="Casing" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="HasCdRom">Has CD-ROM?</label>
-            <input asp-for="HasCdRom" type="checkbox" />
-        </div>
-    </fieldset>
-
-    <fieldset>
-        <legend>Accessories</legend>
-        <p>List any accessories included (e.g., Charger, Bag, Mouse)</p>
-        <div id="accessories-container">
-            @for (int i = 0; i < Math.Max(1, Model.Accessories?.Count ?? 0); i++)
-            {
-                <div class="accessory-row" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
-                    <label>Accessory:</label>
-                    <input name="Accessories[@i].AccessoryName" value="@(Model.Accessories != null && Model.Accessories.Count > i ? Model.Accessories[i].AccessoryName : "")" placeholder="Name" />
-                    <label>Qty:</label>
-                    <input name="Accessories[@i].Quantity" type="number" value="@(Model.Accessories != null && Model.Accessories.Count > i ? Model.Accessories[i].Quantity : 1)" min="1" style="width: 50px;" />
-                    @if (i > 0)
-                    {
-                        <button type="button" onclick="this.parentElement.remove()">Remove</button>
-                    }
-                </div>
-            }
-        </div>
-        <button type="button" id="add-accessory-btn" style="margin-top: 10px;">+ Add Accessory</button>
-    </fieldset>
-
-    <div style="margin-top: 20px;">
-        <button type="submit" id="submitBtn">Submit Request</button>
+<div class="stu-page-header-row stu-rise">
+    <div>
+        <p class="stu-page-kicker">Device Registration</p>
+        <h1 class="stu-page-title">Register New Device</h1>
     </div>
-</form>
+    <a asp-controller="Student" asp-action="Dashboard" class="stu-btn-ghost">&larr; Cancel</a>
+</div>
+
+@if (TempData["Info"] != null)
+{
+    <div class="stu-alert stu-alert--info">@TempData["Info"]</div>
+}
+
+<div class="stu-card stu-rise stu-rise-d1" style="margin-top: 1.5rem;">
+    <form asp-action="Register" method="post" id="deviceRegisterForm">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="stu-validation-error" style="margin-bottom: 1rem;"></div>
+
+        <!-- Basic Information -->
+        <fieldset class="stu-form-fieldset">
+            <legend class="stu-form-legend">Basic Information</legend>
+
+            <div class="stu-form-group">
+                <label asp-for="DeviceName" class="stu-form-label">Device Name <span class="stu-form-hint">(e.g., "My Study Laptop")</span></label>
+                <input asp-for="DeviceName" class="stu-form-input" placeholder="What do you call this device?" />
+                <span asp-validation-for="DeviceName" class="stu-validation-error"></span>
+            </div>
+
+            <div class="stu-form-row">
+                <div class="stu-form-group">
+                    <label asp-for="DeviceType" class="stu-form-label">Device Type</label>
+                    <select asp-for="DeviceType" asp-items="Html.GetEnumSelectList<DeviceType>()" class="stu-form-select"></select>
+                    <span asp-validation-for="DeviceType" class="stu-validation-error"></span>
+                </div>
+                <div class="stu-form-group">
+                    <label asp-for="Brand" class="stu-form-label">Brand</label>
+                    <input asp-for="Brand" class="stu-form-input" placeholder="e.g., Dell, HP, Apple" />
+                    <span asp-validation-for="Brand" class="stu-validation-error"></span>
+                </div>
+            </div>
+
+            <div class="stu-form-row">
+                <div class="stu-form-group">
+                    <label asp-for="Model" class="stu-form-label">Model</label>
+                    <input asp-for="Model" class="stu-form-input" placeholder="e.g., Inspiron 15" />
+                    <span asp-validation-for="Model" class="stu-validation-error"></span>
+                </div>
+                <div class="stu-form-group">
+                    <label asp-for="SerialNumber" class="stu-form-label">Serial Number</label>
+                    <input asp-for="SerialNumber" class="stu-form-input" placeholder="Device serial number" />
+                    <span asp-validation-for="SerialNumber" class="stu-validation-error"></span>
+                </div>
+            </div>
+
+            <div class="stu-form-group">
+                <label asp-for="Purpose" class="stu-form-label">Purpose on Campus <span class="stu-form-hint">(Why do you need to bring this?)</span></label>
+                <textarea asp-for="Purpose" class="stu-form-textarea" rows="3" placeholder="e.g., For thesis research, IT class requirement..."></textarea>
+                <span asp-validation-for="Purpose" class="stu-validation-error"></span>
+            </div>
+        </fieldset>
+
+        <!-- Hardware Specs -->
+        <fieldset class="stu-form-fieldset">
+            <legend class="stu-form-legend">Hardware Specifications <span class="stu-form-hint" style="display:inline;">(Optional)</span></legend>
+
+            <div class="stu-form-row">
+                <div class="stu-form-group">
+                    <label asp-for="OperatingSystem" class="stu-form-label">Operating System</label>
+                    <input asp-for="OperatingSystem" class="stu-form-input" placeholder="e.g., Windows 11" />
+                </div>
+                <div class="stu-form-group">
+                    <label asp-for="Color" class="stu-form-label">Color</label>
+                    <input asp-for="Color" class="stu-form-input" placeholder="e.g., Silver" />
+                </div>
+            </div>
+
+            <div class="stu-form-row">
+                <div class="stu-form-group">
+                    <label asp-for="Processor" class="stu-form-label">Processor</label>
+                    <input asp-for="Processor" class="stu-form-input" placeholder="e.g., Intel i5-12400" />
+                </div>
+                <div class="stu-form-group">
+                    <label asp-for="Motherboard" class="stu-form-label">Motherboard</label>
+                    <input asp-for="Motherboard" class="stu-form-input" />
+                </div>
+            </div>
+
+            <div class="stu-form-row">
+                <div class="stu-form-group">
+                    <label asp-for="Memory" class="stu-form-label">Memory (RAM)</label>
+                    <input asp-for="Memory" class="stu-form-input" placeholder="e.g., 16GB DDR4" />
+                </div>
+                <div class="stu-form-group">
+                    <label asp-for="Storage" class="stu-form-label">Storage</label>
+                    <input asp-for="Storage" class="stu-form-input" placeholder="e.g., 512GB SSD" />
+                </div>
+            </div>
+
+            <div class="stu-form-row">
+                <div class="stu-form-group">
+                    <label asp-for="MonitorSize" class="stu-form-label">Monitor Size</label>
+                    <input asp-for="MonitorSize" class="stu-form-input" placeholder="e.g., 15.6 inches" />
+                </div>
+                <div class="stu-form-group">
+                    <label asp-for="Casing" class="stu-form-label">Casing</label>
+                    <input asp-for="Casing" class="stu-form-input" />
+                </div>
+            </div>
+
+            <div class="stu-form-group">
+                <label class="stu-form-check">
+                    <input asp-for="HasCdRom" type="checkbox" />
+                    Has CD-ROM Drive
+                </label>
+            </div>
+        </fieldset>
+
+        <!-- Accessories -->
+        <fieldset class="stu-form-fieldset">
+            <legend class="stu-form-legend">Accessories</legend>
+            <p style="color: #6e6e73; font-size: 0.88rem; margin-bottom: 1rem;">List any accessories included (e.g., Charger, Bag, Mouse)</p>
+            <div id="accessories-container">
+                @for (int i = 0; i < Math.Max(1, Model.Accessories?.Count ?? 0); i++)
+                {
+                    <div class="stu-accessory-row">
+                        <input name="Accessories[@i].AccessoryName" value="@(Model.Accessories != null && Model.Accessories.Count > i ? Model.Accessories[i].AccessoryName : "")" placeholder="Accessory name" class="stu-form-input" style="flex: 1;" />
+                        <input name="Accessories[@i].Quantity" type="number" value="@(Model.Accessories != null && Model.Accessories.Count > i ? Model.Accessories[i].Quantity : 1)" min="1" class="stu-form-input qty-input" />
+                        @if (i > 0)
+                        {
+                            <button type="button" class="stu-accessory-remove" onclick="this.parentElement.remove()">Remove</button>
+                        }
+                    </div>
+                }
+            </div>
+            <button type="button" id="add-accessory-btn" class="stu-btn-ghost" style="margin-top: 0.5rem;">+ Add Accessory</button>
+        </fieldset>
+
+        <div class="stu-form-actions">
+            <button type="submit" id="submitBtn" class="stu-btn-primary">Submit Registration</button>
+            <a asp-controller="Student" asp-action="Dashboard" class="stu-btn-ghost">Cancel</a>
+        </div>
+    </form>
+</div>
 
 <script>
     document.getElementById('add-accessory-btn').addEventListener('click', function() {
         var container = document.getElementById('accessories-container');
-        var index = container.getElementsByClassName('accessory-row').length;
+        var index = container.getElementsByClassName('stu-accessory-row').length;
         
         var row = document.createElement('div');
-        row.className = 'accessory-row';
-        row.style.cssText = 'margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;';
+        row.className = 'stu-accessory-row';
         
         row.innerHTML = `
-            <label>Accessory:</label>
-            <input name="Accessories[${index}].AccessoryName" placeholder="Name" />
-            <label>Qty:</label>
-            <input name="Accessories[${index}].Quantity" type="number" value="1" min="1" style="width: 50px;" />
-            <button type="button" onclick="this.parentElement.remove()">Remove</button>
+            <input name="Accessories[${index}].AccessoryName" placeholder="Accessory name" class="stu-form-input" style="flex: 1;" />
+            <input name="Accessories[${index}].Quantity" type="number" value="1" min="1" class="stu-form-input qty-input" />
+            <button type="button" class="stu-accessory-remove" onclick="this.parentElement.remove()">Remove</button>
         `;
         
         container.appendChild(row);
@@ -156,4 +177,3 @@
         }
     });
 </script>
-

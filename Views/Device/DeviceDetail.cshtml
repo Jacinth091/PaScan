@@ -1,83 +1,121 @@
 @model PaScan.Models.ViewModels.DeviceDetailViewModel
 @{
     ViewData["Title"] = "Approved Device Details";
+    var devBadge = Model.Device.Status switch
+    {
+        PaScan.Enums.DeviceStatus.ACTIVE => "stu-badge--active",
+        PaScan.Enums.DeviceStatus.EXPIRED => "stu-badge--expired",
+        PaScan.Enums.DeviceStatus.REVOKED => "stu-badge--revoked",
+        _ => "stu-badge--pending"
+    };
 }
 
-<div class="shell" style="padding: 2rem 0;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-        <h1 style="font-size: 2.5rem; font-weight: 700;">Approved Device Details</h1>
-        <a asp-controller="Student" asp-action="Dashboard" style="font-size: 0.9rem;">&larr; Back to Dashboard</a>
+<div class="stu-page-header-row stu-rise">
+    <div>
+        <p class="stu-page-kicker">Approved Device</p>
+        <h1 class="stu-page-title">@Model.Device.DeviceName</h1>
+        <p class="stu-page-subtitle">@Model.Device.Brand @Model.Device.Model · <span class="stu-badge @devBadge">@Model.Device.Status</span></p>
     </div>
+    <a asp-controller="Student" asp-action="Dashboard" class="stu-btn-ghost">&larr; Dashboard</a>
+</div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div style="background: #e6f4ea; color: #1e8e3e; padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem;">
-            @TempData["Success"]
-        </div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div style="background: #fce8e6; color: #d93025; padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem;">
-            @TempData["Error"]
-        </div>
-    }
+@if (TempData["Success"] != null)
+{
+    <div class="stu-alert stu-alert--success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="stu-alert stu-alert--error">@TempData["Error"]</div>
+}
 
-    <div style="display: flex; gap: 40px; margin-top: 20px;">
-        <!-- Left: QR Code -->
-        <div style="text-align: center; border: 1px solid #ccc; padding: 20px; border-radius: var(--radius-md); background: var(--apple-white);">
-            <h3>Gate Access QR</h3>
-            @if (!string.IsNullOrEmpty(Model.QrImageBase64) && Model.QrToken?.Status == PaScan.Enums.TokenStatus.ACTIVE && Model.Device.Status == PaScan.Enums.DeviceStatus.ACTIVE)
-            {
-                <img src="data:image/png;base64,@Model.QrImageBase64" alt="Device QR Code" style="width: 250px;" />
-                <p><strong>Status:</strong> @Model.QrToken?.Status</p>
-                <p><strong>Expires:</strong> @(Model.QrToken?.ExpiresAt.ToString("MMM dd, yyyy") ?? "N/A")</p>
-            }
-            else
-            {
-                <p style="color: red; margin: 2rem 0;">No active QR token found, token is expired, or device is not active.</p>
-                
+<div class="stu-detail-grid stu-rise stu-rise-d1" style="margin-top: 1.5rem;">
+    <!-- Left: QR Code -->
+    <div class="stu-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <h3 class="stu-card-title" style="margin-bottom: 1.2rem;">Gate Access QR</h3>
+
+        @if (!string.IsNullOrEmpty(Model.QrImageBase64) && Model.QrToken?.Status == PaScan.Enums.TokenStatus.ACTIVE && Model.Device.Status == PaScan.Enums.DeviceStatus.ACTIVE)
+        {
+            <div class="stu-qr-frame">
+                <img src="data:image/png;base64,@Model.QrImageBase64" alt="Device QR Code" />
+            </div>
+            <div style="margin-top: 1rem; text-align: center;">
+                <p style="color: #d2d2d7; font-size: 0.9rem;"><strong>Status:</strong> <span class="stu-badge stu-badge--active">@Model.QrToken?.Status</span></p>
+                <p style="color: #6e6e73; font-size: 0.85rem; margin-top: 0.4rem;">Expires @(Model.QrToken?.ExpiresAt.ToString("MMM dd, yyyy") ?? "N/A")</p>
+            </div>
+            <p class="stu-qr-hint" style="margin-top: 0.8rem;">Show this QR code to the gate scanner.</p>
+        }
+        else
+        {
+            <div style="text-align: center; padding: 2rem 0;">
+                <p style="color: #ff453a; margin-bottom: 1rem;">No active QR token found, token is expired, or device is not active.</p>
+
                 @if (Model.Device.Status == PaScan.Enums.DeviceStatus.ACTIVE && Model.QrToken?.Status != PaScan.Enums.TokenStatus.REVOKED)
                 {
                     <form asp-action="RenewQr" asp-route-deviceId="@Model.Device.Id" method="post">
-                        <button type="submit" class="button-pill button-pill-primary">Renew QR</button>
+                        <button type="submit" class="stu-btn-primary">🔄 Renew QR Code</button>
                     </form>
                 }
                 else if (Model.Device.Status == PaScan.Enums.DeviceStatus.EXPIRED)
                 {
-                    <div style="margin-top: 1rem;">
-                        <p style="color: #6e6e73; font-size: 0.9rem;">Your device registration has expired. You must request a renewal for admin re-verification.</p>
-                        <a asp-action="RenewDevice" asp-route-deviceId="@Model.Device.Id" class="button-pill button-pill-primary" style="display: inline-block; text-decoration: none;">Renew Device Registration</a>
-                    </div>
+                    <p style="color: #6e6e73; font-size: 0.88rem; margin-bottom: 0.75rem;">Your device registration has expired. Request a renewal for admin re-verification.</p>
+                    <a asp-action="RenewDevice" asp-route-deviceId="@Model.Device.Id" class="stu-btn-warn">Renew Device Registration</a>
                 }
-            }
+            </div>
+        }
+    </div>
+
+    <!-- Right: Device Info -->
+    <div class="stu-card">
+        <h3 class="stu-card-title" style="margin-bottom: 1rem;">Device Info</h3>
+
+        <div class="stu-detail-item">
+            <div class="stu-detail-label">Device Name</div>
+            <div class="stu-detail-value">@Model.Device.DeviceName</div>
+        </div>
+        <div class="stu-detail-item">
+            <div class="stu-detail-label">Brand / Model</div>
+            <div class="stu-detail-value">@Model.Device.Brand @Model.Device.Model</div>
+        </div>
+        <div class="stu-detail-item">
+            <div class="stu-detail-label">Serial Number</div>
+            <div class="stu-detail-value">@Model.Device.SerialNumber</div>
+        </div>
+        <div class="stu-detail-item">
+            <div class="stu-detail-label">Status</div>
+            <div class="stu-detail-value"><span class="stu-badge @devBadge">@Model.Device.Status</span></div>
+        </div>
+        <div class="stu-detail-item">
+            <div class="stu-detail-label">Declared Purpose</div>
+            <div class="stu-detail-value">@Model.Device.Purpose</div>
         </div>
 
-        <!-- Right: Device Info -->
-        <div style="flex: 1; border: 1px solid #ccc; padding: 20px; border-radius: var(--radius-md); background: var(--apple-white);">
-            <h3>Device Info</h3>
-            <ul>
-                <li><strong>Device Name:</strong> @Model.Device.DeviceName</li>
-                <li><strong>Brand/Model:</strong> @Model.Device.Brand @Model.Device.Model</li>
-                <li><strong>Serial:</strong> @Model.Device.SerialNumber</li>
-                <li><strong>Status:</strong> @Model.Device.Status</li>
-                <li><strong>Declared Purpose:</strong> @Model.Device.Purpose</li>
-            </ul>
+        <h3 class="stu-card-title" style="margin: 1.5rem 0 0.75rem;">Hardware Specs</h3>
+        <div class="stu-detail-item">
+            <div class="stu-detail-label">OS</div>
+            <div class="stu-detail-value">@(Model.Device.OperatingSystem ?? "N/A")</div>
+        </div>
+        <div class="stu-detail-item">
+            <div class="stu-detail-label">Processor</div>
+            <div class="stu-detail-value">@(Model.Device.Processor ?? "N/A")</div>
+        </div>
+        <div class="stu-detail-item">
+            <div class="stu-detail-label">Memory</div>
+            <div class="stu-detail-value">@(Model.Device.Memory ?? "N/A")</div>
+        </div>
+        <div class="stu-detail-item">
+            <div class="stu-detail-label">Storage</div>
+            <div class="stu-detail-value">@(Model.Device.Storage ?? "N/A")</div>
+        </div>
 
-            <h4>Hardware Specs</h4>
-            <ul>
-                <li><strong>OS:</strong> @(Model.Device.OperatingSystem ?? "N/A")</li>
-                <li><strong>Processor:</strong> @(Model.Device.Processor ?? "N/A")</li>
-                <li><strong>Memory:</strong> @(Model.Device.Memory ?? "N/A")</li>
-                <li><strong>Storage:</strong> @(Model.Device.Storage ?? "N/A")</li>
-            </ul>
-
-            <h4>Accessories</h4>
-            <ul>
+        @if (Model.Device.Accessories.Any())
+        {
+            <h3 class="stu-card-title" style="margin: 1.5rem 0 0.75rem;">Accessories</h3>
+            <div class="stu-info-chips">
                 @foreach (var acc in Model.Device.Accessories)
                 {
-                    <li>@acc.AccessoryName (Qty: @acc.Quantity)</li>
+                    <span class="stu-info-chip">@acc.AccessoryName × @acc.Quantity</span>
                 }
-            </ul>
-        </div>
+            </div>
+        }
     </div>
 </div>

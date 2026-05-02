@@ -1,50 +1,91 @@
 @model PaScan.Models.DeviceRequest
 @{
     ViewData["Title"] = "Request Details";
+    var badgeClass = Model.Status switch
+    {
+        PaScan.Enums.RegisterStatus.PENDING => "stu-badge--pending",
+        PaScan.Enums.RegisterStatus.APPROVED => "stu-badge--approved",
+        PaScan.Enums.RegisterStatus.REJECTED => "stu-badge--rejected",
+        _ => "stu-badge--pending"
+    };
 }
 
-<h1>Device Request Details</h1>
-<a asp-controller="Student" asp-action="Dashboard">Back to Dashboard</a>
-
-<div>
-    <h3>Status: @Model.Status</h3>
-    @if (Model.Status == PaScan.Enums.RegisterStatus.REJECTED)
-    {
-        <p style="color: red;"><strong>Reason:</strong> @Model.RejectionReason</p>
-    }
-    
-    <p><strong>Submitted:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</p>
+<div class="stu-page-header-row stu-rise">
+    <div>
+        <p class="stu-page-kicker">Request Details</p>
+        <h1 class="stu-page-title">@Model.DeviceName</h1>
+        <p class="stu-page-subtitle">Submitted @Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <span class="stu-badge @badgeClass" style="font-size: 0.85rem; padding: 0.4rem 1rem;">@Model.Status</span>
+        <a asp-controller="Student" asp-action="Dashboard" class="stu-btn-ghost">&larr; Dashboard</a>
+    </div>
 </div>
 
-<hr />
+@if (Model.Status == PaScan.Enums.RegisterStatus.REJECTED)
+{
+    <div class="stu-alert stu-alert--error">
+        <strong>Rejection Reason:</strong> @Model.RejectionReason
+    </div>
+}
 
-<section>
-    <h3>Device Information</h3>
-    <ul>
-        <li><strong>Device Name:</strong> @Model.DeviceName</li>
-        <li><strong>Device Type:</strong> @Model.DeviceType</li>
-        <li><strong>Brand/Model:</strong> @Model.Brand @Model.Model</li>
-        <li><strong>Serial Number:</strong> @Model.SerialNumber</li>
-        <li><strong>Declared Purpose:</strong> @Model.Purpose</li>
-    </ul>
-</section>
+<div class="stu-card stu-rise stu-rise-d1" style="margin-top: 1.5rem;">
+    <div class="stu-detail-grid">
+        <!-- Left: Device Info -->
+        <div>
+            <h3 class="stu-card-title" style="margin-bottom: 1rem;">Device Information</h3>
+            <div class="stu-detail-item">
+                <div class="stu-detail-label">Device Name</div>
+                <div class="stu-detail-value">@Model.DeviceName</div>
+            </div>
+            <div class="stu-detail-item">
+                <div class="stu-detail-label">Device Type</div>
+                <div class="stu-detail-value">@Model.DeviceType</div>
+            </div>
+            <div class="stu-detail-item">
+                <div class="stu-detail-label">Brand / Model</div>
+                <div class="stu-detail-value">@Model.Brand @Model.Model</div>
+            </div>
+            <div class="stu-detail-item">
+                <div class="stu-detail-label">Serial Number</div>
+                <div class="stu-detail-value">@Model.SerialNumber</div>
+            </div>
+            <div class="stu-detail-item">
+                <div class="stu-detail-label">Declared Purpose</div>
+                <div class="stu-detail-value">@Model.Purpose</div>
+            </div>
+        </div>
 
-<section>
-    <h3>Specs</h3>
-    <ul>
-        <li><strong>OS:</strong> @(Model.OperatingSystem ?? "N/A")</li>
-        <li><strong>Processor:</strong> @(Model.Processor ?? "N/A")</li>
-        <li><strong>Memory:</strong> @(Model.Memory ?? "N/A")</li>
-        <li><strong>Storage:</strong> @(Model.Storage ?? "N/A")</li>
-    </ul>
-</section>
+        <!-- Right: Specs -->
+        <div>
+            <h3 class="stu-card-title" style="margin-bottom: 1rem;">Specifications</h3>
+            <div class="stu-detail-item">
+                <div class="stu-detail-label">Operating System</div>
+                <div class="stu-detail-value">@(Model.OperatingSystem ?? "N/A")</div>
+            </div>
+            <div class="stu-detail-item">
+                <div class="stu-detail-label">Processor</div>
+                <div class="stu-detail-value">@(Model.Processor ?? "N/A")</div>
+            </div>
+            <div class="stu-detail-item">
+                <div class="stu-detail-label">Memory</div>
+                <div class="stu-detail-value">@(Model.Memory ?? "N/A")</div>
+            </div>
+            <div class="stu-detail-item">
+                <div class="stu-detail-label">Storage</div>
+                <div class="stu-detail-value">@(Model.Storage ?? "N/A")</div>
+            </div>
 
-<section>
-    <h3>Accessories</h3>
-    <ul>
-        @foreach (var acc in Model.Accessories)
-        {
-            <li>@acc.AccessoryName (Qty: @acc.Quantity)</li>
-        }
-    </ul>
-</section>
+            @if (Model.Accessories.Any())
+            {
+                <h3 class="stu-card-title" style="margin: 1.2rem 0 0.6rem;">Accessories</h3>
+                <div class="stu-info-chips">
+                    @foreach (var acc in Model.Accessories)
+                    {
+                        <span class="stu-info-chip">@acc.AccessoryName × @acc.Quantity</span>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

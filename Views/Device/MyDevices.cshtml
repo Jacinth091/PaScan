@@ -3,39 +3,57 @@
     ViewData["Title"] = "My Devices";
 }
 
-<h1>My Approved Devices</h1>
-<a asp-controller="Student" asp-action="Dashboard">Back to Dashboard</a>
+<div class="stu-page-header-row stu-rise">
+    <div>
+        <p class="stu-page-kicker">Device Management</p>
+        <h1 class="stu-page-title">My Approved Devices</h1>
+    </div>
+    <a asp-controller="Student" asp-action="Dashboard" class="stu-btn-ghost">&larr; Dashboard</a>
+</div>
 
-<table border="1" style="width: 100%; margin-top: 20px;">
-    <thead>
-        <tr>
-            <th>Device Name</th>
-            <th>Type</th>
-            <th>Brand</th>
-            <th>Model</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var device in Model)
-        {
+<div class="stu-card stu-rise stu-rise-d1" style="margin-top: 1.5rem;">
+    <table class="stu-table">
+        <thead>
             <tr>
-                <td>@device.DeviceName</td>
-                <td>@device.DeviceType</td>
-                <td>@device.Brand</td>
-                <td>@device.Model</td>
-                <td>@device.Status</td>
-                <td>
-                    <a asp-controller="Device" asp-action="DeviceDetail" asp-route-deviceId="@device.Id">View Details & QR</a>
-                </td>
+                <th>Device Name</th>
+                <th>Type</th>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>Status</th>
+                <th>Action</th>
             </tr>
-        }
-        @if (!Model.Any())
-        {
-            <tr>
-                <td colspan="6" style="text-align: center;">No approved devices found.</td>
-            </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var device in Model)
+            {
+                <tr>
+                    <td>@device.DeviceName</td>
+                    <td>@device.DeviceType</td>
+                    <td>@device.Brand</td>
+                    <td>@device.Model</td>
+                    <td>
+                        @{
+                            var devBadge = device.Status switch
+                            {
+                                PaScan.Enums.DeviceStatus.ACTIVE => "stu-badge--active",
+                                PaScan.Enums.DeviceStatus.EXPIRED => "stu-badge--expired",
+                                PaScan.Enums.DeviceStatus.REVOKED => "stu-badge--revoked",
+                                _ => "stu-badge--pending"
+                            };
+                        }
+                        <span class="stu-badge @devBadge">@device.Status</span>
+                    </td>
+                    <td>
+                        <a asp-controller="Device" asp-action="DeviceDetail" asp-route-deviceId="@device.Id">View Details &amp; QR</a>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="6" class="stu-table-empty">No approved devices found. Register your first device to get started.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
