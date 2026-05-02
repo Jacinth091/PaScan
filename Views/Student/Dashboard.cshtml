@@ -3,33 +3,49 @@
     ViewData["Title"] = "Student Dashboard";
 }
 
-<h1>Student Dashboard</h1>
+<div class="stu-page-header stu-rise">
+    <p class="stu-page-kicker">Dashboard</p>
+    <h1 class="stu-page-title">Welcome back, @Model.FirstName</h1>
+    <p class="stu-page-subtitle">@Model.StudentNumber · @Model.CourseName</p>
+</div>
 
-<section>
-    <h3>Profile</h3>
-    <p>Name: @Model.FirstName @Model.LastName</p>
-    <p>Student Number: @Model.StudentNumber</p>
-    <p>Course: @Model.CourseName</p>
-</section>
+<!-- Stats Row -->
+<div class="stu-stats-row stu-rise stu-rise-d1">
+    <div class="stu-stat-card">
+        <div class="stu-stat-label">RFID Status</div>
+        @if (Model.IsRfidEnabled)
+        {
+            <div class="stu-stat-value active">Active</div>
+            <div class="stu-stat-detail">Expires @(Model.RfidExpiresAt?.ToString("MMM dd, yyyy") ?? "N/A")</div>
+        }
+        else
+        {
+            <div class="stu-stat-value" style="color: #6e6e73;">Not Enabled</div>
+            <div class="stu-stat-detail">Contact admin to enable</div>
+        }
+    </div>
+    <div class="stu-stat-card">
+        <div class="stu-stat-label">Pending Requests</div>
+        <div class="stu-stat-value blue">@Model.Requests.Count(r => r.Status == PaScan.Enums.RegisterStatus.PENDING)</div>
+        <div class="stu-stat-detail">of @Model.Requests.Count total requests</div>
+    </div>
+    <div class="stu-stat-card">
+        <div class="stu-stat-label">Approved Devices</div>
+        <div class="stu-stat-value blue">@Model.Devices.Count</div>
+        <div class="stu-stat-detail">registered on your account</div>
+    </div>
+</div>
 
-<section>
-    <h3>RFID Status</h3>
-    @if (Model.IsRfidEnabled)
-    {
-        <p style="color: green;">✅ Active</p>
-        <p>Expires: @(Model.RfidExpiresAt?.ToString("MMM dd, yyyy") ?? "N/A")</p>
-    }
-    else
-    {
-        <p style="color: gray;">⚪ Not Enabled</p>
-    }
-</section>
-
-<hr />
-
-<section>
-    <h3>Device Requests <a asp-controller="Device" asp-action="Register">[Register New Device]</a></h3>
-    <table border="1">
+<!-- Device Requests -->
+<div class="stu-card stu-rise stu-rise-d2" style="margin-bottom: 2rem;">
+    <div class="stu-card-header">
+        <h2 class="stu-card-title">Device Requests</h2>
+        <a asp-controller="Device" asp-action="Register" class="stu-btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Register New Device
+        </a>
+    </div>
+    <table class="stu-table">
         <thead>
             <tr>
                 <th>Device Name</th>
@@ -45,20 +61,39 @@
                 <tr>
                     <td>@request.DeviceName</td>
                     <td>@request.DeviceType</td>
-                    <td>@request.Status</td>
+                    <td>
+                        @{
+                            var badgeClass = request.Status switch
+                            {
+                                PaScan.Enums.RegisterStatus.PENDING => "stu-badge--pending",
+                                PaScan.Enums.RegisterStatus.APPROVED => "stu-badge--approved",
+                                PaScan.Enums.RegisterStatus.REJECTED => "stu-badge--rejected",
+                                _ => "stu-badge--pending"
+                            };
+                        }
+                        <span class="stu-badge @badgeClass">@request.Status</span>
+                    </td>
                     <td>@request.SubmittedAt.ToShortDateString()</td>
                     <td>
                         <a asp-controller="Device" asp-action="Details" asp-route-id="@request.Id">View Details</a>
                     </td>
                 </tr>
             }
+            @if (!Model.Requests.Any())
+            {
+                <tr><td colspan="5" class="stu-table-empty">No device requests yet. Register your first device above.</td></tr>
+            }
         </tbody>
     </table>
-</section>
+</div>
 
-<section>
-    <h3>Approved Devices <a asp-controller="Device" asp-action="MyDevices">[View All My Devices]</a></h3>
-    <table border="1">
+<!-- Approved Devices -->
+<div class="stu-card stu-rise stu-rise-d3">
+    <div class="stu-card-header">
+        <h2 class="stu-card-title">Approved Devices</h2>
+        <a asp-controller="Device" asp-action="MyDevices" class="stu-btn-ghost">View All</a>
+    </div>
+    <table class="stu-table">
         <thead>
             <tr>
                 <th>Device Name</th>
@@ -73,12 +108,27 @@
                 <tr>
                     <td>@device.DeviceName</td>
                     <td>@device.Brand @device.Model</td>
-                    <td>@device.Status</td>
+                    <td>
+                        @{
+                            var devBadge = device.Status switch
+                            {
+                                PaScan.Enums.DeviceStatus.ACTIVE => "stu-badge--active",
+                                PaScan.Enums.DeviceStatus.EXPIRED => "stu-badge--expired",
+                                PaScan.Enums.DeviceStatus.REVOKED => "stu-badge--revoked",
+                                _ => "stu-badge--pending"
+                            };
+                        }
+                        <span class="stu-badge @devBadge">@device.Status</span>
+                    </td>
                     <td>
                         <a asp-controller="Device" asp-action="DeviceDetail" asp-route-deviceId="@device.Id">View QR / Details</a>
                     </td>
                 </tr>
             }
+            @if (!Model.Devices.Any())
+            {
+                <tr><td colspan="4" class="stu-table-empty">No approved devices yet.</td></tr>
+            }
         </tbody>
     </table>
-</section>
+</div>
