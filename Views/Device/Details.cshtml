@@ -3,89 +3,111 @@
     ViewData["Title"] = "Request Details";
     var badgeClass = Model.Status switch
     {
-        PaScan.Enums.RegisterStatus.PENDING => "stu-badge--pending",
+        PaScan.Enums.RegisterStatus.PENDING  => "stu-badge--pending",
         PaScan.Enums.RegisterStatus.APPROVED => "stu-badge--approved",
         PaScan.Enums.RegisterStatus.REJECTED => "stu-badge--rejected",
         _ => "stu-badge--pending"
     };
+    var devIcon = Model.DeviceType switch
+    {
+        PaScan.Enums.DeviceType.LAPTOP  => "bi-laptop",
+        PaScan.Enums.DeviceType.DESKTOP => "bi-pc-display",
+        _ => "bi-cpu"
+    };
 }
 
-<div class="stu-page-header-row stu-rise">
-    <div>
-        <p class="stu-page-kicker">Request Details</p>
-        <h1 class="stu-page-title">@Model.DeviceName</h1>
-        <p class="stu-page-subtitle">Submitted @Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</p>
-    </div>
-    <div style="display: flex; gap: 0.75rem; align-items: center;">
-        <span class="stu-badge @badgeClass" style="font-size: 0.85rem; padding: 0.4rem 1rem;">@Model.Status</span>
-        <a asp-controller="Student" asp-action="Dashboard" class="stu-btn-ghost">&larr; Dashboard</a>
-    </div>
-</div>
+<div class="rdm-wrap">
 
-@if (Model.Status == PaScan.Enums.RegisterStatus.REJECTED)
-{
-    <div class="stu-alert stu-alert--error">
-        <strong>Rejection Reason:</strong> @Model.RejectionReason
+    
+    <div class="rdm-header">
+        <div class="rdm-header-left">
+            <div class="rdm-icon"><i class="bi @devIcon"></i></div>
+            <div>
+                <div class="rdm-title">@Model.DeviceName</div>
+                <div class="rdm-sub">
+                    @Model.DeviceType &nbsp;·&nbsp; @Model.Brand @Model.Model
+                    &nbsp;·&nbsp;
+                    <span class="stu-badge @badgeClass" style="font-size:.72rem;padding:.2rem .65rem;">@Model.Status</span>
+                </div>
+            </div>
+        </div>
+        <button class="pm-close-btn rdm-close" aria-label="Close" title="Close">&#x2715;</button>
     </div>
-}
 
-<div class="stu-card stu-rise stu-rise-d1" style="margin-top: 1.5rem;">
-    <div class="stu-detail-grid">
-        <!-- Left: Device Info -->
+    
+    @if (Model.Status == PaScan.Enums.RegisterStatus.REJECTED)
+    {
+        <div class="rdm-rejection">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span><strong>Rejection reason:&nbsp;</strong>@(Model.RejectionReason ?? "No reason provided.")</span>
+        </div>
+    }
+
+    
+    <div class="rdm-body">
+
+        
         <div>
-            <h3 class="stu-card-title" style="margin-bottom: 1rem;">Device Information</h3>
-            <div class="stu-detail-item">
-                <div class="stu-detail-label">Device Name</div>
-                <div class="stu-detail-value">@Model.DeviceName</div>
+            <div class="rdm-section-title"><i class="bi bi-info-circle" style="color:#2196F3;"></i> Device Info</div>
+
+            <div class="rdm-field">
+                <div class="rdm-label">Device Name</div>
+                <div class="rdm-value">@Model.DeviceName</div>
             </div>
-            <div class="stu-detail-item">
-                <div class="stu-detail-label">Device Type</div>
-                <div class="stu-detail-value">@Model.DeviceType</div>
+            <div class="rdm-field">
+                <div class="rdm-label">Device Type</div>
+                <div class="rdm-value">@Model.DeviceType</div>
             </div>
-            <div class="stu-detail-item">
-                <div class="stu-detail-label">Brand / Model</div>
-                <div class="stu-detail-value">@Model.Brand @Model.Model</div>
+            <div class="rdm-field">
+                <div class="rdm-label">Brand / Model</div>
+                <div class="rdm-value">@Model.Brand &nbsp;@Model.Model</div>
             </div>
-            <div class="stu-detail-item">
-                <div class="stu-detail-label">Serial Number</div>
-                <div class="stu-detail-value">@Model.SerialNumber</div>
+            <div class="rdm-field">
+                <div class="rdm-label">Serial Number</div>
+                <div class="rdm-value" style="font-family:monospace;font-size:.88rem;color:#a1a1a6;">@Model.SerialNumber</div>
             </div>
-            <div class="stu-detail-item">
-                <div class="stu-detail-label">Declared Purpose</div>
-                <div class="stu-detail-value">@Model.Purpose</div>
+            <div class="rdm-field">
+                <div class="rdm-label">Declared Purpose</div>
+                <div class="rdm-value">@Model.Purpose</div>
+            </div>
+            <div class="rdm-field">
+                <div class="rdm-label">Submitted</div>
+                <div class="rdm-value">@Model.CreatedAt.ToString("MMM dd, yyyy · HH:mm")</div>
             </div>
         </div>
 
-        <!-- Right: Specs -->
+        
         <div>
-            <h3 class="stu-card-title" style="margin-bottom: 1rem;">Specifications</h3>
-            <div class="stu-detail-item">
-                <div class="stu-detail-label">Operating System</div>
-                <div class="stu-detail-value">@(Model.OperatingSystem ?? "N/A")</div>
+            <div class="rdm-section-title"><i class="bi bi-cpu-fill" style="color:#2196F3;"></i> Specifications</div>
+
+            <div class="rdm-field">
+                <div class="rdm-label">Operating System</div>
+                <div class="rdm-value">@(Model.OperatingSystem ?? "—")</div>
             </div>
-            <div class="stu-detail-item">
-                <div class="stu-detail-label">Processor</div>
-                <div class="stu-detail-value">@(Model.Processor ?? "N/A")</div>
+            <div class="rdm-field">
+                <div class="rdm-label">Processor</div>
+                <div class="rdm-value">@(Model.Processor ?? "—")</div>
             </div>
-            <div class="stu-detail-item">
-                <div class="stu-detail-label">Memory</div>
-                <div class="stu-detail-value">@(Model.Memory ?? "N/A")</div>
+            <div class="rdm-field">
+                <div class="rdm-label">Memory</div>
+                <div class="rdm-value">@(Model.Memory ?? "—")</div>
             </div>
-            <div class="stu-detail-item">
-                <div class="stu-detail-label">Storage</div>
-                <div class="stu-detail-value">@(Model.Storage ?? "N/A")</div>
+            <div class="rdm-field">
+                <div class="rdm-label">Storage</div>
+                <div class="rdm-value">@(Model.Storage ?? "—")</div>
             </div>
 
             @if (Model.Accessories.Any())
             {
-                <h3 class="stu-card-title" style="margin: 1.2rem 0 0.6rem;">Accessories</h3>
-                <div class="stu-info-chips">
+                <div class="rdm-section-title" style="margin-top:1.2rem;"><i class="bi bi-bag" style="color:#2196F3;"></i> Accessories</div>
+                <div class="rdm-chips">
                     @foreach (var acc in Model.Accessories)
                     {
-                        <span class="stu-info-chip">@acc.AccessoryName × @acc.Quantity</span>
+                        <span class="rdm-chip">@acc.AccessoryName &times; @acc.Quantity</span>
                     }
                 </div>
             }
         </div>
+
     </div>
 </div>

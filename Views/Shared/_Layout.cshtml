@@ -21,7 +21,20 @@
 
     .brand-text:hover {
         text-decoration: none;
-    }    
+    }
+
+    /* Navbar scroll-shrink effect */
+    .dynamic-navbar-island {
+        transition: background 0.35s ease, box-shadow 0.35s ease, padding 0.35s ease, top 0.35s ease;
+    }
+
+    .dynamic-navbar-island.scrolled {
+        background: rgba(10, 10, 12, 0.92);
+        backdrop-filter: blur(40px) saturate(200%);
+        -webkit-backdrop-filter: blur(40px) saturate(200%);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255,255,255,0.08);
+        top: 0.75rem;
+    }
     </style>
 </head>
 
@@ -56,10 +69,14 @@
                 <a href="/#neo-help-title">Help</a>
                 <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                 <a href="/#neo-faq-title">FAQ</a>
+                <a class="dynamic-nav-cta mobile-cta" href="/auth/register/student">Register</a>
                 <a class="dynamic-nav-cta mobile-cta" href="/auth/login">Login</a>
             </nav>
 
-            <a class="dynamic-nav-cta desktop-cta" href="/auth/login">Login</a>
+            <div class="desktop-cta-group">
+                <a class="dynamic-nav-cta desktop-cta dynamic-nav-cta-outline" href="/auth/register/student">Register</a>
+                <a class="dynamic-nav-cta desktop-cta" href="/auth/login">Login</a>
+            </div>
         </div>
     }
 
@@ -184,6 +201,22 @@
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Sticky navbar scroll effect
+        (function () {
+            var navbar = document.querySelector('.dynamic-navbar-island');
+            if (!navbar) return;
+            function onScroll() {
+                if (window.scrollY > 20) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }
+            window.addEventListener('scroll', onScroll, { passive: true });
+            onScroll(); // run once on load
+        })();
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 @Html.Raw("</body>")
 </html>
