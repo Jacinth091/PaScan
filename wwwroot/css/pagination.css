@@ -1,0 +1,76 @@
+/* ================= TABLE PAGINATION CONTROLS ================= */
+
+.pg-wrapper {
+  margin-top: 1rem;
+}
+
+.pg-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.pg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 0.5rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: #a1a1a6;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.pg-btn:hover:not(.active):not(:disabled) {
+  color: #fff;
+  border-color: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
+}
+
+.pg-btn.active {
+  background: rgba(33,150,243,0.15);
+  border-color: rgba(33,150,243,0.35);
+  color: #4fc3f7;
+  cursor: default;
+}
+
+.pg-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pg-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.pg-info {
+  color: #6e6e73;
+  font-size: 0.78rem;
+  margin-left: 0.75rem;
+  white-space: nowrap;
+}
+
+.pg-ellipsis {
+  color: #6e6e73;
+  font-size: 0.82rem;
+  padding: 0 0.25rem;
+  user-select: none;
+}
+
+/* --- Responsive --- */
+@media (max-width: 600px) {
+  .pg-controls { gap: 0.2rem; }
+  .pg-btn { min-width: 32px; height: 32px; font-size: 0.75rem; border-radius: 8px; }
+  .pg-info { font-size: 0.72rem; margin-left: 0.5rem; }
+}
