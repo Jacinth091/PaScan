@@ -4,82 +4,80 @@
     ViewData["Title"] = "Add New Scanner";
 }
 
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">New Scanner</h2>
-                <a asp-action="Scanners" class="btn btn-sm btn-link text-decoration-none">
-                    <i class="bi bi-arrow-left"></i> Back to List
-                </a>
+<div class="adm-page-header adm-rise">
+    <div class="adm-page-header-row">
+        <div>
+            <p class="adm-page-kicker">Infrastructure</p>
+            <h1 class="adm-page-title">New Scanner</h1>
+        </div>
+        <a asp-action="Scanners" class="adm-back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to List
+        </a>
+    </div>
+</div>
+
+<div style="max-width:600px;" class="adm-rise adm-rise-d1">
+    <div class="adm-card">
+        <form asp-action="CreateScanner" method="post">
+            <div asp-validation-summary="ModelOnly" class="adm-alert adm-alert--error" style="display:none;"></div>
+
+            <div class="adm-form-legend">Hardware Details</div>
+
+            <div class="adm-form-group">
+                <label asp-for="Name" class="adm-form-label">Name</label>
+                <input asp-for="Name" class="adm-form-input" placeholder="e.g. Main Gate QR" />
+                <span asp-validation-for="Name" class="adm-validation-error"></span>
             </div>
 
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4 p-md-5">
-                    <form asp-action="CreateScanner" method="post">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-4"></div>
+            <div class="adm-form-group">
+                <label asp-for="Location" class="adm-form-label">Location</label>
+                <input asp-for="Location" class="adm-form-input" placeholder="e.g. Building A Entrance" />
+                <span asp-validation-for="Location" class="adm-validation-error"></span>
+            </div>
 
-                        <h5 class="card-title mb-4 border-bottom pb-2">Hardware Details</h5>
-                        
-                        <div class="mb-3">
-                            <label asp-for="Name" class="form-label small fw-bold">Name</label>
-                            <input asp-for="Name" class="form-control" placeholder="e.g. Main Gate QR" />
-                            <span asp-validation-for="Name" class="text-danger small"></span>
-                        </div>
+            <div class="adm-form-group">
+                <label asp-for="Description" class="adm-form-label">Description (Optional)</label>
+                <textarea asp-for="Description" class="adm-form-textarea" rows="2"></textarea>
+                <span asp-validation-for="Description" class="adm-validation-error"></span>
+            </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Location" class="form-label small fw-bold">Location</label>
-                            <input asp-for="Location" class="form-control" placeholder="e.g. Building A Entrance" />
-                            <span asp-validation-for="Location" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label asp-for="Description" class="form-label small fw-bold">Description (Optional)</label>
-                            <textarea asp-for="Description" class="form-control" rows="2"></textarea>
-                            <span asp-validation-for="Description" class="text-danger small"></span>
-                        </div>
-
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <label asp-for="ScannerType" class="form-label small fw-bold">Type</label>
-                                <select asp-for="ScannerType" class="form-select">
-                                    <option value="@PaScan.Enums.ScannerType.QR">QR Code</option>
-                                    <option value="@PaScan.Enums.ScannerType.RFID">RFID</option>
-                                    <option value="@PaScan.Enums.ScannerType.BOTH">Both</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label asp-for="Status" class="form-label small fw-bold">Status</label>
-                                <select asp-for="Status" class="form-select">
-                                    <option value="@PaScan.Enums.ScannerStatus.ACTIVE">Active</option>
-                                    <option value="@PaScan.Enums.ScannerStatus.INACTIVE">Inactive</option>
-                                    <option value="@PaScan.Enums.ScannerStatus.MAINTENANCE">Maintenance</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <h5 class="card-title mb-4 border-bottom pb-2 pt-2">System Credentials</h5>
-                        <p class="small text-muted mb-4">These credentials will be used for the scanner interface login.</p>
-
-                        <div class="mb-3">
-                            <label asp-for="Email" class="form-label small fw-bold">Scanner Email</label>
-                            <input asp-for="Email" class="form-control" placeholder="scanner@pascan.local" />
-                            <span asp-validation-for="Email" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-5">
-                            <label asp-for="Password" class="form-label small fw-bold">Password</label>
-                            <input asp-for="Password" type="password" class="form-control" />
-                            <span asp-validation-for="Password" class="text-danger small"></span>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm">
-                            Register Scanner
-                        </button>
-                    </form>
+            <div class="adm-form-row adm-mb-3">
+                <div class="adm-form-group">
+                    <label asp-for="ScannerType" class="adm-form-label">Type</label>
+                    <select asp-for="ScannerType" class="adm-form-select">
+                        <option value="@PaScan.Enums.ScannerType.QR">QR Code</option>
+                        <option value="@PaScan.Enums.ScannerType.RFID">RFID</option>
+                        <option value="@PaScan.Enums.ScannerType.BOTH">Both</option>
+                    </select>
+                </div>
+                <div class="adm-form-group">
+                    <label asp-for="Status" class="adm-form-label">Status</label>
+                    <select asp-for="Status" class="adm-form-select">
+                        <option value="@PaScan.Enums.ScannerStatus.ACTIVE">Active</option>
+                        <option value="@PaScan.Enums.ScannerStatus.INACTIVE">Inactive</option>
+                        <option value="@PaScan.Enums.ScannerStatus.MAINTENANCE">Maintenance</option>
+                    </select>
                 </div>
             </div>
-        </div>
+
+            <div class="adm-form-legend" style="margin-top:1rem;">System Credentials</div>
+            <p class="adm-text-muted" style="font-size:0.85rem; margin-bottom:1.2rem;">These credentials will be used for the scanner interface login.</p>
+
+            <div class="adm-form-group">
+                <label asp-for="Email" class="adm-form-label">Scanner Email</label>
+                <input asp-for="Email" class="adm-form-input" placeholder="scanner@pascan.local" />
+                <span asp-validation-for="Email" class="adm-validation-error"></span>
+            </div>
+
+            <div class="adm-form-group adm-mb-4">
+                <label asp-for="Password" class="adm-form-label">Password</label>
+                <input asp-for="Password" type="password" class="adm-form-input" />
+                <span asp-validation-for="Password" class="adm-validation-error"></span>
+            </div>
+
+            <button type="submit" class="adm-btn-primary adm-btn-block" style="padding:0.85rem;">Register Scanner</button>
+        </form>
     </div>
 </div>
 

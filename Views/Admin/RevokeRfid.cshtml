@@ -4,51 +4,50 @@
     ViewData["Title"] = "Revoke RFID Card";
 }
 
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0 text-danger">Revoke Card</h2>
-                <a asp-action="ManageRfid" asp-route-id="@Model.Student.Id" class="btn btn-sm btn-link text-decoration-none">
-                    <i class="bi bi-arrow-left"></i> Back to Manage
-                </a>
-            </div>
-
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body p-4 text-center">
-                    <h5 class="mb-1">@Model.Student.FirstName @Model.Student.LastName</h5>
-                    <p class="text-muted small mb-0">@Model.Student.StudentNumber</p>
-                </div>
-            </div>
-
-            <div class="card shadow-sm border-0 border-top border-danger border-4">
-                <div class="card-body p-4 p-md-5">
-                    @if (Model.ActiveRfid != null)
-                    {
-                        <div class="alert alert-danger mb-4">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i> You are about to permanently invalidate the current card <strong>@Model.ActiveRfid.CardUid</strong> without issuing a replacement.
-                        </div>
-
-                        <form asp-action="RevokeRfid" asp-route-studentId="@Model.Student.Id" method="post" id="revokeForm">
-                            @Html.AntiForgeryToken()
-                            
-                            <div class="mb-5">
-                                <label class="form-label small fw-bold text-uppercase">Reason for Revocation</label>
-                                <select name="reason" class="form-select form-select-lg" required>
-                                    <option value="LOST_CARD">Lost Card</option>
-                                    <option value="STOLEN_CARD">Stolen Card</option>
-                                    <option value="DAMAGED_CARD">Damaged Card</option>
-                                    <option value="ADMIN_REVOKED">Admin Revoked</option>
-                                </select>
-                            </div>
-
-                            <button type="submit" class="btn btn-danger w-100 py-2 fw-bold rounded-pill shadow-sm" onclick="return confirm('Revoke this card? The student will no longer be able to use it to enter.')">
-                                Confirm Revocation
-                            </button>
-                        </form>
-                    }
-                </div>
-            </div>
+<div class="adm-page-header adm-rise">
+    <div class="adm-page-header-row">
+        <div>
+            <p class="adm-page-kicker">RFID</p>
+            <h1 class="adm-page-title" style="-webkit-text-fill-color:#ff453a; color:#ff453a;">Revoke Card</h1>
         </div>
+        <a asp-action="ManageRfid" asp-route-id="@Model.Student.Id" class="adm-back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Manage
+        </a>
+    </div>
+</div>
+
+<div style="max-width:550px;" class="adm-rise adm-rise-d1">
+    <div class="adm-card adm-text-center" style="margin-bottom:1rem;">
+        <h3 style="color:#fff; font-size:1.1rem; font-weight:600; margin-bottom:0.2rem;">@Model.Student.FirstName @Model.Student.LastName</h3>
+        <p class="adm-text-muted" style="font-size:0.85rem;">@Model.Student.StudentNumber</p>
+    </div>
+
+    <div class="adm-card" style="border-top:2px solid #ff453a;">
+        @if (Model.ActiveRfid != null)
+        {
+            <div class="adm-alert adm-alert--error">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                You are about to permanently invalidate the current card <strong>@Model.ActiveRfid.CardUid</strong> without issuing a replacement.
+            </div>
+
+            <form asp-action="RevokeRfid" asp-route-studentId="@Model.Student.Id" method="post" id="revokeForm">
+                @Html.AntiForgeryToken()
+
+                <div class="adm-form-group adm-mb-4">
+                    <label class="adm-form-label">Reason for Revocation</label>
+                    <select name="reason" class="adm-form-select" required>
+                        <option value="LOST_CARD">Lost Card</option>
+                        <option value="STOLEN_CARD">Stolen Card</option>
+                        <option value="DAMAGED_CARD">Damaged Card</option>
+                        <option value="ADMIN_REVOKED">Admin Revoked</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="adm-btn-danger adm-btn-block" style="padding:0.85rem;" onclick="return confirm('Revoke this card? The student will no longer be able to use it to enter.')">
+                    Confirm Revocation
+                </button>
+            </form>
+        }
     </div>
 </div>

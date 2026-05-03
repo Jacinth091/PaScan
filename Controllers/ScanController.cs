@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PaScan.Services.Interfaces;
 using PaScan.Models.ViewModels;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace PaScan.Controllers;
@@ -47,7 +48,8 @@ public class ScanController : Controller
         if (request == null || string.IsNullOrEmpty(request.TokenValue))
             return BadRequest(new { error = "Token is required." });
 
-        var scannerIdStr = HttpContext.Session.GetString("ScannerId");
+        var scannerIdStr = HttpContext.Session.GetString("ScannerId") 
+            ?? User.FindFirstValue("ProfileId");
         if (string.IsNullOrEmpty(scannerIdStr) || !Guid.TryParse(scannerIdStr, out var scannerId))
             return Unauthorized(new { error = "Scanner not authenticated." });
 
