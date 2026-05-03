@@ -204,7 +204,7 @@
                             </tr>
                         </thead>
                         <tbody id="reqTbody">
-                            @foreach (var req in Model.Requests)
+                            @foreach (var req in Model.Requests.Take(5))
                             {
                                 var bc = req.Status switch {
                                     PaScan.Enums.RegisterStatus.PENDING  => "stu-badge--pending",
@@ -227,14 +227,17 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- Pagination controls (shown only when > 10 rows) -->
-                <div id="reqPagination" style="display:none;margin-top:.85rem;justify-content:space-between;align-items:center;">
-                    <span id="reqPageInfo" style="font-size:.78rem;color:#6e6e73;"></span>
-                    <div style="display:flex;gap:.4rem;">
-                        <button id="reqPrev" class="stu-btn-ghost" style="padding:.3rem .75rem;font-size:.8rem;">&lsaquo; Prev</button>
-                        <button id="reqNext" class="stu-btn-ghost" style="padding:.3rem .75rem;font-size:.8rem;">Next &rsaquo;</button>
+                @if (Model.Requests.Count > 5)
+                {
+                    <div style="margin-top:.85rem;text-align:center;">
+                        <a asp-controller="Device" asp-action="MyDevices"
+                           class="stu-btn-ghost"
+                           style="font-size:.82rem;padding:.4rem 1.1rem;display:inline-flex;align-items:center;gap:.4rem;">
+                            <i class="bi bi-arrow-right-circle"></i>
+                            See More (@Model.Requests.Count requests)
+                        </a>
                     </div>
-                </div>
+                }
             }
             else
             {
@@ -256,9 +259,9 @@
                 @foreach (var dev in Model.Devices.Take(4))
                 {
                     var db2 = dev.Status switch {
-                        PaScan.Enums.DeviceStatus.ACTIVE => "stu-badge--active",
-                        PaScan.Enums.DeviceStatus.EXPIRED => "stu-badge--expired",
-                        PaScan.Enums.DeviceStatus.REVOKED => "stu-badge--revoked",
+                        PaScan.Enums.DeviceStatus.ACTIVE   => "stu-badge--active",
+                        PaScan.Enums.DeviceStatus.EXPIRED  => "stu-badge--expired",
+                        PaScan.Enums.DeviceStatus.REVOKED  => "stu-badge--revoked",
                         _ => "stu-badge--pending"
                     };
                     var devIcon = dev.DeviceType switch {
@@ -349,51 +352,7 @@
             body.innerHTML=html;
         }).catch(()=>{ body.innerHTML='<div style="color:#ff453a;padding:2rem;text-align:center;">Error loading details. Please try again.</div>'; });
     });
-    // ── Device Requests: scroll / pagination ──
-    (function(){
-        var rows    = Array.from(document.querySelectorAll('#reqTbody tr[data-req-row]'));
-        var wrap    = document.getElementById('reqTableWrap');
-        var pgBox   = document.getElementById('reqPagination');
-        var pgInfo  = document.getElementById('reqPageInfo');
-        var btnPrev = document.getElementById('reqPrev');
-        var btnNext = document.getElementById('reqNext');
-        if (!wrap) return;                  // guard: only runs when table is rendered
-        var total = rows.length;
-        var PAGE  = 10;
-        var cur   = 1;
-
-        if (total <= 5) {
-            // ≤5: plain — no scroll, no pagination
-            wrap.style.maxHeight = '';
-            wrap.style.overflowY = '';
-        } else if (total <= 10) {
-            // 6-10: scrollable container
-            wrap.style.maxHeight = '320px';
-            wrap.style.overflowY = 'auto';
-            wrap.style.scrollbarWidth = 'thin';
-        } else {
-            // >10: pagination
-            wrap.style.maxHeight = '';
-            wrap.style.overflowY = '';
-            pgBox.style.display = 'flex';
-            renderPage(1);
-            btnPrev.addEventListener('click', function(){ if (cur > 1) renderPage(cur - 1); });
-            btnNext.addEventListener('click', function(){ var p = Math.ceil(total/PAGE); if (cur < p) renderPage(cur + 1); });
-        }
-
-        function renderPage(page){
-            cur = page;
-            var pages = Math.ceil(total / PAGE);
-            var start = (page - 1) * PAGE;
-            var end   = Math.min(start + PAGE, total);
-            rows.forEach(function(r, i){ r.style.display = (i >= start && i < end) ? '' : 'none'; });
-            pgInfo.textContent = 'Page ' + page + ' of ' + pages + ' (' + total + ' requests)';
-            btnPrev.style.opacity = page === 1     ? '.35' : '1';
-            btnNext.style.opacity = page === pages ? '.35' : '1';
-            btnPrev.disabled = page === 1;
-            btnNext.disabled = page === pages;
-        }
-    })();
+    // ── Device Requests: no extra JS needed (server renders max 5, See More link handles overflow) ──
 
 })();
 </script>

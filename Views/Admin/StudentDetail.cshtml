@@ -4,141 +4,125 @@
     ViewData["Title"] = "Student Profile";
 }
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Student Profile</h2>
-        <a asp-action="Students" class="btn btn-sm btn-link text-decoration-none">
-            <i class="bi bi-arrow-left"></i> Back to Directory
+<div class="adm-page-header adm-rise">
+    <div class="adm-page-header-row">
+        <div>
+            <p class="adm-page-kicker">Profile</p>
+            <h1 class="adm-page-title">Student Profile</h1>
+        </div>
+        <a asp-action="Students" class="adm-back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Directory
         </a>
     </div>
+</div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
+@if (TempData["Success"] != null)
+{
+    <div class="adm-alert adm-alert--success adm-rise"><i class="bi bi-check-circle-fill"></i> @TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="adm-alert adm-alert--error adm-rise"><i class="bi bi-exclamation-circle-fill"></i> @TempData["Error"]</div>
+}
 
-    <div class="row g-4">
-        <div class="col-lg-4">
-            <!-- Profile Card -->
-            <div class="card shadow-sm border-0 mb-4 text-center">
-                <div class="card-body p-4">
-                    <div class="avatar-lg bg-light text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">
-                        @Model.Student.FirstName[0]@Model.Student.LastName[0]
-                    </div>
-                    <h4 class="mb-1">@Model.Student.FirstName @Model.Student.LastName</h4>
-                    <p class="text-muted small mb-3">@Model.Student.StudentNumber</p>
-                    <div class="badge @(Model.Student.IsActive ? "bg-success" : "bg-dark") mb-4">
-                        @(Model.Student.IsActive ? "ACTIVE ACCOUNT" : "INACTIVE")
-                    </div>
-
-                    <div class="text-start border-top pt-3 mt-2">
-                        <div class="mb-2">
-                            <label class="text-muted small text-uppercase fw-bold">Email</label>
-                            <div class="small">@Model.Student.Email</div>
-                        </div>
-                        <div class="mb-2">
-                            <label class="text-muted small text-uppercase fw-bold">Course</label>
-                            <div class="small">@(Model.Student.Course?.Name ?? "N/A")</div>
-                        </div>
-                    </div>
+<div class="adm-row adm-rise adm-rise-d1" style="grid-template-columns:1fr 2fr;">
+    <div>
+        <!-- Profile Card -->
+        <div class="adm-card adm-text-center">
+            <div class="adm-avatar adm-avatar--lg" style="margin:0 auto 1rem;">@Model.Student.FirstName[0]@Model.Student.LastName[0]</div>
+            <h3 style="color:#fff; font-size:1.2rem; font-weight:600; margin-bottom:0.25rem;">@Model.Student.FirstName @Model.Student.LastName</h3>
+            <p class="adm-text-muted" style="font-size:0.88rem; margin-bottom:1rem;">@Model.Student.StudentNumber</p>
+            <span class="adm-badge @(Model.Student.IsActive ? "adm-badge--active" : "adm-badge--inactive")" style="margin-bottom:1.5rem;">
+                @(Model.Student.IsActive ? "ACTIVE ACCOUNT" : "INACTIVE")
+            </span>
+            <div style="text-align:left; border-top:1px solid rgba(255,255,255,0.06); padding-top:1rem; margin-top:1rem;">
+                <div class="adm-detail-item">
+                    <div class="adm-detail-label">Email</div>
+                    <div class="adm-detail-value" style="font-size:0.88rem;">@Model.Student.Email</div>
                 </div>
-            </div>
-
-            <!-- RFID Card Management -->
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4">
-                    <h5 class="card-title mb-4">RFID Credential</h5>
-                    
-                    @if (Model.ActiveRfid == null)
-                    {
-                        <div class="alert alert-warning small py-2">No active card issued.</div>
-                        <a asp-action="IssueRfid" asp-route-id="@Model.Student.Id" class="btn btn-primary btn-sm w-100 rounded-pill mb-3">
-                            <i class="bi bi-plus-circle me-1"></i> Issue New Card
-                        </a>
-                    }
-                    else
-                    {
-                        <div class="bg-success-subtle border border-success-subtle p-3 rounded mb-4">
-                            <div class="d-flex align-items-center text-success mb-1">
-                                <i class="bi bi-credit-card-2-front fs-4 me-2"></i>
-                                <span class="fw-bold">Active Card</span>
-                            </div>
-                            <div class="small text-success-emphasis font-monospace">UID: @Model.ActiveRfid.CardUid</div>
-                            <div class="small text-success-emphasis mt-1">Expires: @Model.ActiveRfid.SemesterExpiresAt.ToString("MMM dd, yyyy")</div>
-                        </div>
-
-                        <a asp-action="ManageRfid" asp-route-id="@Model.Student.Id" class="btn btn-outline-primary btn-sm w-100 rounded-pill">
-                            <i class="bi bi-gear me-1"></i> Manage Card
-                        </a>
-                    }
+                <div class="adm-detail-item">
+                    <div class="adm-detail-label">Course</div>
+                    <div class="adm-detail-value" style="font-size:0.88rem;">@(Model.Student.Course?.Name ?? "N/A")</div>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-8">
-            <!-- Registered Devices Table -->
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-white py-3 border-0">
-                    <h5 class="mb-0">Registered Devices</h5>
+        <!-- RFID Card Management -->
+        <div class="adm-card">
+            <h3 class="adm-card-title" style="margin-bottom:1.2rem;">RFID Credential</h3>
+            @if (Model.ActiveRfid == null)
+            {
+                <div class="adm-alert adm-alert--warning" style="margin-bottom:1rem;">No active card issued.</div>
+                <a asp-action="IssueRfid" asp-route-id="@Model.Student.Id" class="adm-btn-primary adm-btn-sm adm-btn-block">
+                    <i class="bi bi-plus-circle"></i> Issue New Card
+                </a>
+            }
+            else
+            {
+                <div class="adm-rfid-card-display active">
+                    <div style="display:flex; align-items:center; justify-content:center; gap:0.5rem; color:#32d74b; margin-bottom:0.4rem;">
+                        <i class="bi bi-credit-card-2-front" style="font-size:1.5rem;"></i>
+                        <span style="font-weight:600;">Active Card</span>
+                    </div>
+                    <div class="adm-text-mono" style="color:#32d74b; font-size:0.88rem;">UID: @Model.ActiveRfid.CardUid</div>
+                    <div style="color:#6e6e73; font-size:0.85rem; margin-top:0.3rem;">Expires: @Model.ActiveRfid.SemesterExpiresAt.ToString("MMM dd, yyyy")</div>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light small">
-                            <tr>
-                                <th class="ps-4">Device</th>
-                                <th>Type</th>
-                                <th>Serial Number</th>
-                                <th>Status</th>
-                                <th class="text-end pe-4">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model.Devices.Any())
-                            {
-                                @foreach (var device in Model.Devices)
-                                {
-                                    <tr>
-                                        <td class="ps-4 fw-bold">@device.Brand @device.Model</td>
-                                        <td><span class="badge bg-light text-dark border">@device.DeviceType</span></td>
-                                        <td class="font-monospace small">@device.SerialNumber</td>
-                                        <td>
-                                            @if (device.Status == PaScan.Enums.DeviceStatus.ACTIVE)
-                                            {
-                                                <span class="badge bg-success">ACTIVE</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-danger">@device.Status</span>
-                                            }
-                                        </td>
-                                        <td class="text-end pe-4">
-                                            <a asp-action="DeviceDetail" asp-route-id="@device.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3">Details</a>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                            else
+                <a asp-action="ManageRfid" asp-route-id="@Model.Student.Id" class="adm-btn-ghost adm-btn-sm adm-btn-block">
+                    <i class="bi bi-gear"></i> Manage Card
+                </a>
+            }
+        </div>
+    </div>
+
+    <div>
+        <!-- Registered Devices Table -->
+        <div class="adm-card">
+            <div class="adm-card-header">
+                <h2 class="adm-card-title">Registered Devices</h2>
+            </div>
+            <div class="adm-table-wrap">
+                <table class="adm-table paginated-table">
+                    <thead>
+                        <tr>
+                            <th>Device</th>
+                            <th>Type</th>
+                            <th>Serial Number</th>
+                            <th>Status</th>
+                            <th style="text-align:right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Devices.Any())
+                        {
+                            @foreach (var device in Model.Devices)
                             {
                                 <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">
-                                        <i class="bi bi-laptop fs-1 d-block mb-2"></i>
-                                        No devices registered
+                                    <td style="font-weight:600; color:#e8e8ed;">@device.Brand @device.Model</td>
+                                    <td><span class="adm-info-chip">@device.DeviceType</span></td>
+                                    <td><span class="adm-text-mono" style="font-size:0.85rem;">@device.SerialNumber</span></td>
+                                    <td>
+                                        @if (device.Status == PaScan.Enums.DeviceStatus.ACTIVE)
+                                        {
+                                            <span class="adm-badge adm-badge--active">ACTIVE</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="adm-badge adm-badge--rejected">@device.Status</span>
+                                        }
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <a asp-action="DeviceDetail" asp-route-id="@device.Id" class="adm-btn-ghost adm-btn-sm">Details</a>
                                     </td>
                                 </tr>
                             }
-                        </tbody>
-                    </table>
-                </div>
+                        }
+                        else
+                        {
+                            <tr><td colspan="5" class="adm-table-empty"><i class="bi bi-laptop" style="font-size:2rem; display:block; margin-bottom:0.5rem;"></i>No devices registered</td></tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

@@ -2,70 +2,62 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Issue RFID Card";
-    var deviceId = Environment.MachineName; // Simple way to link browser session to bridge app
+    var deviceId = Environment.MachineName;
 }
 
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Issue RFID Card</h2>
-                <a asp-action="StudentDetail" asp-route-id="@Model.Student.Id" class="btn btn-sm btn-link text-decoration-none">
-                    <i class="bi bi-arrow-left"></i> Back to Profile
-                </a>
-            </div>
-
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body p-4 text-center">
-                    <div class="avatar-md bg-light text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.5rem; font-weight: bold;">
-                        @Model.Student.FirstName[0]@Model.Student.LastName[0]
-                    </div>
-                    <h5 class="mb-1">@Model.Student.FirstName @Model.Student.LastName</h5>
-                    <p class="text-muted small mb-0">@Model.Student.StudentNumber &bull; @(Model.Student.Course?.Name ?? "N/A")</p>
-                </div>
-            </div>
-
-            <div class="card shadow-sm border-0 border-top border-primary border-4">
-                <div class="card-body p-4 p-md-5">
-                    <div id="scanStatus" class="alert alert-info d-flex align-items-center mb-4">
-                        <div class="spinner-border spinner-border-sm me-3" role="status"></div>
-                        <span>Waiting for physical card tap...</span>
-                    </div>
-
-                    <form asp-action="IssueRfid" asp-route-studentId="@Model.Student.Id" method="post" id="issueForm">
-                        @Html.AntiForgeryToken()
-                        
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-uppercase">Bridge Identifier (Scanner Name)</label>
-                            <div class="input-group mb-2">
-                                <span class="input-group-text bg-light"><i class="bi bi-cpu"></i></span>
-                                <input type="text" id="bridgeIdInput" class="form-control" value="@deviceId" placeholder="e.g. Front Gate or @deviceId" />
-                                <button class="btn btn-outline-secondary" type="button" id="updateBridgeId">Connect</button>
-                            </div>
-                            <div class="form-text text-muted">Listening to: <strong id="currentListening">@deviceId</strong></div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-uppercase">Card UID</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-broadcast"></i></span>
-                                <input type="text" id="cardUidInput" name="CardUid" class="form-control form-control-lg font-monospace" required placeholder="UID will appear here" readonly />
-                            </div>
-                            <div class="form-text text-muted">Scan the card on the reader now.</div>
-                        </div>
-
-                        <div class="mb-5">
-                            <label class="form-label small fw-bold text-uppercase">Semester Expiry</label>
-                            <input type="date" name="SemesterExpiresAt" class="form-control" required value="@DateTime.Now.AddMonths(5).ToString("yyyy-MM-dd")" />
-                        </div>
-
-                        <button type="submit" id="submitBtn" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm" disabled>
-                            Complete Registration
-                        </button>
-                    </form>
-                </div>
-            </div>
+<div class="adm-page-header adm-rise">
+    <div class="adm-page-header-row">
+        <div>
+            <p class="adm-page-kicker">RFID</p>
+            <h1 class="adm-page-title">Issue RFID Card</h1>
         </div>
+        <a asp-action="StudentDetail" asp-route-id="@Model.Student.Id" class="adm-back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Profile
+        </a>
+    </div>
+</div>
+
+<div style="max-width:550px;" class="adm-rise adm-rise-d1">
+    <div class="adm-card adm-text-center" style="margin-bottom:1rem;">
+        <div class="adm-avatar adm-avatar--md" style="margin:0 auto 0.75rem;">@Model.Student.FirstName[0]@Model.Student.LastName[0]</div>
+        <h3 style="color:#fff; font-size:1.1rem; font-weight:600; margin-bottom:0.2rem;">@Model.Student.FirstName @Model.Student.LastName</h3>
+        <p class="adm-text-muted" style="font-size:0.85rem;">@Model.Student.StudentNumber &bull; @(Model.Student.Course?.Name ?? "N/A")</p>
+    </div>
+
+    <div class="adm-card" style="border-top:2px solid #2196F3;">
+        <div id="scanStatus" class="adm-scan-status waiting">
+            <div class="adm-spinner"></div>
+            <span>Waiting for physical card tap...</span>
+        </div>
+
+        <form asp-action="IssueRfid" asp-route-studentId="@Model.Student.Id" method="post" id="issueForm">
+            @Html.AntiForgeryToken()
+
+            <div class="adm-form-group">
+                <label class="adm-form-label">Bridge Identifier (Scanner Name)</label>
+                <div class="adm-input-group">
+                    <input type="text" id="bridgeIdInput" class="adm-form-input" value="@deviceId" placeholder="e.g. Front Gate or @deviceId" />
+                    <button class="adm-btn-ghost" type="button" id="updateBridgeId">Connect</button>
+                </div>
+                <div class="adm-form-hint" style="margin-top:0.4rem;">Listening to: <strong id="currentListening" style="color:#d2d2d7;">@deviceId</strong></div>
+            </div>
+
+            <div class="adm-form-group">
+                <label class="adm-form-label">Card UID</label>
+                <input type="text" id="cardUidInput" name="CardUid" class="adm-form-input adm-text-mono" required placeholder="UID will appear here" readonly style="font-size:1.1rem;" />
+                <div class="adm-form-hint">Scan the card on the reader now.</div>
+            </div>
+
+            <div class="adm-form-group adm-mb-4">
+                <label class="adm-form-label">Semester Expiry</label>
+                <input type="date" name="SemesterExpiresAt" class="adm-form-input" required value="@DateTime.Now.AddMonths(5).ToString("yyyy-MM-dd")" />
+            </div>
+
+            <button type="submit" id="submitBtn" class="adm-btn-primary adm-btn-block" style="padding:0.85rem;" disabled>
+                Complete Registration
+            </button>
+        </form>
     </div>
 </div>
 
@@ -100,13 +92,13 @@
                 if (data.tagId) {
                     cardInput.value = data.tagId;
                     
-                    statusAlert.classList.remove('alert-info');
-                    statusAlert.classList.add('alert-success');
-                    statusAlert.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> Card detected successfully!';
+                    statusAlert.classList.remove('waiting');
+                    statusAlert.classList.add('success');
+                    statusAlert.innerHTML = '<i class="bi bi-check-circle-fill"></i> Card detected successfully!';
                     
                     submitBtn.disabled = false;
                     isPolling = false;
-                    cardInput.classList.add('is-valid');
+                    cardInput.style.borderColor = '#32d74b';
                 }
             } catch (error) {
                 console.error('Polling error:', error);
@@ -123,20 +115,17 @@
                 currentDeviceId = newId;
                 currentListeningLabel.innerText = newId;
                 
-                // Reset state
                 isPolling = true;
                 cardInput.value = "";
-                cardInput.classList.remove('is-valid');
-                statusAlert.classList.remove('alert-success');
-                statusAlert.classList.add('alert-info');
-                statusAlert.innerHTML = '<div class="spinner-border spinner-border-sm me-3" role="status"></div><span>Waiting for physical card tap...</span>';
+                cardInput.style.borderColor = '';
+                statusAlert.classList.remove('success');
+                statusAlert.classList.add('waiting');
+                statusAlert.innerHTML = '<div class="adm-spinner"></div><span>Waiting for physical card tap...</span>';
                 
                 startPoll(currentDeviceId);
-                // pollForScan will continue running or restart if it was stopped
             }
         });
 
-        // Initialize
         startPoll(currentDeviceId).then(() => pollForScan());
 
         cardInput.addEventListener('input', function() {
