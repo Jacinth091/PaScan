@@ -1,83 +1,182 @@
 @model PaScan.Models.ViewModels.DeviceDetailViewModel
 @{
     ViewData["Title"] = "Approved Device Details";
+    var devBadge = Model.Device.Status switch
+    {
+        PaScan.Enums.DeviceStatus.ACTIVE  => "stu-badge--active",
+        PaScan.Enums.DeviceStatus.EXPIRED => "stu-badge--expired",
+        PaScan.Enums.DeviceStatus.REVOKED => "stu-badge--revoked",
+        _ => "stu-badge--pending"
+    };
+    var devIcon = Model.Device.DeviceType switch
+    {
+        PaScan.Enums.DeviceType.LAPTOP  => "bi-laptop",
+        PaScan.Enums.DeviceType.DESKTOP => "bi-pc-display",
+        _ => "bi-cpu"
+    };
+    bool hasActiveQr = !string.IsNullOrEmpty(Model.QrImageBase64)
+                       && Model.QrToken?.Status == PaScan.Enums.TokenStatus.ACTIVE
+                       && Model.Device.Status == PaScan.Enums.DeviceStatus.ACTIVE;
+    var tokenPillClass = hasActiveQr ? "active"
+        : (Model.QrToken?.Status == PaScan.Enums.TokenStatus.REVOKED ? "revoked" : "no-token");
 }
 
-<div class="shell" style="padding: 2rem 0;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-        <h1 style="font-size: 2.5rem; font-weight: 700;">Approved Device Details</h1>
-        <a asp-controller="Student" asp-action="Dashboard" style="font-size: 0.9rem;">&larr; Back to Dashboard</a>
+<div class="ddm-wrap">
+
+    <div class="ddm-header">
+        <div class="ddm-header-left">
+            <div class="ddm-icon"><i class="bi @devIcon"></i></div>
+            <div>
+                <div class="ddm-title">@Model.Device.DeviceName</div>
+                <div class="ddm-sub">
+                    @Model.Device.Brand &nbsp;@Model.Device.Model
+                    &nbsp;·&nbsp;
+                    <span class="stu-badge @devBadge" style="font-size:.72rem;padding:.2rem .65rem;">@Model.Device.Status</span>
+                </div>
+            </div>
+        </div>
+        <button class="pm-close-btn ddm-close" aria-label="Close">&#x2715;</button>
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div style="background: #e6f4ea; color: #1e8e3e; padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem;">
-            @TempData["Success"]
+        <div style="margin:1rem 2rem 0;padding:.85rem 1.1rem;background:rgba(50,215,75,.07);border:1px solid rgba(50,215,75,.18);border-radius:.85rem;color:#32d74b;font-size:.88rem;">
+            <i class="bi bi-check-circle-fill"></i>&nbsp;@TempData["Success"]
         </div>
     }
     @if (TempData["Error"] != null)
     {
-        <div style="background: #fce8e6; color: #d93025; padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem;">
-            @TempData["Error"]
+        <div style="margin:1rem 2rem 0;padding:.85rem 1.1rem;background:rgba(255,69,58,.07);border:1px solid rgba(255,69,58,.18);border-radius:.85rem;color:#ff453a;font-size:.88rem;">
+            <i class="bi bi-exclamation-triangle-fill"></i>&nbsp;@TempData["Error"]
         </div>
     }
 
-    <div style="display: flex; gap: 40px; margin-top: 20px;">
-        <!-- Left: QR Code -->
-        <div style="text-align: center; border: 1px solid #ccc; padding: 20px; border-radius: var(--radius-md); background: var(--apple-white);">
-            <h3>Gate Access QR</h3>
-            @if (!string.IsNullOrEmpty(Model.QrImageBase64) && Model.QrToken?.Status == PaScan.Enums.TokenStatus.ACTIVE && Model.Device.Status == PaScan.Enums.DeviceStatus.ACTIVE)
+
+    <div class="ddm-body">
+
+        <div class="ddm-qr-col">
+            @if (hasActiveQr)
             {
-                <img src="data:image/png;base64,@Model.QrImageBase64" alt="Device QR Code" style="width: 250px;" />
-                <p><strong>Status:</strong> @Model.QrToken?.Status</p>
-                <p><strong>Expires:</strong> @(Model.QrToken?.ExpiresAt.ToString("MMM dd, yyyy") ?? "N/A")</p>
+                <div class="ddm-qr-card">
+                    <img src="data:image/png;base64,@Model.QrImageBase64" alt="Gate Access QR Code" />
+                </div>
+                <div class="ddm-status-pill active">
+                    <i class="bi bi-patch-check-fill"></i> QR Active
+                </div>
+                <div class="ddm-expiry">
+                    Expires&nbsp;@(Model.QrToken?.ExpiresAt.ToString("MMM dd, yyyy") ?? "N/A")
+                </div>
+                <div class="ddm-hint">
+                    <i class="bi bi-qr-code-scan" style="display:block;font-size:1rem;margin-bottom:.3rem;color:#2196F3;"></i>
+                    Show this code at the gate scanner for entry.
+                </div>
             }
             else
             {
-                <p style="color: red; margin: 2rem 0;">No active QR token found, token is expired, or device is not active.</p>
-                
-                @if (Model.Device.Status == PaScan.Enums.DeviceStatus.ACTIVE && Model.QrToken?.Status != PaScan.Enums.TokenStatus.REVOKED)
+                <div class="ddm-qr-placeholder">
+                    <i class="bi bi-qr-code"></i>
+                    <span>No active<br/>QR token</span>
+                </div>
+                <div class="ddm-status-pill @tokenPillClass">
+                    @if (Model.QrToken?.Status == PaScan.Enums.TokenStatus.REVOKED)
+                    {
+                        <i class="bi bi-x-circle-fill"></i><span>Revoked</span>
+                    }
+                    else
+                    {
+                        <i class="bi bi-clock"></i><span>@(Model.QrToken?.Status.ToString() ?? "No Token")</span>
+                    }
+                </div>
+                @if (Model.Device.Status == PaScan.Enums.DeviceStatus.ACTIVE
+                     && Model.QrToken?.Status != PaScan.Enums.TokenStatus.REVOKED)
                 {
-                    <form asp-action="RenewQr" asp-route-deviceId="@Model.Device.Id" method="post">
-                        <button type="submit" class="button-pill button-pill-primary">Renew QR</button>
+                    <form asp-action="RenewQr" asp-route-deviceId="@Model.Device.Id" method="post" style="width:100%;">
+                        <button type="submit" class="ddm-action-btn">
+                            <i class="bi bi-arrow-clockwise"></i> Renew QR Code
+                        </button>
                     </form>
                 }
                 else if (Model.Device.Status == PaScan.Enums.DeviceStatus.EXPIRED)
                 {
-                    <div style="margin-top: 1rem;">
-                        <p style="color: #6e6e73; font-size: 0.9rem;">Your device registration has expired. You must request a renewal for admin re-verification.</p>
-                        <a asp-action="RenewDevice" asp-route-deviceId="@Model.Device.Id" class="button-pill button-pill-primary" style="display: inline-block; text-decoration: none;">Renew Device Registration</a>
-                    </div>
+                    <a asp-action="RenewDevice" asp-route-deviceId="@Model.Device.Id" class="ddm-action-btn warn">
+                        <i class="bi bi-arrow-repeat"></i> Renew Registration
+                    </a>
                 }
             }
         </div>
 
-        <!-- Right: Device Info -->
-        <div style="flex: 1; border: 1px solid #ccc; padding: 20px; border-radius: var(--radius-md); background: var(--apple-white);">
-            <h3>Device Info</h3>
-            <ul>
-                <li><strong>Device Name:</strong> @Model.Device.DeviceName</li>
-                <li><strong>Brand/Model:</strong> @Model.Device.Brand @Model.Device.Model</li>
-                <li><strong>Serial:</strong> @Model.Device.SerialNumber</li>
-                <li><strong>Status:</strong> @Model.Device.Status</li>
-                <li><strong>Declared Purpose:</strong> @Model.Device.Purpose</li>
-            </ul>
 
-            <h4>Hardware Specs</h4>
-            <ul>
-                <li><strong>OS:</strong> @(Model.Device.OperatingSystem ?? "N/A")</li>
-                <li><strong>Processor:</strong> @(Model.Device.Processor ?? "N/A")</li>
-                <li><strong>Memory:</strong> @(Model.Device.Memory ?? "N/A")</li>
-                <li><strong>Storage:</strong> @(Model.Device.Storage ?? "N/A")</li>
-            </ul>
+        <div class="ddm-info-col">
 
-            <h4>Accessories</h4>
-            <ul>
-                @foreach (var acc in Model.Device.Accessories)
-                {
-                    <li>@acc.AccessoryName (Qty: @acc.Quantity)</li>
-                }
-            </ul>
+            <div class="ddm-section">
+                <div class="ddm-section-title">
+                    <i class="bi bi-laptop"></i> Device Info
+                </div>
+                <div class="ddm-grid-2">
+                    <div class="ddm-field">
+                        <div class="ddm-label">Device Name</div>
+                        <div class="ddm-value">@Model.Device.DeviceName</div>
+                    </div>
+                    <div class="ddm-field">
+                        <div class="ddm-label">Type</div>
+                        <div class="ddm-value">@Model.Device.DeviceType</div>
+                    </div>
+                    <div class="ddm-field">
+                        <div class="ddm-label">Brand</div>
+                        <div class="ddm-value">@Model.Device.Brand</div>
+                    </div>
+                    <div class="ddm-field">
+                        <div class="ddm-label">Model</div>
+                        <div class="ddm-value">@Model.Device.Model</div>
+                    </div>
+                    <div class="ddm-field" style="grid-column:1/-1;">
+                        <div class="ddm-label">Serial Number</div>
+                        <div class="ddm-value ddm-mono">@Model.Device.SerialNumber</div>
+                    </div>
+                    <div class="ddm-field" style="grid-column:1/-1;">
+                        <div class="ddm-label">Declared Purpose</div>
+                        <div class="ddm-value">@Model.Device.Purpose</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ddm-section">
+                <div class="ddm-section-title">
+                    <i class="bi bi-cpu"></i> Hardware Specs
+                </div>
+                <div class="ddm-grid-2">
+                    <div class="ddm-field">
+                        <div class="ddm-label">Operating System</div>
+                        <div class="ddm-value">@(Model.Device.OperatingSystem ?? "—")</div>
+                    </div>
+                    <div class="ddm-field">
+                        <div class="ddm-label">Processor</div>
+                        <div class="ddm-value">@(Model.Device.Processor ?? "—")</div>
+                    </div>
+                    <div class="ddm-field">
+                        <div class="ddm-label">Memory</div>
+                        <div class="ddm-value">@(Model.Device.Memory ?? "—")</div>
+                    </div>
+                    <div class="ddm-field">
+                        <div class="ddm-label">Storage</div>
+                        <div class="ddm-value">@(Model.Device.Storage ?? "—")</div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Device.Accessories.Any())
+            {
+                <div class="ddm-section">
+                    <div class="ddm-section-title"><i class="bi bi-bag"></i> Accessories</div>
+                    <div class="ddm-chips">
+                        @foreach (var acc in Model.Device.Accessories)
+                        {
+                            <span class="ddm-chip">@acc.AccessoryName &times; @acc.Quantity</span>
+                        }
+                    </div>
+                </div>
+            }
+
         </div>
     </div>
 </div>

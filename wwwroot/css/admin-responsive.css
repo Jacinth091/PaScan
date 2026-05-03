@@ -1,0 +1,68 @@
+/* ================= ADMIN PORTAL RESPONSIVE ================= */
+
+/* --- Tablet & Small Laptops --- */
+@media (max-width: 900px) {
+  .adm-main { padding: 1.5rem 1.2rem 5.5rem; }
+  .adm-dock { bottom:0.65rem; gap:0.15rem; padding:0.5rem 0.6rem; }
+  .adm-dock-item { padding:0.4rem 0.5rem; min-width:40px; }
+  .adm-dock-label { font-size:0.52rem; }
+  .adm-page-title { font-size: clamp(1.5rem,5vw,2rem); }
+  .adm-page-header-row { flex-direction:column; align-items:flex-start; gap:0.75rem; }
+  .adm-detail-grid { grid-template-columns:1fr; }
+  .adm-form-row { grid-template-columns:1fr; }
+  .adm-stats-row { grid-template-columns: 1fr 1fr; }
+  .adm-card { padding:1.2rem; border-radius:16px; }
+  .adm-card-header { flex-direction:column; align-items:flex-start; gap:0.6rem; }
+  .adm-table { min-width:580px; }
+  .adm-row { grid-template-columns:1fr; }
+}
+
+/* --- Mobile Phones --- */
+@media (max-width: 600px) {
+  .adm-main { padding: 1.2rem 0.85rem 5.5rem; }
+  .adm-dock { bottom:0.5rem; gap:0.08rem; padding:0.4rem 0.45rem; }
+  .adm-dock-item { padding:0.35rem 0.4rem; min-width:36px; border-radius:10px; }
+  .adm-dock-item svg { width:18px; height:18px; }
+  .adm-dock-label { font-size:0.5rem; }
+  .adm-dock-divider { height:20px; margin: 0 0.1rem; }
+  .adm-dock-avatar { width:30px; height:30px; font-size:0.7rem; }
+  .adm-dock-popover { right:-4px; min-width:200px; }
+  .adm-page-kicker { font-size:0.7rem; }
+  .adm-page-title { font-size:1.4rem; }
+  .adm-page-subtitle { font-size:0.85rem; }
+  .adm-stats-row { grid-template-columns:1fr; gap:0.75rem; margin-bottom:1.5rem; }
+  .adm-stat-card { padding:1rem; border-radius:14px; }
+  .adm-stat-label { font-size:0.72rem; }
+  .adm-stat-value { font-size:1.35rem; }
+  .adm-card { padding:1rem; border-radius:14px; }
+  .adm-card-header { flex-direction:column; align-items:flex-start; gap:0.5rem; margin-bottom:1rem; }
+  .adm-card-title { font-size:1.05rem; }
+  .adm-table { min-width:520px; }
+  .adm-table thead th { padding:0.6rem 0.75rem; font-size:0.7rem; }
+  .adm-table tbody td { padding:0.7rem 0.75rem; font-size:0.85rem; }
+  .adm-detail-grid { grid-template-columns:1fr; gap:0.8rem; }
+  .adm-form-row { grid-template-columns:1fr; }
+  .adm-form-input, .adm-form-select, .adm-form-textarea { padding:0.7rem 0.85rem; font-size:0.88rem; }
+  .adm-form-legend { font-size:0.95rem; }
+  .adm-btn-primary, .adm-btn-ghost, .adm-btn-success, .adm-btn-danger { font-size:0.85rem; padding:0.65rem 1rem; }
+  .adm-badge { font-size:0.68rem; padding:0.25rem 0.55rem; }
+  .adm-alert { padding:0.85rem 1rem; font-size:0.85rem; border-radius:10px; }
+  .adm-row { grid-template-columns:1fr; }
+  .adm-breadcrumb { font-size:0.8rem; }
+  .adm-action-link { padding:0.85rem 1rem; }
+  .adm-input-group { flex-direction:column; }
+  .adm-input-group .adm-form-input { border-radius:10px; }
+  .adm-input-group .adm-btn-ghost { border-radius:10px; border-left: 1px solid rgba(255,255,255,0.12); }
+}
+
+/* --- Very Small Phones --- */
+@media (max-width: 380px) {
+  .adm-main { padding: 1rem 0.6rem 5.2rem; }
+  .adm-dock { bottom:0.4rem; padding:0.35rem 0.4rem; gap:0.04rem; }
+  .adm-dock-item { padding:0.3rem 0.35rem; min-width:32px; }
+  .adm-dock-label { display:none; }
+  .adm-dock-item svg { width:18px; height:18px; }
+  .adm-dock-avatar { width:28px; height:28px; font-size:0.65rem; }
+  .adm-page-title { font-size:1.2rem; }
+  .adm-table { min-width:460px; }
+}

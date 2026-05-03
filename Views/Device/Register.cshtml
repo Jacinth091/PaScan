@@ -4,156 +4,726 @@
     ViewData["Title"] = "Register Device";
 }
 
-<h1>Register New Device</h1>
-<a asp-controller="Student" asp-action="Dashboard">Cancel</a>
+<style>
+.reg-wrap *{ box-sizing:border-box; }
+.reg-wrap {
+    --blue:#2196F3; --blue-dim:rgba(33,150,243,.12); --blue-border:rgba(33,150,243,.25);
+    --card:rgba(255,255,255,.028); --card-border:rgba(255,255,255,.07);
+    --text:#e5e5ea; --muted:#8e8e93; --dim:#3a3a3e;
+    --green:#32d74b; --orange:#ff9f0a; --red:#ff453a;
+    --input-bg:rgba(255,255,255,.04); --input-border:rgba(255,255,255,.1);
+    --radius:1.1rem;
+    font-family:'DM Sans',sans-serif;
+    color:var(--text);
+    padding-bottom:3rem;
+}
 
-<form asp-action="Register" method="post" id="deviceRegisterForm">
-    @Html.AntiForgeryToken()
-    <div asp-validation-summary="All" style="color: red;"></div>
-    
-    <fieldset>
-        <legend>Basic Information</legend>
-        <div class="mb-3">
-            <label asp-for="DeviceName" class="form-label fw-bold">Device Name <span class="text-muted fw-normal">(e.g., "My Study Laptop")</span></label>
-            <input asp-for="DeviceName" class="form-control" placeholder="What do you call this device?" />
-            <span asp-validation-for="DeviceName" style="color: red;"></span>
-        </div>
-        
-        <div>
-            <label asp-for="DeviceType"></label>
-            <select asp-for="DeviceType" asp-items="Html.GetEnumSelectList<DeviceType>()"></select>
-            <span asp-validation-for="DeviceType" style="color: red;"></span>
+.reg-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:2rem; }
+.reg-page-sub { font-size:.88rem; color:var(--muted); }
+.reg-page-title { font-family:'Syne',sans-serif;font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em; color:#fff; margin-bottom:.3rem; }
+
+.reg-step-rail { display:flex; gap:0; margin:1.8rem 0 2.2rem; position:relative; }
+.reg-step-rail::before { content:''; position:absolute; top:14px; left:14px; right:14px; height:1px; background:var(--dim); z-index:0; }
+.reg-step-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:.45rem; position:relative; z-index:1; }
+.reg-step-dot {
+    width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:.72rem; font-weight:700; font-family:'Syne',sans-serif;
+    transition:all .3s; border:2px solid var(--dim); background:#111114; color:var(--muted);
+}
+.reg-step-dot.active { background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 0 0 4px rgba(33,150,243,.18); }
+.reg-step-dot.done   { background:rgba(50,215,75,.15); border-color:var(--green); color:var(--green); }
+.reg-step-label { font-size:.68rem; font-weight:500; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; text-align:center; }
+.reg-step-label.active { color:var(--blue); }
+.reg-step-label.done   { color:var(--green); }
+
+.reg-section { display:none; }
+.reg-section.visible { display:block; }
+.reg-eyebrow { font-size:.7rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--blue); margin-bottom:.5rem; }
+.reg-heading { font-family:'Syne',sans-serif; font-weight:700; font-size:1.35rem; color:#fff; margin-bottom:.25rem; }
+.reg-desc { font-size:.85rem; color:var(--muted); margin-bottom:1.8rem; line-height:1.5; }
+
+.reg-field { margin-bottom:1.3rem; }
+.reg-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.3rem; }
+.reg-wrap label { display:block; font-size:.78rem; font-weight:500; color:var(--muted); margin-bottom:.45rem; letter-spacing:.02em; }
+.reg-wrap label span { font-weight:400; color:var(--dim); font-style:italic; }
+.reg-wrap input[type=text],
+.reg-wrap input[type=number],
+.reg-wrap select,
+.reg-wrap textarea {
+    width:100%; background:var(--input-bg); border:1px solid var(--input-border); color:var(--text);
+    padding:.75rem 1rem; border-radius:.75rem; font-size:.9rem; font-family:'DM Sans',sans-serif;
+    outline:none; transition:border-color .2s,box-shadow .2s; appearance:none; -webkit-appearance:none;
+}
+.reg-wrap input[type=text]:focus,
+.reg-wrap input[type=number]:focus,
+.reg-wrap select:focus,
+.reg-wrap textarea:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(33,150,243,.12); }
+.reg-wrap select {
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238e8e93' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:calc(100% - 1rem) center; padding-right:2.5rem;
+}
+.reg-wrap select option { background:#1c1c1e; color:var(--text); }
+.reg-wrap textarea { resize:vertical; min-height:90px; line-height:1.5; }
+.reg-wrap input::placeholder,
+.reg-wrap textarea::placeholder { color:rgba(255,255,255,.2); }
+
+.reg-wrap .stu-validation-error { color:var(--red); font-size:.78rem; margin-top:.3rem; display:block; }
+
+.reg-check-row {
+    display:flex; align-items:center; gap:.75rem; padding:.8rem 1rem;
+    background:var(--card); border:1px solid var(--card-border); border-radius:.75rem;
+    cursor:pointer; transition:border-color .2s;
+}
+.reg-check-row:hover { border-color:var(--input-border); }
+.reg-check-row input[type=checkbox] { width:18px; height:18px; accent-color:var(--blue); flex-shrink:0; }
+.reg-check-row-label { font-size:.88rem; color:var(--text); }
+
+.reg-review-card { background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius); padding:1.4rem; margin-bottom:1rem; }
+.reg-review-title { font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--blue); margin-bottom:.9rem; }
+.reg-review-row { display:flex; justify-content:space-between; align-items:flex-start; padding:.45rem 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.reg-review-row:last-child { border-bottom:none; }
+.reg-rv-label { font-size:.82rem; color:var(--muted); flex-shrink:0; margin-right:1rem; }
+.reg-rv-val { font-size:.85rem; color:var(--text); font-weight:500; text-align:right; word-break:break-word; }
+
+.reg-info-hint {
+    display:flex; gap:.65rem; align-items:flex-start;
+    background:var(--blue-dim); border:1px solid var(--blue-border);
+    border-radius:.8rem; padding:.8rem 1rem; margin-top:.5rem;
+}
+.reg-info-hint p { font-size:.8rem; color:#90caf9; line-height:1.5; margin:0; }
+
+.reg-btn-row { display:flex; gap:.75rem; justify-content:flex-end; margin-top:2rem; flex-wrap:wrap; }
+.reg-btn-ghost {
+    background:rgba(255,255,255,.04); border:1px solid var(--card-border); color:var(--muted);
+    padding:.75rem 1.5rem; border-radius:.8rem; font-size:.88rem; font-family:'DM Sans',sans-serif;
+    cursor:pointer; transition:all .2s; font-weight:500; text-decoration:none; display:inline-flex; align-items:center;
+}
+.reg-btn-ghost:hover { border-color:var(--input-border); color:var(--text); text-decoration:none; }
+.reg-btn-primary {
+    background:var(--blue); border:none; color:#fff; padding:.75rem 1.8rem; border-radius:.8rem;
+    font-size:.9rem; font-family:'Syne',sans-serif; cursor:pointer; font-weight:700;
+    letter-spacing:.02em; transition:all .2s; display:inline-flex; align-items:center; gap:.5rem;
+}
+.reg-btn-primary:hover { background:#1976d2; transform:translateY(-1px); }
+.reg-btn-primary:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+.acc-card {
+    background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:1rem;
+    padding:1rem 1.1rem 1rem 1rem;
+    margin-bottom:.75rem;
+    transition:border-color .2s, box-shadow .2s;
+    position:relative;
+}
+.acc-card:hover { border-color:rgba(255,255,255,.15); box-shadow:0 4px 20px rgba(0,0,0,.18); }
+.acc-card.acc-drag-over { border-color:var(--blue); box-shadow:0 0 0 3px rgba(33,150,243,.15); }
+.acc-drag-handle {
+    position:absolute; left:.6rem; top:50%; transform:translateY(-50%);
+    cursor:grab; color:rgba(255,255,255,.18); font-size:1.1rem; user-select:none;
+    transition:color .2s;
+}
+.acc-card:hover .acc-drag-handle { color:rgba(255,255,255,.38); }
+.acc-drag-handle:active { cursor:grabbing; }
+.acc-card-body { padding-left:1.4rem; }
+.acc-row1 { display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; margin-bottom:.65rem; }
+.acc-row2 { display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; }
+.acc-name-input {
+    flex:1;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.1);
+    color:var(--text);
+    padding:.6rem .9rem;
+    border-radius:.65rem;
+    font-size:.88rem;
+    font-family:'DM Sans',sans-serif;
+    outline:none;
+    transition:border-color .2s, box-shadow .2s;
+    min-width:120px;
+}
+.acc-name-input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(33,150,243,.1); }
+.acc-name-input::placeholder { color:rgba(255,255,255,.2); }
+.acc-qty-wrap {
+    display:flex; align-items:center; gap:0;
+    border:1px solid rgba(255,255,255,.1); border-radius:.65rem; overflow:hidden;
+    flex-shrink:0;
+}
+.acc-qty-btn {
+    background:rgba(255,255,255,.05); border:none; color:var(--text);
+    width:32px; height:36px; font-size:1rem; cursor:pointer;
+    transition:background .15s; font-family:'DM Sans',sans-serif;
+    display:flex; align-items:center; justify-content:center;
+}
+.acc-qty-btn:hover { background:rgba(255,255,255,.1); }
+.acc-qty-input {
+    width:44px; background:transparent; border:none;
+    color:var(--text); font-size:.88rem; font-family:'DM Sans',sans-serif;
+    text-align:center; outline:none; height:36px;
+    -moz-appearance:textfield;
+}
+.acc-qty-input::-webkit-inner-spin-button,
+.acc-qty-input::-webkit-outer-spin-button { -webkit-appearance:none; }
+.acc-qty-label { font-size:.72rem; color:var(--muted); white-space:nowrap; }
+.acc-notes-input {
+    flex:1;
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.07);
+    color:var(--text);
+    padding:.5rem .85rem;
+    border-radius:.6rem;
+    font-size:.8rem;
+    font-family:'DM Sans',sans-serif;
+    outline:none;
+    transition:border-color .2s;
+}
+.acc-notes-input:focus { border-color:rgba(255,255,255,.2); }
+.acc-notes-input::placeholder { color:rgba(255,255,255,.15); font-style:italic; }
+.acc-remove-btn {
+    background:transparent; border:1px solid transparent;
+    color:rgba(255,69,58,.5); border-radius:.6rem;
+    padding:.45rem .6rem; font-size:.8rem; cursor:pointer;
+    transition:all .2s; flex-shrink:0; display:flex; align-items:center;
+    font-family:'DM Sans',sans-serif;
+}
+.acc-remove-btn:hover { background:rgba(255,69,58,.1); border-color:rgba(255,69,58,.25); color:var(--red); }
+.acc-empty {
+    text-align:center; padding:2rem 1rem;
+    color:var(--muted); font-size:.85rem;
+    border:1px dashed rgba(255,255,255,.08);
+    border-radius:1rem; margin-bottom:.75rem;
+    display:none;
+}
+.acc-empty svg { display:block; margin:0 auto .75rem; opacity:.3; }
+.acc-counter {
+    font-size:.75rem; color:var(--muted);
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:.5rem;
+    padding:.2rem .55rem;
+    display:inline-block;
+    transition:color .2s;
+}
+.acc-counter.warn  { color:var(--orange); border-color:rgba(255,159,10,.25); background:rgba(255,159,10,.07); }
+.acc-counter.limit { color:var(--red);    border-color:rgba(255,69,58,.25);  background:rgba(255,69,58,.07); }
+.acc-add-upgraded {
+    display:flex; align-items:center; justify-content:center; gap:.5rem;
+    width:100%; background:rgba(33,150,243,.06); border:1px dashed rgba(33,150,243,.25);
+    color:#90caf9; padding:.75rem 1rem; border-radius:.85rem; font-size:.85rem;
+    cursor:pointer; transition:all .22s; margin-top:.25rem; font-family:'DM Sans',sans-serif;
+    font-weight:500;
+}
+.acc-add-upgraded:hover    { background:rgba(33,150,243,.12); border-color:rgba(33,150,243,.45); color:#fff; }
+.acc-add-upgraded:disabled { opacity:.4; cursor:not-allowed; }
+.acc-limit-banner {
+    display:none; align-items:center; gap:.65rem;
+    background:rgba(255,69,58,.08); border:1px solid rgba(255,69,58,.2);
+    border-radius:.8rem; padding:.75rem 1rem; margin-bottom:.75rem;
+    font-size:.82rem; color:#ff9b96;
+}
+
+@@media(max-width:600px){
+    .reg-row { grid-template-columns:1fr; }
+    .reg-btn-row { flex-direction:column-reverse; }
+    .reg-btn-primary, .reg-btn-ghost { width:100%; justify-content:center; }
+    .acc-row1, .acc-row2 { flex-wrap:wrap; }
+}
+</style>
+
+<div class="reg-wrap">
+
+    <div id="regMainForm">
+
+        <div class="reg-header stu-rise">
+            <div>
+                <p class="reg-page-sub">Device Registration</p>
+                <h1 class="reg-page-title">Register New Device</h1>
+            </div>
+            <a asp-controller="Student" asp-action="Dashboard" class="reg-btn-ghost">&larr; Dashboard</a>
         </div>
 
-        <div>
-            <label asp-for="Brand"></label>
-            <input asp-for="Brand" />
-            <span asp-validation-for="Brand" style="color: red;"></span>
+        @if (TempData["Info"] != null)
+        {
+            <div class="stu-alert stu-alert--info">@TempData["Info"]</div>
+        }
+
+        <div class="reg-step-rail stu-rise stu-rise-d1">
+            <div class="reg-step-item"><div class="reg-step-dot active" id="dot0">1</div><span class="reg-step-label active" id="lbl0">Device</span></div>
+            <div class="reg-step-item"><div class="reg-step-dot" id="dot1">2</div><span class="reg-step-label" id="lbl1">Specs</span></div>
+            <div class="reg-step-item"><div class="reg-step-dot" id="dot2">3</div><span class="reg-step-label" id="lbl2">Accessories</span></div>
+            <div class="reg-step-item"><div class="reg-step-dot" id="dot3">4</div><span class="reg-step-label" id="lbl3">Review</span></div>
         </div>
 
-        <div>
-            <label asp-for="Model"></label>
-            <input asp-for="Model" />
-            <span asp-validation-for="Model" style="color: red;"></span>
-        </div>
+        <form asp-action="Register" method="post" id="deviceRegisterForm">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="stu-validation-error" style="margin-bottom:1rem;"></div>
 
-        <div>
-            <label asp-for="SerialNumber"></label>
-            <input asp-for="SerialNumber" />
-            <span asp-validation-for="SerialNumber" style="color: red;"></span>
-        </div>
+            <!-- STEP 1: Basic Info -->
+            <div class="reg-section visible stu-rise stu-rise-d2" id="step0">
+                <p class="reg-eyebrow">Step 1 of 4</p>
+                <h2 class="reg-heading">Basic Information</h2>
+                <p class="reg-desc">Tell us about the device you want to bring on campus.</p>
 
-        <div class="mb-3 mt-3">
-            <label asp-for="Purpose" class="form-label fw-bold">Purpose on Campus <span class="text-muted fw-normal">(Why do you need to bring this?)</span></label>
-            <textarea asp-for="Purpose" class="form-control" rows="3" placeholder="e.g., For thesis research, IT class requirement..."></textarea>
-            <span asp-validation-for="Purpose" style="color: red;"></span>
-        </div>
-    </fieldset>
+                <div class="reg-field">
+                    <label asp-for="DeviceName">Device Name <span>(e.g. "My Study Laptop")</span></label>
+                    <input asp-for="DeviceName" class="reg-wrap" placeholder="What do you call this device?" />
+                    <span asp-validation-for="DeviceName" class="stu-validation-error"></span>
+                </div>
 
-    <fieldset>
-        <legend>Hardware Specifications (Optional)</legend>
-        <div>
-            <label asp-for="OperatingSystem"></label>
-            <input asp-for="OperatingSystem" />
-            <span asp-validation-for="OperatingSystem" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="Color"></label>
-            <input asp-for="Color" />
-            <span asp-validation-for="Color" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="Processor"></label>
-            <input asp-for="Processor" />
-            <span asp-validation-for="Processor" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="Motherboard"></label>
-            <input asp-for="Motherboard" />
-            <span asp-validation-for="Motherboard" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="Memory"></label>
-            <input asp-for="Memory" />
-            <span asp-validation-for="Memory" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="Storage"></label>
-            <input asp-for="Storage" />
-            <span asp-validation-for="Storage" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="MonitorSize"></label>
-            <input asp-for="MonitorSize" />
-            <span asp-validation-for="MonitorSize" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="Casing"></label>
-            <input asp-for="Casing" />
-            <span asp-validation-for="Casing" style="color: red;"></span>
-        </div>
-        <div>
-            <label asp-for="HasCdRom">Has CD-ROM?</label>
-            <input asp-for="HasCdRom" type="checkbox" />
-        </div>
-    </fieldset>
+                <div class="reg-row">
+                    <div class="reg-field" style="margin:0">
+                        <label asp-for="DeviceType">Device Type</label>
+                        <select asp-for="DeviceType" asp-items="Html.GetEnumSelectList<DeviceType>()"></select>
+                        <span asp-validation-for="DeviceType" class="stu-validation-error"></span>
+                    </div>
+                    <div class="reg-field" style="margin:0">
+                        <label asp-for="Brand">Brand</label>
+                        <input asp-for="Brand" placeholder="e.g., Dell, HP, Apple" />
+                        <span asp-validation-for="Brand" class="stu-validation-error"></span>
+                    </div>
+                </div>
 
-    <fieldset>
-        <legend>Accessories</legend>
-        <p>List any accessories included (e.g., Charger, Bag, Mouse)</p>
-        <div id="accessories-container">
-            @for (int i = 0; i < Math.Max(1, Model.Accessories?.Count ?? 0); i++)
-            {
-                <div class="accessory-row" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
-                    <label>Accessory:</label>
-                    <input name="Accessories[@i].AccessoryName" value="@(Model.Accessories != null && Model.Accessories.Count > i ? Model.Accessories[i].AccessoryName : "")" placeholder="Name" />
-                    <label>Qty:</label>
-                    <input name="Accessories[@i].Quantity" type="number" value="@(Model.Accessories != null && Model.Accessories.Count > i ? Model.Accessories[i].Quantity : 1)" min="1" style="width: 50px;" />
-                    @if (i > 0)
+                <div class="reg-row">
+                    <div class="reg-field" style="margin:0">
+                        <label asp-for="Model">Model</label>
+                        <input asp-for="Model" placeholder="e.g., Inspiron 15" />
+                        <span asp-validation-for="Model" class="stu-validation-error"></span>
+                    </div>
+                    <div class="reg-field" style="margin:0">
+                        <label asp-for="SerialNumber">Serial Number</label>
+                        <input asp-for="SerialNumber" placeholder="Device serial number" />
+                        <span asp-validation-for="SerialNumber" class="stu-validation-error"></span>
+                    </div>
+                </div>
+
+                <div class="reg-row">
+                    <div class="reg-field" style="margin:0">
+                        <label asp-for="Color">Color</label>
+                        <input asp-for="Color" placeholder="e.g., Space Grey" />
+                    </div>
+                    <div></div>
+                </div>
+
+                <div class="reg-field">
+                    <label asp-for="Purpose">Purpose on Campus <span>(Why do you need to bring this?)</span></label>
+                    <textarea asp-for="Purpose" rows="3" placeholder="e.g., For thesis research, IT class requirement..."></textarea>
+                    <span asp-validation-for="Purpose" class="stu-validation-error"></span>
+                </div>
+
+                <div class="reg-btn-row">
+                    <button type="button" class="reg-btn-primary" onclick="regGoStep(1)">Next</button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Hardware Specs -->
+            <div class="reg-section" id="step1">
+                <p class="reg-eyebrow">Step 2 of 4</p>
+                <h2 class="reg-heading">Hardware Specifications</h2>
+                <p class="reg-desc">Optional but helps us verify your device at the gate.</p>
+
+                <div class="reg-row">
+                    <div class="reg-field" style="margin:0">
+                        <label asp-for="OperatingSystem">Operating System</label>
+                        <input asp-for="OperatingSystem" placeholder="e.g., Windows 11" />
+                    </div>
+                    <div class="reg-field" style="margin:0">
+                        <label asp-for="Processor">Processor</label>
+                        <input asp-for="Processor" placeholder="e.g., Intel i5-12400" />
+                    </div>
+                </div>
+                <div class="reg-row" style="margin-top:1rem">
+                    <div class="reg-field" style="margin:0">
+                        <label asp-for="Memory">Memory (RAM)</label>
+                        <input asp-for="Memory" placeholder="e.g., 16GB DDR4" />
+                    </div>
+                    <div class="reg-field" style="margin:0">
+                        <label asp-for="Storage">Storage</label>
+                        <input asp-for="Storage" placeholder="e.g., 512GB SSD" />
+                    </div>
+                </div>
+                <div class="reg-row" style="margin-top:1rem">
+                    <div class="reg-field" style="margin:0">
+                        <label asp-for="MonitorSize">Monitor Size</label>
+                        <input asp-for="MonitorSize" placeholder='e.g., 15.6"' />
+                    </div>
+                    <div class="reg-field" style="margin:0">
+                        <label asp-for="Motherboard">Motherboard</label>
+                        <input asp-for="Motherboard" placeholder="e.g., ASUS B550" />
+                    </div>
+                </div>
+                <div class="reg-row" style="margin-top:1rem">
+                    <div class="reg-field" style="margin:0">
+                        <label asp-for="Casing">Casing</label>
+                        <input asp-for="Casing" placeholder="e.g., NZXT H510" />
+                    </div>
+                    <div></div>
+                </div>
+
+                <div style="margin-top:1rem">
+                    <label class="reg-check-row">
+                        <input asp-for="HasCdRom" type="checkbox" />
+                        <span class="reg-check-row-label">Has CD-ROM / Optical Drive</span>
+                    </label>
+                </div>
+
+                <div class="reg-btn-row">
+                    <button type="button" class="reg-btn-ghost" onclick="regGoStep(0)">&larr; Back</button>
+                    <button type="button" class="reg-btn-primary" onclick="regGoStep(2)">Next</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Accessories (Upgraded) -->
+            <div class="reg-section" id="step2">
+                <p class="reg-eyebrow">Step 3 of 4</p>
+                <h2 class="reg-heading">Accessories</h2>
+                <p class="reg-desc">
+                    List every accessory you're bringing with this device.
+                    Guards cross-check this list on exit — keep it accurate.
+                </p>
+
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.5rem;">
+                    <span style="font-size:.78rem;color:var(--muted);font-weight:500;">Accessories</span>
+                    <span class="acc-counter" id="acc-counter">0 / 10</span>
+                </div>
+
+                <div class="acc-limit-banner" id="acc-limit-banner">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style="flex-shrink:0">
+                        <path d="M7.5 1L1 13h13L7.5 1z" stroke="#ff453a" stroke-width="1.4" stroke-linejoin="round"/>
+                        <rect x="7" y="6" width="1" height="4" rx=".5" fill="#ff453a"/>
+                        <circle cx="7.5" cy="11.5" r=".6" fill="#ff453a"/>
+                    </svg>
+                    Maximum of 10 accessories reached. Remove one to add another.
+                </div>
+
+                <div class="acc-empty" id="acc-empty">
+                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                        <rect x="6" y="10" width="24" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M12 10V8a6 6 0 0112 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    No accessories added yet. Click below to add one.
+                </div>
+
+                <div id="reg-acc-container">
+                    @if (Model.Accessories != null && Model.Accessories.Count > 0)
                     {
-                        <button type="button" onclick="this.parentElement.remove()">Remove</button>
+                        for (int i = 0; i < Model.Accessories.Count; i++)
+                        {
+                            <div class="acc-card" draggable="true" data-index="@i">
+                                <span class="acc-drag-handle" title="Drag to reorder">⠿</span>
+                                <div class="acc-card-body">
+                                    <div class="acc-row1">
+                                        <input class="acc-name-input"
+                                               name="Accessories[@i].AccessoryName"
+                                               value="@Model.Accessories[i].AccessoryName"
+                                               placeholder="Accessory name (e.g. Charger)" />
+                                        <div class="acc-qty-wrap">
+                                            <button type="button" class="acc-qty-btn" onclick="accQtyChange(this,-1)">−</button>
+                                            <input class="acc-qty-input" type="number"
+                                                   name="Accessories[@i].Quantity"
+                                                   value="@Model.Accessories[i].Quantity"
+                                                   min="1" max="99" />
+                                            <button type="button" class="acc-qty-btn" onclick="accQtyChange(this,1)">+</button>
+                                        </div>
+                                        <span class="acc-qty-label">qty</span>
+                                        <button type="button" class="acc-remove-btn" onclick="accRemove(this)" title="Remove">
+                                            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                                                <path d="M1 1l11 11M12 1L1 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="acc-row2">
+                                        <input class="acc-notes-input"
+                                               name="Accessories[@i].Notes"
+                                               placeholder="Notes (optional) — e.g., black colour, braided cable…" />
+                                    </div>
+                                </div>
+                            </div>
+                        }
                     }
                 </div>
-            }
-        </div>
-        <button type="button" id="add-accessory-btn" style="margin-top: 10px;">+ Add Accessory</button>
-    </fieldset>
 
-    <div style="margin-top: 20px;">
-        <button type="submit" id="submitBtn">Submit Request</button>
+                <button type="button" class="acc-add-upgraded" id="reg-add-acc-btn">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                    Add Accessory
+                </button>
+
+                <div class="reg-info-hint" style="margin-top:1.5rem">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px">
+                        <circle cx="8" cy="8" r="7" stroke="#2196F3" stroke-width="1.5"/>
+                        <rect x="7.25" y="6.5" width="1.5" height="5.5" rx=".75" fill="#2196F3"/>
+                        <circle cx="8" cy="4.75" r=".875" fill="#2196F3"/>
+                    </svg>
+                    <p>Accessories are cross-checked when you exit. Drag cards to reorder. Make sure this list is accurate and complete.</p>
+                </div>
+
+                <div class="reg-btn-row">
+                    <button type="button" class="reg-btn-ghost" onclick="regGoStep(1)">&larr; Back</button>
+                    <button type="button" class="reg-btn-primary" onclick="regGoStep(3)">Next</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: Review -->
+            <div class="reg-section" id="step3">
+                <p class="reg-eyebrow">Step 4 of 4</p>
+                <h2 class="reg-heading">Review &amp; Submit</h2>
+                <p class="reg-desc">Double-check everything before submitting. Mismatches may delay approval.</p>
+
+                <div class="reg-review-card" id="reg-review-basic"></div>
+                <div class="reg-review-card" id="reg-review-specs"></div>
+                <div class="reg-review-card" id="reg-review-acc"></div>
+
+                <div class="reg-btn-row">
+                    <button type="button" class="reg-btn-ghost" onclick="regGoStep(2)">&larr; Edit</button>
+                    <button type="submit" id="regSubmitBtn" class="reg-btn-primary">
+                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                            <path d="M2 7.5h11M8.5 3l4.5 4.5L8.5 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Submit Registration
+                    </button>
+                </div>
+            </div>
+
+        </form>
     </div>
-</form>
 
+</div>
+
+@section Scripts {
 <script>
-    document.getElementById('add-accessory-btn').addEventListener('click', function() {
-        var container = document.getElementById('accessories-container');
-        var index = container.getElementsByClassName('accessory-row').length;
-        
-        var row = document.createElement('div');
-        row.className = 'accessory-row';
-        row.style.cssText = 'margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;';
-        
-        row.innerHTML = `
-            <label>Accessory:</label>
-            <input name="Accessories[${index}].AccessoryName" placeholder="Name" />
-            <label>Qty:</label>
-            <input name="Accessories[${index}].Quantity" type="number" value="1" min="1" style="width: 50px;" />
-            <button type="button" onclick="this.parentElement.remove()">Remove</button>
-        `;
-        
-        container.appendChild(row);
+(function () {
+    var curStep = 0;
+
+    window.regGoStep = function (n) {
+        if (n > curStep && curStep === 0) {
+            var dn = document.querySelector('[name="DeviceName"]').value.trim();
+            var sn = document.querySelector('[name="SerialNumber"]').value.trim();
+            if (!dn || !sn) {
+                alert('Please fill in at least the Device Name and Serial Number.');
+                return;
+            }
+        }
+        document.getElementById('step' + curStep).classList.remove('visible');
+        document.getElementById('step' + n).classList.add('visible');
+        curStep = n;
+        updateRail(n);
+        if (n === 3) buildReview();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    function updateRail(n) {
+        for (var i = 0; i < 4; i++) {
+            var dot = document.getElementById('dot' + i);
+            var lbl = document.getElementById('lbl' + i);
+            dot.className = 'reg-step-dot';
+            lbl.className = 'reg-step-label';
+            if (i < n)       { dot.classList.add('done');   lbl.classList.add('done');   dot.textContent = '✓'; }
+            else if (i === n) { dot.classList.add('active'); lbl.classList.add('active'); dot.textContent = i + 1; }
+            else              { dot.textContent = i + 1; }
+        }
+    }
+
+    function rv(label, val) {
+        if (!val || val.toString().trim() === '') return '';
+        return '<div class="reg-review-row"><span class="reg-rv-label">' + label + '</span><span class="reg-rv-val">' + val + '</span></div>';
+    }
+
+    function buildReview() {
+        var sel = document.querySelector('[name="DeviceType"]');
+        var typeLabel = sel ? sel.options[sel.selectedIndex].text : '';
+
+        var b = '<div class="reg-review-title">Device Info</div>';
+        b += rv('Name',    document.querySelector('[name="DeviceName"]').value);
+        b += rv('Type',    typeLabel);
+        b += rv('Brand',   document.querySelector('[name="Brand"]').value);
+        b += rv('Model',   document.querySelector('[name="Model"]').value);
+        b += rv('Serial',  document.querySelector('[name="SerialNumber"]').value);
+        b += rv('Color',   document.querySelector('[name="Color"]').value);
+        b += rv('Purpose', document.querySelector('[name="Purpose"]').value);
+        document.getElementById('reg-review-basic').innerHTML = b;
+
+        var s = '<div class="reg-review-title">Hardware Specs</div>';
+        s += rv('OS',          document.querySelector('[name="OperatingSystem"]').value);
+        s += rv('Processor',   document.querySelector('[name="Processor"]').value);
+        s += rv('Memory',      document.querySelector('[name="Memory"]').value);
+        s += rv('Storage',     document.querySelector('[name="Storage"]').value);
+        s += rv('Monitor',     document.querySelector('[name="MonitorSize"]').value);
+        s += rv('Motherboard', document.querySelector('[name="Motherboard"]').value);
+        s += rv('Casing',      document.querySelector('[name="Casing"]').value);
+        var cdrom = document.querySelector('[name="HasCdRom"]');
+        if (cdrom && cdrom.checked) s += rv('CD-ROM', 'Yes');
+        if (s === '<div class="reg-review-title">Hardware Specs</div>')
+            s += '<div style="font-size:.83rem;color:var(--muted);padding:.5rem 0;">No specs provided.</div>';
+        document.getElementById('reg-review-specs').innerHTML = s;
+
+        var cards = document.querySelectorAll('#reg-acc-container .acc-card');
+        var a = '<div class="reg-review-title">Accessories</div>';
+        var hasAcc = false;
+        cards.forEach(function (card) {
+            var name  = card.querySelector('.acc-name-input').value.trim();
+            var qty   = card.querySelector('.acc-qty-input').value;
+            var notes = card.querySelector('.acc-notes-input').value.trim();
+            if (name) {
+                a += rv(name, '&times; ' + qty + (notes ? '  &middot;  ' + notes : ''));
+                hasAcc = true;
+            }
+        });
+        if (!hasAcc) a += '<div style="font-size:.83rem;color:var(--muted);padding:.5rem 0;">No accessories listed.</div>';
+        document.getElementById('reg-review-acc').innerHTML = a;
+    }
+
+    var MAX_ACC = 10;
+
+    function getContainer() { return document.getElementById('reg-acc-container'); }
+    function getCards()     { return getContainer().querySelectorAll('.acc-card'); }
+
+    function accUpdateUI() {
+        var count   = getCards().length;
+        var counter = document.getElementById('acc-counter');
+        var addBtn  = document.getElementById('reg-add-acc-btn');
+        var banner  = document.getElementById('acc-limit-banner');
+        var empty   = document.getElementById('acc-empty');
+
+        counter.textContent = count + ' / ' + MAX_ACC;
+        counter.className   = 'acc-counter' + (count >= MAX_ACC ? ' limit' : count >= MAX_ACC - 2 ? ' warn' : '');
+
+        if (count >= MAX_ACC) {
+            addBtn.disabled = true;
+            banner.style.display = 'flex';
+        } else {
+            addBtn.disabled = false;
+            banner.style.display = 'none';
+        }
+        empty.style.display = count === 0 ? 'block' : 'none';
+
+        getCards().forEach(function (card, i) {
+            card.querySelectorAll('[name]').forEach(function (el) {
+                el.name = el.name.replace(/Accessories\[\d+\]/, 'Accessories[' + i + ']');
+            });
+            card.dataset.index = i;
+        });
+    }
+
+    window.accQtyChange = function (btn, delta) {
+        var input = btn.parentElement.querySelector('.acc-qty-input');
+        var val   = parseInt(input.value, 10) || 1;
+        val = Math.max(1, Math.min(99, val + delta));
+        input.value = val;
+    };
+
+    window.accRemove = function (btn) {
+        var card = btn.closest('.acc-card');
+        card.style.transition = 'opacity .2s, transform .2s';
+        card.style.opacity    = '0';
+        card.style.transform  = 'scale(.97)';
+        setTimeout(function () {
+            card.remove();
+            accUpdateUI();
+        }, 200);
+    };
+
+    function accMakeCard(index) {
+        var card = document.createElement('div');
+        card.className     = 'acc-card';
+        card.draggable     = true;
+        card.dataset.index = index;
+        card.style.opacity   = '0';
+        card.style.transform = 'translateY(8px)';
+        card.innerHTML =
+            '<span class="acc-drag-handle" title="Drag to reorder">⠿</span>' +
+            '<div class="acc-card-body">' +
+                '<div class="acc-row1">' +
+                    '<input class="acc-name-input" name="Accessories[' + index + '].AccessoryName" placeholder="Accessory name (e.g. Charger)" />' +
+                    '<div class="acc-qty-wrap">' +
+                        '<button type="button" class="acc-qty-btn" onclick="accQtyChange(this,-1)">−</button>' +
+                        '<input class="acc-qty-input" type="number" name="Accessories[' + index + '].Quantity" value="1" min="1" max="99" />' +
+                        '<button type="button" class="acc-qty-btn" onclick="accQtyChange(this,1)">+</button>' +
+                    '</div>' +
+                    '<span class="acc-qty-label">qty</span>' +
+                    '<button type="button" class="acc-remove-btn" onclick="accRemove(this)" title="Remove">' +
+                        '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1 1l11 11M12 1L1 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' +
+                    '</button>' +
+                '</div>' +
+                '<div class="acc-row2">' +
+                    '<input class="acc-notes-input" name="Accessories[' + index + '].Notes" placeholder="Notes (optional) — e.g., black colour, braided cable…" />' +
+                '</div>' +
+            '</div>';
+
+        getContainer().appendChild(card);
+        requestAnimationFrame(function () {
+            card.style.transition = 'opacity .25s, transform .25s';
+            card.style.opacity    = '1';
+            card.style.transform  = 'translateY(0)';
+        });
+        accDragBind(card);
+        return card;
+    }
+
+    document.getElementById('reg-add-acc-btn').addEventListener('click', function () {
+        if (getCards().length >= MAX_ACC) return;
+        var idx = getCards().length;
+        accMakeCard(idx);
+        accUpdateUI();
+        var card = getCards()[getCards().length - 1];
+        var nameInput = card.querySelector('.acc-name-input');
+        if (nameInput) setTimeout(function () { nameInput.focus(); }, 60);
     });
 
-    // Prevent double form submission
-    document.getElementById('deviceRegisterForm').addEventListener('submit', function() {
-        var btn = document.getElementById('submitBtn');
+    var dragSrc = null;
+
+    function accDragBind(card) {
+        card.addEventListener('dragstart', function (e) {
+            dragSrc = card;
+            e.dataTransfer.effectAllowed = 'move';
+            setTimeout(function () { card.style.opacity = '.4'; }, 0);
+        });
+        card.addEventListener('dragend', function () {
+            card.style.opacity = '1';
+            getCards().forEach(function (c) { c.classList.remove('acc-drag-over'); });
+            accUpdateUI();
+        });
+        card.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            if (card !== dragSrc) card.classList.add('acc-drag-over');
+        });
+        card.addEventListener('dragleave', function () {
+            card.classList.remove('acc-drag-over');
+        });
+        card.addEventListener('drop', function (e) {
+            e.preventDefault();
+            card.classList.remove('acc-drag-over');
+            if (dragSrc && dragSrc !== card) {
+                var container = getContainer();
+                var cards = Array.from(getCards());
+                var srcIdx  = cards.indexOf(dragSrc);
+                var destIdx = cards.indexOf(card);
+                if (srcIdx < destIdx) {
+                    container.insertBefore(dragSrc, card.nextSibling);
+                } else {
+                    container.insertBefore(dragSrc, card);
+                }
+                accUpdateUI();
+            }
+        });
+    }
+
+    getCards().forEach(accDragBind);
+    accUpdateUI();
+
+    document.getElementById('deviceRegisterForm').addEventListener('submit', function () {
+        var btn = document.getElementById('regSubmitBtn');
         if (btn) {
-            // setTimeout ensures the form still submits correctly before the button gets disabled
-            setTimeout(function() {
-                btn.disabled = true;
-                btn.innerText = 'Submitting...';
+            setTimeout(function () {
+                btn.disabled  = true;
+                btn.innerText = 'Submitting…';
             }, 0);
         }
     });
-</script>
 
+})();
+</script>
+}

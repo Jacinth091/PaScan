@@ -4,74 +4,62 @@
     ViewData["Title"] = "Pending Requests";
 }
 
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Device Approval Queue</h2>
-        <a asp-action="Dashboard" class="btn btn-sm btn-link text-decoration-none">
-            <i class="bi bi-arrow-left"></i> Back to Dashboard
+<div class="adm-page-header adm-rise">
+    <p class="adm-page-kicker">Approval Queue</p>
+    <div class="adm-page-header-row">
+        <h1 class="adm-page-title">Device Approval Queue</h1>
+        <a asp-action="Dashboard" class="adm-back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Dashboard
         </a>
     </div>
+</div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
+@if (TempData["Success"] != null)
+{
+    <div class="adm-alert adm-alert--success adm-rise"><i class="bi bi-check-circle-fill"></i> @TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="adm-alert adm-alert--error adm-rise"><i class="bi bi-exclamation-circle-fill"></i> @TempData["Error"]</div>
+}
 
-    <div class="card shadow-sm border-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-4">Student</th>
-                        <th>Device Type</th>
-                        <th>Brand / Model</th>
-                        <th>Submitted</th>
-                        <th class="text-end pe-4">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model != null && Model.Requests.Any())
-                    {
-                        @foreach (var req in Model.Requests)
-                        {
-                            <tr>
-                                <td class="ps-4">
-                                    <div class="fw-bold">@req.StudentName</div>
-                                    <small class="text-muted">@req.StudentNumber</small>
-                                </td>
-                                <td>
-                                    <span class="badge bg-light text-dark border">@req.DeviceType</span>
-                                </td>
-                                <td>@req.Brand @req.Model</td>
-                                <td>@req.SubmittedAt.ToString("MMM dd, yyyy")</td>
-                                <td class="text-end pe-4">
-                                    <a asp-action="RequestDetail" asp-route-id="@req.Id" class="btn btn-sm btn-primary rounded-pill px-3">
-                                        Review
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
+<div class="adm-card adm-rise adm-rise-d1">
+    <div class="adm-table-wrap">
+        <table class="adm-table paginated-table">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Device Type</th>
+                    <th>Brand / Model</th>
+                    <th>Submitted</th>
+                    <th style="text-align:right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Requests.Any())
+                {
+                    @foreach (var req in Model.Requests)
                     {
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-5">
-                                <p class="mb-0">No pending requests found.</p>
+                            <td>
+                                <div class="adm-list-item-title">@req.StudentName</div>
+                                <div class="adm-list-item-sub">@req.StudentNumber</div>
+                            </td>
+                            <td><span class="adm-info-chip">@req.DeviceType</span></td>
+                            <td>@req.Brand @req.Model</td>
+                            <td>@req.SubmittedAt.ToString("MMM dd, yyyy")</td>
+                            <td style="text-align:right;">
+                                <a asp-action="RequestDetail" asp-route-id="@req.Id" class="adm-btn-primary adm-btn-sm">Review</a>
                             </td>
                         </tr>
                     }
-                </tbody>
-            </table>
-        </div>
+                }
+                else
+                {
+                    <tr><td colspan="5" class="adm-table-empty">No pending requests found.</td></tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>

@@ -3,41 +3,36 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-qr-code-scan"></i> Gate QR Scanner</h5>
-                    <span id="scannerStatus" class="badge bg-warning text-dark">Initializing...</span>
-                </div>
-                <div class="card-body text-center bg-light">
-                    <!-- Scanner Viewport -->
-                    <div id="videoContainer" class="position-relative d-inline-block rounded overflow-hidden" style="max-width: 100%; border: 3px solid #ccc; background-color: #000;">
-                        <video id="preview" style="width: 100%; max-width: 500px; height: auto; object-fit: cover;"></video>
-                        <canvas id="canvas" style="display:none;"></canvas>
-                        
-                        <div id="scanOverlay" class="position-absolute top-50 start-50 translate-middle text-white text-center" style="display: none; background: rgba(0,0,0,0.7); padding: 20px; border-radius: 10px; width: 80%;">
-                            <h3 id="scanResultStatus" class="mb-2"></h3>
-                            <p id="scanResultName" class="mb-1 fw-bold fs-5"></p>
-                            <p id="scanResultDevice" class="mb-0"></p>
-                            <p id="scanResultReason" class="mb-0 text-warning"></p>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <button id="btnStart" class="btn btn-success me-2"><i class="bi bi-play-fill"></i> Start Camera</button>
-                        <button id="btnStop" class="btn btn-danger" disabled><i class="bi bi-stop-fill"></i> Stop Camera</button>
-                    </div>
-                </div>
-                <div class="card-footer text-muted small text-center">
-                    Please ensure the camera has clear visibility of the QR Code.
-                </div>
+<div class="scn-rise">
+    <div class="scn-card">
+        <div class="scn-card-header">
+            <h1 class="scn-card-title"><i class="bi bi-qr-code-scan"></i> Gate QR Scanner</h1>
+            <span id="scannerStatus" class="scn-badge scn-badge--init">Initializing...</span>
+        </div>
+
+        <div class="scn-viewport" id="videoContainer">
+            <video id="preview" playsinline></video>
+            <canvas id="canvas"></canvas>
+
+            <div id="scanOverlay" class="scn-overlay">
+                <h3 id="scanResultStatus" class="scn-overlay-status"></h3>
+                <p id="scanResultName" class="scn-overlay-name"></p>
+                <p id="scanResultDevice" class="scn-overlay-device"></p>
+                <p id="scanResultReason" class="scn-overlay-reason"></p>
             </div>
-            
-            <div id="errorAlert" class="alert alert-danger mt-3" style="display: none;"></div>
+        </div>
+
+        <div class="scn-controls">
+            <button id="btnStart" class="scn-btn scn-btn-start"><i class="bi bi-play-fill"></i> Start Camera</button>
+            <button id="btnStop" class="scn-btn scn-btn-stop" disabled><i class="bi bi-stop-fill"></i> Stop Camera</button>
+        </div>
+
+        <div class="scn-footer-hint">
+            Please ensure the camera has clear visibility of the QR Code.
         </div>
     </div>
+
+    <div id="errorAlert" class="scn-alert-error"></div>
 </div>
 
 @section Scripts {
@@ -56,7 +51,7 @@
         const errorAlert = document.getElementById("errorAlert");
         
         let scanning = false;
-        let scanPaused = false; // Pause after a successful scan
+        let scanPaused = false;
 
         // Audio files
         const successSound = new Audio('/assets/sounds/scanner-success.mp3');
@@ -64,13 +59,13 @@
         
         function playScanSound(isSuccess = true) {
             const sound = isSuccess ? successSound : errorSound;
-            sound.currentTime = 0; // Reset to beginning for rapid scans
+            sound.currentTime = 0;
             sound.play().catch(err => console.warn("Audio playback delayed or blocked:", err));
         }
         
-        function updateStatus(text, bgClass) {
+        function updateStatus(text, badgeClass) {
             scannerStatus.textContent = text;
-            scannerStatus.className = `badge ${bgClass}`;
+            scannerStatus.className = `scn-badge ${badgeClass}`;
         }
         
         btnStart.addEventListener("click", () => {
@@ -81,7 +76,7 @@
             navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
                 .then(function(stream) {
                     video.srcObject = stream;
-                    video.setAttribute("playsinline", true); // required for iOS Safari
+                    video.setAttribute("playsinline", true);
                     video.play();
                     
                     scanning = true;
@@ -90,12 +85,12 @@
                     
                     btnStart.disabled = true;
                     btnStop.disabled = false;
-                    updateStatus("Scanning Active", "bg-success");
+                    updateStatus("Scanning Active", "scn-badge--active");
                     scanOverlay.style.display = "none";
                     errorAlert.style.display = "none";
                 })
                 .catch(function(err) {
-                    updateStatus("Camera Error", "bg-danger");
+                    updateStatus("Camera Error", "scn-badge--error");
                     errorAlert.textContent = "Could not access camera: " + err.message;
                     errorAlert.style.display = "block";
                 });
@@ -108,7 +103,7 @@
             scanning = false;
             btnStart.disabled = false;
             btnStop.disabled = true;
-            updateStatus("Stopped", "bg-secondary");
+            updateStatus("Stopped", "scn-badge--stopped");
             scanOverlay.style.display = "none";
         });
         
@@ -135,7 +130,7 @@
         
         function processScan(tokenValue) {
             scanPaused = true;
-            updateStatus("Processing...", "bg-warning text-dark");
+            updateStatus("Processing...", "scn-badge--processing");
             
             fetch('/scan/qr', {
                 method: 'POST',
@@ -154,12 +149,11 @@
             .then(data => {
                 showScanResult(data);
                 
-                // Resume scanning after 3 seconds
                 setTimeout(() => {
                     scanOverlay.style.display = "none";
                     if (scanning) {
                         scanPaused = false;
-                        updateStatus("Scanning Active", "bg-success");
+                        updateStatus("Scanning Active", "scn-badge--active");
                     }
                 }, 3000);
             })
@@ -169,7 +163,7 @@
                     scanOverlay.style.display = "none";
                     if (scanning) {
                         scanPaused = false;
-                        updateStatus("Scanning Active", "bg-success");
+                        updateStatus("Scanning Active", "scn-badge--active");
                     }
                 }, 3000);
             });
@@ -184,19 +178,19 @@
             document.getElementById("scanResultReason").textContent = data.denialReason || "";
             
             if (data.allowed) {
-                scanOverlay.style.background = "rgba(40, 167, 69, 0.9)";
+                scanOverlay.className = 'scn-overlay granted';
                 statusEl.innerHTML = '<i class="bi bi-check-circle-fill"></i> ACCESS GRANTED';
-                updateStatus("Granted", "bg-success");
+                updateStatus("Granted", "scn-badge--granted");
                 playScanSound(true);
             } else {
-                scanOverlay.style.background = "rgba(220, 53, 69, 0.9)";
+                scanOverlay.className = 'scn-overlay denied';
                 statusEl.innerHTML = '<i class="bi bi-x-circle-fill"></i> ACCESS DENIED';
-                updateStatus("Denied", "bg-danger");
+                updateStatus("Denied", "scn-badge--denied");
                 playScanSound(false);
             }
         }
         
         // Auto-start if ready
-        updateStatus("Ready to Start", "bg-primary");
+        updateStatus("Ready to Start", "scn-badge--ready");
     </script>
 }

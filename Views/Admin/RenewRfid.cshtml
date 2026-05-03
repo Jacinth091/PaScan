@@ -4,47 +4,44 @@
     ViewData["Title"] = "Renew RFID Semester";
 }
 
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Renew Semester</h2>
-                <a asp-action="ManageRfid" asp-route-id="@Model.Student.Id" class="btn btn-sm btn-link text-decoration-none">
-                    <i class="bi bi-arrow-left"></i> Back to Manage
-                </a>
-            </div>
-
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body p-4 text-center">
-                    <h5 class="mb-1">@Model.Student.FirstName @Model.Student.LastName</h5>
-                    <p class="text-muted small mb-0">@Model.Student.StudentNumber</p>
-                </div>
-            </div>
-
-            <div class="card shadow-sm border-0 border-top border-primary border-4">
-                <div class="card-body p-4 p-md-5">
-                    @if (Model.ActiveRfid != null)
-                    {
-                        <div class="alert alert-info mb-4">
-                            <i class="bi bi-info-circle-fill me-2"></i> Current Expiry: <strong>@Model.ActiveRfid.SemesterExpiresAt.ToString("MMM dd, yyyy")</strong>
-                        </div>
-
-                        <form asp-action="RenewRfidSemester" asp-route-studentId="@Model.Student.Id" method="post">
-                            @Html.AntiForgeryToken()
-                            
-                            <div class="mb-5">
-                                <label class="form-label small fw-bold text-uppercase">New Semester Expiry Date</label>
-                                <input type="date" name="semesterExpiresAt" class="form-control form-control-lg" required value="@DateTime.Now.AddMonths(5).ToString("yyyy-MM-dd")" />
-                                <div class="form-text text-muted mt-2">Select the end date for the new semester. Default is set to +5 months.</div>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm">
-                                Confirm Renewal
-                            </button>
-                        </form>
-                    }
-                </div>
-            </div>
+<div class="adm-page-header adm-rise">
+    <div class="adm-page-header-row">
+        <div>
+            <p class="adm-page-kicker">RFID</p>
+            <h1 class="adm-page-title">Renew Semester</h1>
         </div>
+        <a asp-action="ManageRfid" asp-route-id="@Model.Student.Id" class="adm-back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Manage
+        </a>
+    </div>
+</div>
+
+<div style="max-width:550px;" class="adm-rise adm-rise-d1">
+    <div class="adm-card adm-text-center" style="margin-bottom:1rem;">
+        <h3 style="color:#fff; font-size:1.1rem; font-weight:600; margin-bottom:0.2rem;">@Model.Student.FirstName @Model.Student.LastName</h3>
+        <p class="adm-text-muted" style="font-size:0.85rem;">@Model.Student.StudentNumber</p>
+    </div>
+
+    <div class="adm-card" style="border-top:2px solid #2196F3;">
+        @if (Model.ActiveRfid != null)
+        {
+            <div class="adm-alert adm-alert--info">
+                <i class="bi bi-info-circle-fill"></i>
+                Current Expiry: <strong>@Model.ActiveRfid.SemesterExpiresAt.ToString("MMM dd, yyyy")</strong>
+            </div>
+
+            <form asp-action="RenewRfidSemester" asp-route-studentId="@Model.Student.Id" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="adm-form-group adm-mb-4">
+                    <label class="adm-form-label">New Semester Expiry Date</label>
+                    <input type="date" name="semesterExpiresAt" class="adm-form-input" required value="@DateTime.Now.AddMonths(5).ToString("yyyy-MM-dd")" style="font-size:1rem;" />
+                    <div class="adm-form-hint" style="margin-top:0.4rem;">Select the end date for the new semester. Default is set to +5 months.</div>
+                </div>
+
+                <button type="submit" class="adm-btn-primary adm-btn-block" style="padding:0.85rem;">Confirm Renewal</button>
+            </form>
+        }
     </div>
 </div>

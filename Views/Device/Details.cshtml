@@ -1,50 +1,113 @@
 @model PaScan.Models.DeviceRequest
 @{
     ViewData["Title"] = "Request Details";
+    var badgeClass = Model.Status switch
+    {
+        PaScan.Enums.RegisterStatus.PENDING  => "stu-badge--pending",
+        PaScan.Enums.RegisterStatus.APPROVED => "stu-badge--approved",
+        PaScan.Enums.RegisterStatus.REJECTED => "stu-badge--rejected",
+        _ => "stu-badge--pending"
+    };
+    var devIcon = Model.DeviceType switch
+    {
+        PaScan.Enums.DeviceType.LAPTOP  => "bi-laptop",
+        PaScan.Enums.DeviceType.DESKTOP => "bi-pc-display",
+        _ => "bi-cpu"
+    };
 }
 
-<h1>Device Request Details</h1>
-<a asp-controller="Student" asp-action="Dashboard">Back to Dashboard</a>
+<div class="rdm-wrap">
 
-<div>
-    <h3>Status: @Model.Status</h3>
+    
+    <div class="rdm-header">
+        <div class="rdm-header-left">
+            <div class="rdm-icon"><i class="bi @devIcon"></i></div>
+            <div>
+                <div class="rdm-title">@Model.DeviceName</div>
+                <div class="rdm-sub">
+                    @Model.DeviceType &nbsp;·&nbsp; @Model.Brand @Model.Model
+                    &nbsp;·&nbsp;
+                    <span class="stu-badge @badgeClass" style="font-size:.72rem;padding:.2rem .65rem;">@Model.Status</span>
+                </div>
+            </div>
+        </div>
+        <button class="pm-close-btn rdm-close" aria-label="Close" title="Close">&#x2715;</button>
+    </div>
+
+    
     @if (Model.Status == PaScan.Enums.RegisterStatus.REJECTED)
     {
-        <p style="color: red;"><strong>Reason:</strong> @Model.RejectionReason</p>
+        <div class="rdm-rejection">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span><strong>Rejection reason:&nbsp;</strong>@(Model.RejectionReason ?? "No reason provided.")</span>
+        </div>
     }
+
     
-    <p><strong>Submitted:</strong> @Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</p>
+    <div class="rdm-body">
+
+        
+        <div>
+            <div class="rdm-section-title"><i class="bi bi-info-circle" style="color:#2196F3;"></i> Device Info</div>
+
+            <div class="rdm-field">
+                <div class="rdm-label">Device Name</div>
+                <div class="rdm-value">@Model.DeviceName</div>
+            </div>
+            <div class="rdm-field">
+                <div class="rdm-label">Device Type</div>
+                <div class="rdm-value">@Model.DeviceType</div>
+            </div>
+            <div class="rdm-field">
+                <div class="rdm-label">Brand / Model</div>
+                <div class="rdm-value">@Model.Brand &nbsp;@Model.Model</div>
+            </div>
+            <div class="rdm-field">
+                <div class="rdm-label">Serial Number</div>
+                <div class="rdm-value" style="font-family:monospace;font-size:.88rem;color:#a1a1a6;">@Model.SerialNumber</div>
+            </div>
+            <div class="rdm-field">
+                <div class="rdm-label">Declared Purpose</div>
+                <div class="rdm-value">@Model.Purpose</div>
+            </div>
+            <div class="rdm-field">
+                <div class="rdm-label">Submitted</div>
+                <div class="rdm-value">@Model.CreatedAt.ToString("MMM dd, yyyy · HH:mm")</div>
+            </div>
+        </div>
+
+        
+        <div>
+            <div class="rdm-section-title"><i class="bi bi-cpu-fill" style="color:#2196F3;"></i> Specifications</div>
+
+            <div class="rdm-field">
+                <div class="rdm-label">Operating System</div>
+                <div class="rdm-value">@(Model.OperatingSystem ?? "—")</div>
+            </div>
+            <div class="rdm-field">
+                <div class="rdm-label">Processor</div>
+                <div class="rdm-value">@(Model.Processor ?? "—")</div>
+            </div>
+            <div class="rdm-field">
+                <div class="rdm-label">Memory</div>
+                <div class="rdm-value">@(Model.Memory ?? "—")</div>
+            </div>
+            <div class="rdm-field">
+                <div class="rdm-label">Storage</div>
+                <div class="rdm-value">@(Model.Storage ?? "—")</div>
+            </div>
+
+            @if (Model.Accessories.Any())
+            {
+                <div class="rdm-section-title" style="margin-top:1.2rem;"><i class="bi bi-bag" style="color:#2196F3;"></i> Accessories</div>
+                <div class="rdm-chips">
+                    @foreach (var acc in Model.Accessories)
+                    {
+                        <span class="rdm-chip">@acc.AccessoryName &times; @acc.Quantity</span>
+                    }
+                </div>
+            }
+        </div>
+
+    </div>
 </div>
-
-<hr />
-
-<section>
-    <h3>Device Information</h3>
-    <ul>
-        <li><strong>Device Name:</strong> @Model.DeviceName</li>
-        <li><strong>Device Type:</strong> @Model.DeviceType</li>
-        <li><strong>Brand/Model:</strong> @Model.Brand @Model.Model</li>
-        <li><strong>Serial Number:</strong> @Model.SerialNumber</li>
-        <li><strong>Declared Purpose:</strong> @Model.Purpose</li>
-    </ul>
-</section>
-
-<section>
-    <h3>Specs</h3>
-    <ul>
-        <li><strong>OS:</strong> @(Model.OperatingSystem ?? "N/A")</li>
-        <li><strong>Processor:</strong> @(Model.Processor ?? "N/A")</li>
-        <li><strong>Memory:</strong> @(Model.Memory ?? "N/A")</li>
-        <li><strong>Storage:</strong> @(Model.Storage ?? "N/A")</li>
-    </ul>
-</section>
-
-<section>
-    <h3>Accessories</h3>
-    <ul>
-        @foreach (var acc in Model.Accessories)
-        {
-            <li>@acc.AccessoryName (Qty: @acc.Quantity)</li>
-        }
-    </ul>
-</section>

@@ -4,90 +4,80 @@
     ViewData["Title"] = "Manage RFID Card";
 }
 
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Manage RFID Card</h2>
-                <a asp-action="StudentDetail" asp-route-id="@Model.Student.Id" class="btn btn-sm btn-link text-decoration-none">
-                    <i class="bi bi-arrow-left"></i> Back to Profile
-                </a>
-            </div>
-
-            @if (TempData["Success"] != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    @TempData["Success"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            }
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    @TempData["Error"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            }
-
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body p-4 text-center">
-                    <h5 class="mb-1">@Model.Student.FirstName @Model.Student.LastName</h5>
-                    <p class="text-muted small mb-0">@Model.Student.StudentNumber</p>
-                </div>
-            </div>
-
-            <div class="card shadow-sm border-0 border-top border-success border-4">
-                <div class="card-body p-4 p-md-5">
-                    @if (Model.ActiveRfid != null)
-                    {
-                        <div class="text-center mb-4">
-                            <i class="bi bi-credit-card-2-front text-success" style="font-size: 4rem;"></i>
-                            <h4 class="mt-3 font-monospace">@Model.ActiveRfid.CardUid</h4>
-                            <span class="badge bg-success mb-2">ACTIVE</span>
-                            <p class="text-muted small">Expires: @Model.ActiveRfid.SemesterExpiresAt.ToString("MMMM dd, yyyy")</p>
-                        </div>
-
-                        <div class="d-grid gap-3">
-                            <a asp-action="RenewRfid" asp-route-id="@Model.Student.Id" class="btn btn-outline-primary py-3 rounded-3">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-calendar-plus fs-4 me-3"></i>
-                                    <div class="text-start">
-                                        <div class="fw-bold">Renew Semester</div>
-                                        <div class="small">Extend the expiry date of this card.</div>
-                                    </div>
-                                </div>
-                            </a>
-
-                            <a asp-action="ReplaceRfid" asp-route-id="@Model.Student.Id" class="btn btn-outline-warning py-3 rounded-3">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-arrow-repeat fs-4 me-3"></i>
-                                    <div class="text-start">
-                                        <div class="fw-bold">Replace Card</div>
-                                        <div class="small">Issue a new card to replace a lost or damaged one.</div>
-                                    </div>
-                                </div>
-                            </a>
-
-                            <a asp-action="RevokeRfid" asp-route-id="@Model.Student.Id" class="btn btn-outline-danger py-3 rounded-3">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-x-circle fs-4 me-3"></i>
-                                    <div class="text-start">
-                                        <div class="fw-bold">Revoke Card</div>
-                                        <div class="small">Permanently invalidate the current card without replacing it.</div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text-center py-5">
-                            <p class="text-muted mb-4">This student does not have an active RFID card.</p>
-                            <a asp-action="IssueRfid" asp-route-id="@Model.Student.Id" class="btn btn-primary rounded-pill px-4">Issue New Card</a>
-                        </div>
-                    }
-                </div>
-            </div>
+<div class="adm-page-header adm-rise">
+    <div class="adm-page-header-row">
+        <div>
+            <p class="adm-page-kicker">RFID</p>
+            <h1 class="adm-page-title">Manage RFID Card</h1>
         </div>
+        <a asp-action="StudentDetail" asp-route-id="@Model.Student.Id" class="adm-back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Profile
+        </a>
+    </div>
+</div>
+
+<div style="max-width:550px;" class="adm-rise adm-rise-d1">
+    @if (TempData["Success"] != null)
+    {
+        <div class="adm-alert adm-alert--success"><i class="bi bi-check-circle-fill"></i> @TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="adm-alert adm-alert--error"><i class="bi bi-exclamation-circle-fill"></i> @TempData["Error"]</div>
+    }
+
+    <div class="adm-card adm-text-center" style="margin-bottom:1rem;">
+        <h3 style="color:#fff; font-size:1.1rem; font-weight:600; margin-bottom:0.2rem;">@Model.Student.FirstName @Model.Student.LastName</h3>
+        <p class="adm-text-muted" style="font-size:0.85rem;">@Model.Student.StudentNumber</p>
+    </div>
+
+    <div class="adm-card" style="border-top:2px solid #32d74b;">
+        @if (Model.ActiveRfid != null)
+        {
+            <div class="adm-text-center" style="margin-bottom:1.5rem;">
+                <i class="bi bi-credit-card-2-front" style="font-size:3.5rem; color:#32d74b;"></i>
+                <h3 class="adm-text-mono" style="color:#fff; font-size:1.2rem; margin-top:0.75rem;">@Model.ActiveRfid.CardUid</h3>
+                <span class="adm-badge adm-badge--active" style="margin:0.5rem 0;">ACTIVE</span>
+                <p class="adm-text-muted" style="font-size:0.85rem;">Expires: @Model.ActiveRfid.SemesterExpiresAt.ToString("MMMM dd, yyyy")</p>
+            </div>
+
+            <a asp-action="RenewRfid" asp-route-id="@Model.Student.Id" class="adm-action-link adm-action-link--primary">
+                <div class="adm-action-link-inner">
+                    <span class="adm-action-link-icon" style="color:#2196F3;"><i class="bi bi-calendar-plus"></i></span>
+                    <div>
+                        <div class="adm-action-link-title">Renew Semester</div>
+                        <div class="adm-action-link-desc">Extend the expiry date of this card.</div>
+                    </div>
+                </div>
+            </a>
+
+            <a asp-action="ReplaceRfid" asp-route-id="@Model.Student.Id" class="adm-action-link adm-action-link--warning">
+                <div class="adm-action-link-inner">
+                    <span class="adm-action-link-icon" style="color:#ffb300;"><i class="bi bi-arrow-repeat"></i></span>
+                    <div>
+                        <div class="adm-action-link-title">Replace Card</div>
+                        <div class="adm-action-link-desc">Issue a new card to replace a lost or damaged one.</div>
+                    </div>
+                </div>
+            </a>
+
+            <a asp-action="RevokeRfid" asp-route-id="@Model.Student.Id" class="adm-action-link adm-action-link--danger">
+                <div class="adm-action-link-inner">
+                    <span class="adm-action-link-icon" style="color:#ff453a;"><i class="bi bi-x-circle"></i></span>
+                    <div>
+                        <div class="adm-action-link-title">Revoke Card</div>
+                        <div class="adm-action-link-desc">Permanently invalidate the current card without replacing it.</div>
+                    </div>
+                </div>
+            </a>
+        }
+        else
+        {
+            <div class="adm-text-center" style="padding:2rem 0;">
+                <p class="adm-text-muted" style="margin-bottom:1.2rem;">This student does not have an active RFID card.</p>
+                <a asp-action="IssueRfid" asp-route-id="@Model.Student.Id" class="adm-btn-primary">Issue New Card</a>
+            </div>
+        }
     </div>
 </div>

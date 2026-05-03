@@ -1,84 +1,359 @@
 @model PaScan.Models.ViewModels.StudentDashboardViewModel
 @{
     ViewData["Title"] = "Student Dashboard";
+    var pendingCount = Model.Requests.Count(r => r.Status == PaScan.Enums.RegisterStatus.PENDING);
+    var rejectedCount = Model.Requests.Count(r => r.Status == PaScan.Enums.RegisterStatus.REJECTED);
+    var activeDevices = Model.Devices.Count(d => d.Status == PaScan.Enums.DeviceStatus.ACTIVE);
+    var lastRequest = Model.Requests.OrderByDescending(r => r.SubmittedAt).FirstOrDefault();
 }
+<style>
+.db { display:grid; gap:1.5rem; margin-top:0.5rem; }
+.db-hero {
+    grid-column:1/-1;
+    padding:2.8rem 2.5rem;
+    background: linear-gradient(135deg, #0d1a2b 0%, #0a0a0c 100%);
+    border:1px solid rgba(33,150,243,.22);
+    border-radius:1.5rem;
+    display:flex; align-items:center; justify-content:space-between;
+    position:relative; overflow:hidden;
+}
+.db-hero::before {
+    content:""; position:absolute; top:-80px; right:-60px;
+    width:340px; height:340px;
+    background:radial-gradient(circle,rgba(33,150,243,.18) 0%,transparent 70%);
+    pointer-events:none;
+}
+.db-hero-badge {
+    display:inline-flex; align-items:center; gap:.4rem;
+    background:#162033; border:1px solid rgba(33,150,243,.3);
+    color:#64b5f6; font-size:.7rem; font-weight:700; letter-spacing:.1em;
+    text-transform:uppercase; padding:.3rem .8rem; border-radius:999px;
+    margin-bottom:.75rem;
+}
+.db-hero-title { font-size:clamp(1.8rem,4vw,2.8rem); font-weight:700; color:#fff; letter-spacing:-.03em; margin-bottom:.4rem; }
+.db-hero-sub { font-size:1rem; color:#8e8e93; }
+.db-hero-icon { font-size:5rem; color:rgba(255,255,255,.06); line-height:1; }
+.db-2col { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+.db-3col { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+.db-stat {
+    background:#141418; border:1px solid rgba(255,255,255,.08);
+    border-radius:1.1rem; padding:1.4rem 1.5rem; position:relative; overflow:hidden;
+    transition:border-color .25s,transform .25s;
+}
+.db-stat:hover { border-color:rgba(33,150,243,.3); transform:translateY(-2px); }
+.db-stat-bg { position:absolute; right:-8px; bottom:-12px; font-size:4.5rem; opacity:.04; pointer-events:none; }
+.db-stat-label { font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#6e6e73; margin-bottom:.45rem; }
+.db-stat-val { font-size:2rem; font-weight:700; line-height:1; }
+.db-stat-val.green { color:#32d74b; }
+.db-stat-val.blue { color:#2196F3; }
+.db-stat-val.orange { color:#ff9f0a; }
+.db-stat-val.gray { color:#6e6e73; }
+.db-stat-detail { font-size:.8rem; color:#6e6e73; margin-top:.3rem; }
+.db-card {
+    background:#141418; border:1px solid rgba(255,255,255,.08);
+    border-radius:1.2rem; padding:1.6rem;
+}
+.db-card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; }
+.db-card-title { font-size:1rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:.5rem; }
+.db-card-title i { color:#2196F3; }
+.db-quick-grid { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+.db-quick-btn {
+    display:flex; align-items:center; gap:.85rem;
+    padding:1rem 1.1rem; border-radius:.9rem;
+    border:1px solid rgba(255,255,255,.08); background:#18181c;
+    text-decoration:none; color:#d2d2d7;
+    transition:all .22s ease; cursor:pointer;
+}
+.db-quick-btn:hover { border-color:rgba(33,150,243,.35); background:#0f1e30; color:#fff; text-decoration:none; }
+.db-quick-icon { width:40px; height:40px; border-radius:.65rem; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+.db-quick-icon.blue { background:#0d2035; color:#2196F3; }
+.db-quick-icon.green { background:#0a2215; color:#32d74b; }
+.db-quick-icon.purple { background:#1a1028; color:#af52de; }
+.db-quick-icon.orange { background:#2a1a08; color:#ff9f0a; }
+.db-quick-label { font-size:.85rem; font-weight:600; }
+.db-quick-sub { font-size:.75rem; color:#6e6e73; }
+.db-steps { display:flex; flex-direction:column; gap:.8rem; }
+.db-step { display:flex; align-items:flex-start; gap:1rem; padding:1rem; background:#18181c; border:1px solid rgba(255,255,255,.06); border-radius:.9rem; }
+.db-step-num { width:30px; height:30px; border-radius:50%; background:#0d2035; border:1px solid rgba(33,150,243,.3); color:#2196F3; font-size:.8rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.db-step-text { font-size:.85rem; color:#d2d2d7; line-height:1.5; }
+.db-step-text strong { color:#fff; display:block; margin-bottom:.15rem; }
+.db-alert-bar { display:flex; align-items:center; gap:.75rem; padding:.9rem 1.1rem; border-radius:.9rem; margin-bottom:.75rem; font-size:.88rem; }
+.db-alert-bar.orange { background:#2a1a08; border:1px solid rgba(255,159,10,.2); color:#ff9f0a; }
+.db-alert-bar.red { background:#2a0d0a; border:1px solid rgba(255,69,58,.2); color:#ff453a; }
+.db-alert-bar.green { background:#0a2215; border:1px solid rgba(50,215,75,.2); color:#32d74b; }
+.db-recent-item { display:flex; align-items:center; justify-content:space-between; padding:.85rem 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.db-recent-item:last-child { border-bottom:none; padding-bottom:0; }
+.db-recent-device { font-size:.9rem; font-weight:600; color:#e5e5ea; }
+.db-recent-meta { font-size:.78rem; color:#6e6e73; margin-top:.1rem; }
+.db-tip { display:flex; gap:.85rem; align-items:flex-start; padding:.9rem 1rem; background:#18181c; border:1px solid rgba(255,255,255,.06); border-radius:.85rem; margin-bottom:.65rem; }
+.db-tip:last-child { margin-bottom:0; }
+.db-tip-icon { font-size:1.1rem; margin-top:.05rem; flex-shrink:0; }
+.db-tip p { font-size:.83rem; color:#8e8e93; margin:0; line-height:1.5; }
+.db-tip strong { color:#d2d2d7; }
+.db-empty { text-align:center; padding:2rem 1rem; color:#6e6e73; font-size:.9rem; }
+.db-empty i { font-size:2rem; display:block; margin-bottom:.5rem; opacity:.4; }
+.db-table { width:100%; border-collapse:separate; border-spacing:0; }
+.db-table th { padding:.65rem 1rem; font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#6e6e73; text-align:left; border-bottom:1px solid rgba(255,255,255,.05); }
+.db-table td { padding:.8rem 1rem; color:#d2d2d7; font-size:.88rem; border-bottom:1px solid rgba(255,255,255,.03); }
+.db-table tr:last-child td { border-bottom:none; }
+.db-table tr:hover td { background:#18181c; }
+.db-scrollable { overflow-x:auto; -webkit-overflow-scrolling:touch; }
 
-<h1>Student Dashboard</h1>
+/* ── Custom scrollbar for Device Requests ── */
+#reqTableWrap {
+    scrollbar-width: thin;
+    scrollbar-color: #2a2a32 transparent;
+}
+#reqTableWrap::-webkit-scrollbar {
+    width: 5px;
+}
+#reqTableWrap::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 999px;
+}
+#reqTableWrap::-webkit-scrollbar-thumb {
+    background: #2e2e38;
+    border-radius: 999px;
+    transition: background .2s;
+}
+#reqTableWrap::-webkit-scrollbar-thumb:hover {
+    background: #2196F3;
+    box-shadow: 0 0 6px rgba(33,150,243,.45);
+}
+@@media(max-width:900px){
+    .db-2col,.db-3col{ grid-template-columns:1fr; }
+    .db-quick-grid{ grid-template-columns:1fr; }
+    .db-hero { flex-direction:column; align-items:flex-start; gap:1rem; }
+    .db-hero-icon { display:none; }
+}
+</style>
 
-<section>
-    <h3>Profile</h3>
-    <p>Name: @Model.FirstName @Model.LastName</p>
-    <p>Student Number: @Model.StudentNumber</p>
-    <p>Course: @Model.CourseName</p>
-</section>
+<div class="db">
 
-<section>
-    <h3>RFID Status</h3>
-    @if (Model.IsRfidEnabled)
-    {
-        <p style="color: green;">✅ Active</p>
-        <p>Expires: @(Model.RfidExpiresAt?.ToString("MMM dd, yyyy") ?? "N/A")</p>
-    }
-    else
-    {
-        <p style="color: gray;">⚪ Not Enabled</p>
-    }
-</section>
+    <!-- HERO -->
+    <div class="db-hero stu-rise">
+        <div style="position:relative;z-index:1;">
+            <div class="db-hero-badge"><i class="bi bi-shield-check"></i> PaScan Portal</div>
+            <div class="db-hero-title">Welcome back, @Model.FirstName</div>
+            <div class="db-hero-sub">@Model.StudentNumber &nbsp;·&nbsp; @Model.CourseName</div>
+            <div style="display:flex;gap:.6rem;margin-top:1.2rem;flex-wrap:wrap;">
+                <a asp-controller="Device" asp-action="Register" class="stu-btn-primary" style="font-size:.85rem;">
+                    <i class="bi bi-plus-circle"></i> Register Device
+                </a>
+                <a asp-controller="Device" asp-action="MyDevices" class="stu-btn-ghost" style="font-size:.85rem;">
+                    <i class="bi bi-laptop"></i> My Devices
+                </a>
+            </div>
+        </div>
+        <div class="db-hero-icon d-none d-md-block">
+            <i class="bi bi-qr-code-scan"></i>
+        </div>
+    </div>
 
-<hr />
-
-<section>
-    <h3>Device Requests <a asp-controller="Device" asp-action="Register">[Register New Device]</a></h3>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Device Name</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var request in Model.Requests)
+    <!-- STAT CARDS -->
+    <div class="db-3col stu-rise stu-rise-d1">
+        <div class="db-stat">
+            <i class="bi bi-broadcast db-stat-bg"></i>
+            <div class="db-stat-label">RFID Status</div>
+            @if (Model.IsRfidEnabled)
             {
-                <tr>
-                    <td>@request.DeviceName</td>
-                    <td>@request.DeviceType</td>
-                    <td>@request.Status</td>
-                    <td>@request.SubmittedAt.ToShortDateString()</td>
-                    <td>
-                        <a asp-controller="Device" asp-action="Details" asp-route-id="@request.Id">View Details</a>
-                    </td>
-                </tr>
+                <div class="db-stat-val green">Active</div>
+                <div class="db-stat-detail">Expires @(Model.RfidExpiresAt?.ToString("MMM dd, yyyy") ?? "N/A")</div>
             }
-        </tbody>
-    </table>
-</section>
-
-<section>
-    <h3>Approved Devices <a asp-controller="Device" asp-action="MyDevices">[View All My Devices]</a></h3>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Device Name</th>
-                <th>Brand/Model</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var device in Model.Devices)
+            else
             {
-                <tr>
-                    <td>@device.DeviceName</td>
-                    <td>@device.Brand @device.Model</td>
-                    <td>@device.Status</td>
-                    <td>
-                        <a asp-controller="Device" asp-action="DeviceDetail" asp-route-deviceId="@device.Id">View QR / Details</a>
-                    </td>
-                </tr>
+                <div class="db-stat-val gray">Inactive</div>
+                <div class="db-stat-detail">Contact admin to enable</div>
             }
-        </tbody>
-    </table>
-</section>
+        </div>
+        <div class="db-stat">
+            <i class="bi bi-laptop db-stat-bg"></i>
+            <div class="db-stat-label">Active Devices</div>
+            <div class="db-stat-val blue">@activeDevices</div>
+            <div class="db-stat-detail">of @Model.Devices.Count registered</div>
+        </div>
+        <div class="db-stat">
+            <i class="bi bi-hourglass-split db-stat-bg"></i>
+            <div class="db-stat-label">Pending Requests</div>
+            <div class="db-stat-val @(pendingCount > 0 ? "orange" : "gray")">@pendingCount</div>
+            <div class="db-stat-detail">@rejectedCount rejected · @Model.Requests.Count total</div>
+        </div>
+    </div>
+
+    <!-- TOP ROW: Device Requests + Gate Access Devices -->
+    <div class="db-2col">
+
+        <!-- Device Requests -->
+        <div class="db-card stu-rise stu-rise-d2" id="requestsSection">
+            <div class="db-card-head">
+                <span class="db-card-title"><i class="bi bi-clock-history"></i> Device Requests</span>
+                <a asp-controller="Device" asp-action="Register" class="stu-btn-primary" style="font-size:.8rem;padding:.45rem .9rem;">
+                    <i class="bi bi-plus"></i> New
+                </a>
+            </div>
+            @if (Model.Requests.Any())
+            {
+                <div id="reqTableWrap" class="db-scrollable">
+                    <table class="db-table" id="reqTable">
+                        <thead>
+                            <tr>
+                                <th>Device</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="reqTbody">
+                            @foreach (var req in Model.Requests.Take(5))
+                            {
+                                var bc = req.Status switch {
+                                    PaScan.Enums.RegisterStatus.PENDING  => "stu-badge--pending",
+                                    PaScan.Enums.RegisterStatus.APPROVED => "stu-badge--approved",
+                                    PaScan.Enums.RegisterStatus.REJECTED => "stu-badge--rejected",
+                                    _ => "stu-badge--pending"
+                                };
+                                <tr data-req-row>
+                                    <td>
+                                        <div style="font-weight:600;color:#e5e5ea;">@req.DeviceName</div>
+                                        <div style="font-size:.75rem;color:#6e6e73;">@req.DeviceType</div>
+                                    </td>
+                                    <td><span class="stu-badge @bc">@req.Status</span></td>
+                                    <td style="font-size:.8rem;white-space:nowrap;">@req.SubmittedAt.ToString("MMM dd")</td>
+                                    <td>
+                                        <a href="javascript:void(0);" data-url="@Url.Action("Details","Device",new{id=req.Id})" class="stu-btn-ghost view-details-btn" style="padding:.3rem .7rem;font-size:.78rem;">Details</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                @if (Model.Requests.Count > 5)
+                {
+                    <div style="margin-top:.85rem;text-align:center;">
+                        <a asp-controller="Device" asp-action="MyDevices"
+                           class="stu-btn-ghost"
+                           style="font-size:.82rem;padding:.4rem 1.1rem;display:inline-flex;align-items:center;gap:.4rem;">
+                            <i class="bi bi-arrow-right-circle"></i>
+                            See More (@Model.Requests.Count requests)
+                        </a>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="db-empty">
+                    <i class="bi bi-inbox"></i>
+                    No requests yet. Register your first device!
+                </div>
+            }
+        </div>
+
+    
+        <div class="db-card stu-rise stu-rise-d2">
+            <div class="db-card-head">
+                <span class="db-card-title"><i class="bi bi-qr-code"></i> Gate Access Devices</span>
+                <a asp-controller="Device" asp-action="MyDevices" class="stu-btn-ghost" style="font-size:.8rem;padding:.4rem .85rem;">All</a>
+            </div>
+            @if (Model.Devices.Any())
+            {
+                @foreach (var dev in Model.Devices.Take(4))
+                {
+                    var db2 = dev.Status switch {
+                        PaScan.Enums.DeviceStatus.ACTIVE   => "stu-badge--active",
+                        PaScan.Enums.DeviceStatus.EXPIRED  => "stu-badge--expired",
+                        PaScan.Enums.DeviceStatus.REVOKED  => "stu-badge--revoked",
+                        _ => "stu-badge--pending"
+                    };
+                    var devIcon = dev.DeviceType switch {
+                        PaScan.Enums.DeviceType.LAPTOP => "bi-laptop",
+                        PaScan.Enums.DeviceType.DESKTOP => "bi-pc-display",
+                        _ => "bi-device-hdd"
+                    };
+                    <div class="db-recent-item">
+                        <div style="display:flex;align-items:center;gap:.8rem;">
+                            <div style="width:36px;height:36px;border-radius:.6rem;background:#0d2035;display:flex;align-items:center;justify-content:center;color:#2196F3;font-size:1rem;flex-shrink:0;">
+                                <i class="bi @devIcon"></i>
+                            </div>
+                            <div>
+                                <div class="db-recent-device">@dev.DeviceName</div>
+                                <div class="db-recent-meta">@dev.Brand @dev.Model</div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:.6rem;flex-shrink:0;">
+                            <span class="stu-badge @db2">@dev.Status</span>
+                            <a href="javascript:void(0);" data-url="@Url.Action("DeviceDetail","Device",new{deviceId=dev.Id})" class="stu-btn-ghost view-details-btn" style="padding:.3rem .65rem;font-size:.78rem;">View QR</a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="db-empty">
+                    <i class="bi bi-qr-code"></i>
+                    No approved devices yet.
+                </div>
+            }
+        </div>
+
+    </div>
+
+    <!-- BOTTOM ROW: Security Tips (full width) -->
+    <div class="db-card stu-rise stu-rise-d3">
+        <div class="db-card-head">
+            <span class="db-card-title"><i class="bi bi-shield-lock-fill"></i> Security Tips</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+            <div class="db-tip" style="margin-bottom:0;">
+                <i class="bi bi-lock-fill db-tip-icon" style="color:#32d74b;"></i>
+                <p><strong>Keep your QR private.</strong> Never share your gate QR code — it's uniquely tied to your device and student account.</p>
+            </div>
+            <div class="db-tip" style="margin-bottom:0;">
+                <i class="bi bi-arrow-repeat db-tip-icon" style="color:#ff9f0a;"></i>
+                <p><strong>Renew before expiry.</strong> QR codes expire periodically. Renew them in My Devices to avoid being stopped at the gate.</p>
+            </div>
+            <div class="db-tip" style="margin-bottom:0;">
+                <i class="bi bi-check-circle-fill db-tip-icon" style="color:#2196F3;"></i>
+                <p><strong>Accurate info matters.</strong> Make sure serial numbers and device details are correct — mismatches may cause delays.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL -->
+
+<div class="modal fade pm-modal" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-body" id="detailsModalBody">
+                <div class="pm-loading"><div class="pm-spinner"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function(){
+    var modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+    var body  = document.getElementById('detailsModalBody');
+
+    // close buttons rendered inside partials
+    document.addEventListener('click', function(e){
+        if(e.target.closest('.pm-close-btn, .rdm-close, .ddm-close')) modal.hide();
+
+        var btn = e.target.closest('.view-details-btn');
+        if(!btn) return;
+        e.preventDefault();
+        body.innerHTML='<div class="pm-loading"><div class="pm-spinner"></div></div>';
+        modal.show();
+        fetch(btn.getAttribute('data-url'),{headers:{'X-Requested-With':'XMLHttpRequest'}})
+        .then(r=>r.text()).then(html=>{
+            body.innerHTML=html;
+        }).catch(()=>{ body.innerHTML='<div style="color:#ff453a;padding:2rem;text-align:center;">Error loading details. Please try again.</div>'; });
+    });
+    // ── Device Requests: no extra JS needed (server renders max 5, See More link handles overflow) ──
+
+})();
+</script>
+}

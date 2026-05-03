@@ -1,0 +1,118 @@
+/* ================= ADMIN PORTAL UI ================= */
+
+body.admin-portal {
+  background: #0a0a0c;
+  color: #d2d2d7;
+  -webkit-backface-visibility: visible;
+  backface-visibility: visible;
+  -webkit-perspective: none;
+  perspective: none;
+  -webkit-transform-style: flat;
+  transform-style: flat;
+}
+
+/* --- Floating Glass Dock --- */
+.adm-dock {
+  position: fixed;
+  bottom: 1.1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(18, 18, 22, 0.62);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 0.5px rgba(255,255,255,0.06) inset, 0 1px 0 0 rgba(255,255,255,0.05) inset;
+  animation: adm-dock-rise 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+  -webkit-backface-visibility: visible;
+  backface-visibility: visible;
+  -webkit-transform-style: flat;
+  transform-style: flat;
+}
+
+@keyframes adm-dock-rise {
+  from { opacity:0; transform: translateX(-50%) translateY(24px); }
+  to { opacity:1; transform: translateX(-50%) translateY(0); }
+}
+
+.adm-dock-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 14px;
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+  min-width: 48px;
+}
+.adm-dock-item svg { width:20px; height:20px; flex-shrink:0; transition: transform 0.25s cubic-bezier(0.16,1,0.3,1); }
+.adm-dock-label { font-size:0.58rem; font-weight:600; letter-spacing:0.02em; opacity:0.7; transition: opacity 0.25s ease; white-space:nowrap; }
+.adm-dock-item:hover { color: rgba(255,255,255,0.92); background: rgba(255,255,255,0.08); text-decoration:none; }
+.adm-dock-item:hover svg { transform: scale(1.12) translateY(-1px); }
+.adm-dock-item:hover .adm-dock-label { opacity:1; }
+.adm-dock-item.active { color: #4fc3f7; background: rgba(79,195,247,0.10); }
+.adm-dock-item.active::after { content:""; position:absolute; bottom:0.1rem; left:50%; transform:translateX(-50%); width:5px; height:5px; border-radius:50%; background:#4fc3f7; box-shadow: 0 0 8px rgba(79,195,247,0.6); }
+.adm-dock-item.active svg { filter: drop-shadow(0 0 4px rgba(79,195,247,0.4)); }
+.adm-dock-item.active .adm-dock-label { opacity:1; }
+
+.adm-dock-divider { width:1px; height:24px; background: rgba(255,255,255,0.10); margin: 0 0.15rem; flex-shrink:0; }
+
+/* --- Dock User Avatar --- */
+.adm-dock-user-wrap { position: relative; }
+.adm-dock-avatar {
+  width:34px; height:34px; border-radius:50%;
+  border: 2px solid rgba(255,255,255,0.12);
+  background: linear-gradient(135deg, #2196F3 0%, #00c6ff 100%);
+  color:#fff; font-weight:700; font-size:0.8rem;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+  padding:0; outline:none;
+}
+.adm-dock-avatar:hover { border-color: rgba(79,195,247,0.5); transform: scale(1.08); box-shadow: 0 0 12px rgba(79,195,247,0.3); }
+
+.adm-dock-popover {
+  position:absolute; bottom: calc(100% + 12px); right:-8px; min-width:220px; padding:0;
+  border-radius:16px; background: rgba(28,28,32,0.85);
+  backdrop-filter: blur(32px) saturate(180%); -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.10); box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  opacity:0; visibility:hidden; transform: translateY(8px) scale(0.96);
+  transition: all 0.25s cubic-bezier(0.16,1,0.3,1); pointer-events:none; overflow:hidden;
+}
+.adm-dock-popover.show { opacity:1; visibility:visible; transform: translateY(0) scale(1); pointer-events:auto; }
+.adm-dock-popover-header { display:flex; align-items:center; gap:0.7rem; padding:1rem 1rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.adm-dock-popover-avatar { width:40px; height:40px; border-radius:50%; background: linear-gradient(135deg,#2196F3,#00c6ff); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:1rem; flex-shrink:0; }
+.adm-dock-popover-name { color:#e8e8ed; font-size:0.9rem; font-weight:600; line-height:1.3; }
+.adm-dock-popover-role { color:#6e6e73; font-size:0.75rem; margin-top:0.1rem; }
+.adm-dock-popover-logout { display:flex; align-items:center; gap:0.6rem; padding:0.75rem 1rem; color:#a1a1a6; font-size:0.85rem; font-weight:500; text-decoration:none; transition: all 0.2s ease; }
+.adm-dock-popover-logout:hover { color:#ff453a; background: rgba(255,69,58,0.08); text-decoration:none; }
+
+/* --- Main Content Area --- */
+.adm-main {
+  margin-left:0; min-height:100vh;
+  padding: 2rem 2.5rem 6rem;
+  background: radial-gradient(circle at 85% 10%, rgba(33,150,243,0.06), transparent 40%), radial-gradient(circle at 5% 90%, rgba(255,255,255,0.02), transparent 35%), #0a0a0c;
+}
+
+/* --- Page Header --- */
+.adm-page-header { margin-bottom:2rem; }
+.adm-page-kicker { font-size:0.78rem; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:#2196F3; margin-bottom:0.4rem; }
+.adm-page-title { color:#fff; font-size: clamp(1.8rem,4vw,2.6rem); font-weight:700; line-height:1.1; letter-spacing:-0.03em; background: linear-gradient(135deg,#fff 0%,#a1a1a6 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.adm-page-subtitle { color:#6e6e73; font-size:0.95rem; margin-top:0.4rem; }
+.adm-page-header-row { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
+
+/* --- Rise Animation --- */
+.adm-rise { opacity:0; transform:translateY(16px); animation: adm-rise 0.65s ease forwards; }
+.adm-rise-d1 { animation-delay:100ms; }
+.adm-rise-d2 { animation-delay:180ms; }
+.adm-rise-d3 { animation-delay:260ms; }
+.adm-rise-d4 { animation-delay:340ms; }
+@keyframes adm-rise { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
