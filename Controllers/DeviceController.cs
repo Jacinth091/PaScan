@@ -144,12 +144,7 @@ namespace PaScan.Controllers
 
             try
             {
-                var request = await _deviceService.GetDeviceRequestAsync(id, studentId);
-                
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                {
-                    return PartialView(request);
-                }
+                var request = await _deviceService.GetDeviceRequestAsync(id, studentId);          
                 
                 return View(request);
             }
@@ -171,11 +166,6 @@ namespace PaScan.Controllers
                 }
 
                 var vm = await _deviceService.GetDeviceDetailAsync(deviceId, studentId);
-                
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                {
-                    return PartialView(vm);
-                }
                 
                 return View(vm);
             }
