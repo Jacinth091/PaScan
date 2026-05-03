@@ -1,0 +1,354 @@
+/* ================= SCANNER PORTAL UI ================= */
+
+body.scanner-portal {
+  background: #0a0a0c;
+  color: #d2d2d7;
+  -webkit-backface-visibility: visible;
+  backface-visibility: visible;
+  -webkit-perspective: none;
+  perspective: none;
+  -webkit-transform-style: flat;
+  transform-style: flat;
+}
+
+/* --- Scanner Header Bar --- */
+.scn-header {
+  position: fixed;
+  top: 0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  background: rgba(18, 18, 22, 0.62);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 0.5px rgba(255,255,255,0.06) inset;
+  animation: scn-header-drop 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+  min-width: 300px;
+  max-width: 600px;
+  width: auto;
+}
+
+@keyframes scn-header-drop {
+  from { opacity:0; transform: translateX(-50%) translateY(-20px); }
+  to { opacity:1; transform: translateX(-50%) translateY(0); }
+}
+
+.scn-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: #e8e8ed;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.scn-header-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2196F3, #00c6ff);
+  flex-shrink: 0;
+}
+
+.scn-header-role {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6e6e73;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px;
+}
+
+.scn-header-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #a1a1a6;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  transition: all 0.2s ease;
+}
+
+.scn-header-logout:hover {
+  color: #ff453a;
+  background: rgba(255,69,58,0.08);
+  text-decoration: none;
+}
+
+/* --- Main Content --- */
+.scn-main {
+  min-height: 100vh;
+  padding: 5rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(33,150,243,0.06), transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255,255,255,0.02), transparent 35%),
+    #0a0a0c;
+}
+
+/* --- Scanner Card --- */
+.scn-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 580px;
+  transition: border-color 0.3s ease;
+}
+
+.scn-card:hover {
+  border-color: rgba(255,255,255,0.12);
+}
+
+.scn-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.scn-card-title {
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.scn-card-title i {
+  color: #2196F3;
+}
+
+/* --- Scanner Badges --- */
+.scn-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.scn-badge--init { background: rgba(255,179,0,0.1); border-color: rgba(255,179,0,0.25); color:#ffb300; }
+.scn-badge--active { background: rgba(50,215,75,0.1); border-color: rgba(50,215,75,0.25); color:#32d74b; }
+.scn-badge--stopped { background: rgba(142,142,147,0.1); border-color: rgba(142,142,147,0.25); color:#8e8e93; }
+.scn-badge--processing { background: rgba(255,179,0,0.1); border-color: rgba(255,179,0,0.25); color:#ffb300; }
+.scn-badge--granted { background: rgba(50,215,75,0.1); border-color: rgba(50,215,75,0.25); color:#32d74b; }
+.scn-badge--denied { background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.25); color:#ff453a; }
+.scn-badge--error { background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.25); color:#ff453a; }
+.scn-badge--ready { background: rgba(33,150,243,0.1); border-color: rgba(33,150,243,0.25); color:#2196F3; }
+
+/* --- Scanner Viewport --- */
+.scn-viewport {
+  position: relative;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.scn-viewport video {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.scn-viewport canvas {
+  display: none;
+}
+
+/* --- Scan Overlay --- */
+.scn-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  width: 80%;
+  max-width: 350px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: none;
+}
+
+.scn-overlay.granted {
+  background: rgba(50,215,75,0.85);
+}
+
+.scn-overlay.denied {
+  background: rgba(255,69,58,0.85);
+}
+
+.scn-overlay-status {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.scn-overlay-name {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.scn-overlay-device {
+  color: rgba(255,255,255,0.85);
+  font-size: 0.9rem;
+}
+
+.scn-overlay-reason {
+  color: #ffb300;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+}
+
+/* --- Scanner Buttons --- */
+.scn-controls {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.2rem 1.5rem;
+}
+
+.scn-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.7rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.scn-btn-start {
+  background: linear-gradient(135deg, #32d74b 0%, #28a745 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(50,215,75,0.3);
+}
+
+.scn-btn-start:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(50,215,75,0.4);
+}
+
+.scn-btn-stop {
+  background: linear-gradient(135deg, #ff453a 0%, #d32f2f 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(255,69,58,0.3);
+}
+
+.scn-btn-stop:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255,69,58,0.4);
+}
+
+.scn-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* --- Footer Hint --- */
+.scn-footer-hint {
+  padding: 0.75rem 1.5rem;
+  text-align: center;
+  color: #6e6e73;
+  font-size: 0.82rem;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+/* --- Error Alert --- */
+.scn-alert-error {
+  margin: 1rem 1.5rem 0;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: rgba(255,69,58,0.08);
+  border: 1px solid rgba(255,69,58,0.2);
+  color: #ff453a;
+  font-size: 0.88rem;
+  display: none;
+}
+
+/* --- Rise Animation --- */
+.scn-rise {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: scn-rise 0.65s ease forwards;
+}
+
+@keyframes scn-rise {
+  from { opacity:0; transform:translateY(16px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* --- Responsive --- */
+@media (max-width: 900px) {
+  .scn-main { padding: 4.5rem 1rem 1.5rem; }
+  .scn-card { border-radius: 20px; }
+}
+
+@media (max-width: 600px) {
+  .scn-header {
+    min-width: auto;
+    padding: 0.5rem 0.8rem;
+    gap: 0.5rem;
+    top: 0.5rem;
+  }
+  .scn-header-brand { font-size: 0.82rem; gap: 0.35rem; }
+  .scn-header-dot { width: 18px; height: 18px; }
+  .scn-header-role { font-size: 0.6rem; padding: 0.15rem 0.45rem; }
+  .scn-header-logout { font-size: 0.75rem; padding: 0.3rem 0.5rem; }
+  .scn-header-logout span { display: none; }
+  .scn-main { padding: 4rem 0.6rem 1rem; }
+  .scn-card { border-radius: 16px; }
+  .scn-card-header { padding: 0.85rem 1rem; }
+  .scn-card-title { font-size: 0.92rem; }
+  .scn-controls { padding: 1rem; gap: 0.5rem; }
+  .scn-btn { padding: 0.6rem 1.1rem; font-size: 0.82rem; border-radius: 10px; }
+  .scn-viewport { min-height: 240px; }
+  .scn-overlay { padding: 1rem 1.2rem; border-radius: 12px; }
+  .scn-overlay-status { font-size: 1rem; }
+  .scn-overlay-name { font-size: 0.95rem; }
+  .scn-footer-hint { padding: 0.6rem 1rem; font-size: 0.78rem; }
+  .scn-badge { font-size: 0.65rem; padding: 0.2rem 0.5rem; }
+}
+
+@media (max-width: 380px) {
+  .scn-header { top: 0.35rem; padding: 0.4rem 0.6rem; }
+  .scn-main { padding: 3.5rem 0.4rem 0.8rem; }
+  .scn-card { border-radius: 14px; }
+  .scn-viewport { min-height: 200px; }
+}
