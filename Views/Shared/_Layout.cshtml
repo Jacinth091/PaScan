@@ -26,7 +26,20 @@
 
     .brand-text:hover {
         text-decoration: none;
-    }    
+    }
+
+    /* Navbar scroll-shrink effect */
+    .dynamic-navbar-island {
+        transition: background 0.35s ease, box-shadow 0.35s ease, padding 0.35s ease, top 0.35s ease;
+    }
+
+    .dynamic-navbar-island.scrolled {
+        background: rgba(10, 10, 12, 0.92);
+        backdrop-filter: blur(40px) saturate(200%);
+        -webkit-backdrop-filter: blur(40px) saturate(200%);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255,255,255,0.08);
+        top: 0.75rem;
+    }
     </style>
 </head>
 
@@ -64,10 +77,14 @@
                 <a href="/#neo-help-title">Help</a>
                 <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                 <a href="/#neo-faq-title">FAQ</a>
+                <a class="dynamic-nav-cta mobile-cta" href="/auth/register/student">Register</a>
                 <a class="dynamic-nav-cta mobile-cta" href="/auth/login">Login</a>
             </nav>
 
-            <a class="dynamic-nav-cta desktop-cta" href="/auth/login">Login</a>
+            <div class="desktop-cta-group">
+                <a class="dynamic-nav-cta desktop-cta dynamic-nav-cta-outline" href="/auth/register/student">Register</a>
+                <a class="dynamic-nav-cta desktop-cta" href="/auth/login">Login</a>
+            </div>
         </div>
     }
 

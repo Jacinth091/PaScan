@@ -144,7 +144,8 @@ namespace PaScan.Controllers
 
             try
             {
-                var request = await _deviceService.GetDeviceRequestAsync(id, studentId);
+                var request = await _deviceService.GetDeviceRequestAsync(id, studentId);          
+                
                 return View(request);
             }
             catch (Exception)
@@ -165,6 +166,7 @@ namespace PaScan.Controllers
                 }
 
                 var vm = await _deviceService.GetDeviceDetailAsync(deviceId, studentId);
+                
                 return View(vm);
             }
             catch (UnauthorizedAccessException)

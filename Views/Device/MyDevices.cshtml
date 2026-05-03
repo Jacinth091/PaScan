@@ -3,16 +3,139 @@
     ViewData["Title"] = "My Devices";
 }
 
+<style>
+/* ── MyDevices Search & Filter Bar ── */
+.mvp-toolbar {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.mvp-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+
+.mvp-search-wrap i {
+    position: absolute;
+    left: .9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6e6e73;
+    font-size: .9rem;
+    pointer-events: none;
+}
+
+#mvpSearch {
+    width: 100%;
+    background: #1e1e24;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px;
+    padding: .65rem 1rem .65rem 2.4rem;
+    color: #fff;
+    font-size: .9rem;
+    font-family: inherit;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+#mvpSearch::placeholder { color: #6e6e73; }
+
+#mvpSearch:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 3px rgba(33,150,243,.12);
+}
+
+.mvp-filters {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.mvp-filter-label {
+    font-size: .78rem;
+    font-weight: 600;
+    color: #6e6e73;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+#mvpFilter {
+    background: #1e1e24;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px;
+    padding: .55rem .9rem;
+    color: #d2d2d7;
+    font-size: .88rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color .2s, box-shadow .2s;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6e73' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right .75rem center;
+    padding-right: 2.2rem;
+}
+
+#mvpFilter:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 3px rgba(33,150,243,.12);
+}
+
+#mvpFilter option { background: #1e1e24; color: #d2d2d7; }
+
+#mvpNoResults {
+    display: none;
+    text-align: center;
+}
+
+/* Smooth row transitions */
+#mvpTbody tr[data-status] {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#mvpTbody tr[data-status].mvp-hidden {
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+}
+</style>
+
 <div class="stu-page-header-row stu-rise">
     <div>
         <p class="stu-page-kicker">Device Management</p>
-        <h1 class="stu-page-title">My Approved Devices</h1>
+        <h1 class="stu-page-title">My Devices</h1>
     </div>
     <a asp-controller="Student" asp-action="Dashboard" class="stu-btn-ghost">&larr; Dashboard</a>
 </div>
 
-<div class="stu-card stu-rise stu-rise-d1" style="margin-top: 1.5rem;">
-    <table class="stu-table paginated-table">
+<!-- Search & Filter Toolbar -->
+<div class="mvp-toolbar stu-rise stu-rise-d1">
+    <div class="mvp-search-wrap">
+        <i class="bi bi-search"></i>
+        <input type="text" id="mvpSearch" placeholder="Search by name, brand, model…" autocomplete="off">
+    </div>
+    <div class="mvp-filters">
+        <span class="mvp-filter-label"><i class="bi bi-funnel"></i> Filter</span>
+        <select id="mvpFilter">
+            <option value="all">All Statuses</option>
+            <option value="ACTIVE">Active</option>
+            <option value="REVOKED">Revoked</option>
+        </select>
+    </div>
+</div>
+
+<div class="stu-card stu-rise stu-rise-d1">
+    <table class="stu-table" id="mvpTable">
         <thead>
             <tr>
                 <th>Device Name</th>
@@ -23,37 +146,127 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="mvpTbody">
             @foreach (var device in Model)
             {
-                <tr>
-                    <td>@device.DeviceName</td>
+                var devBadge = device.Status switch
+                {
+                    PaScan.Enums.DeviceStatus.ACTIVE  => "stu-badge--active",
+                    PaScan.Enums.DeviceStatus.EXPIRED => "stu-badge--expired",
+                    PaScan.Enums.DeviceStatus.REVOKED => "stu-badge--revoked",
+                    _ => "stu-badge--pending"
+                };
+                <tr data-status="@device.Status"
+                    data-name="@device.DeviceName.ToLower()"
+                    data-brand="@device.Brand.ToLower()"
+                    data-model="@device.Model.ToLower()">
+                    <td style="font-weight:600;color:#e5e5ea;">@device.DeviceName</td>
                     <td>@device.DeviceType</td>
                     <td>@device.Brand</td>
                     <td>@device.Model</td>
+                    <td><span class="stu-badge @devBadge">@device.Status</span></td>
                     <td>
-                        @{
-                            var devBadge = device.Status switch
-                            {
-                                PaScan.Enums.DeviceStatus.ACTIVE => "stu-badge--active",
-                                PaScan.Enums.DeviceStatus.EXPIRED => "stu-badge--expired",
-                                PaScan.Enums.DeviceStatus.REVOKED => "stu-badge--revoked",
-                                _ => "stu-badge--pending"
-                            };
-                        }
-                        <span class="stu-badge @devBadge">@device.Status</span>
-                    </td>
-                    <td>
-                        <a asp-controller="Device" asp-action="DeviceDetail" asp-route-deviceId="@device.Id">View Details &amp; QR</a>
+                        <a href="javascript:void(0);"
+                           data-url="@Url.Action("DeviceDetail","Device",new{deviceId=device.Id})"
+                           class="view-details-btn">
+                            View QR &amp; Details
+                        </a>
                     </td>
                 </tr>
             }
             @if (!Model.Any())
             {
                 <tr>
-                    <td colspan="6" class="stu-table-empty">No approved devices found. Register your first device to get started.</td>
+                    <td colspan="6" class="stu-table-empty">
+                        <i class="bi bi-laptop" style="font-size:2rem;display:block;margin-bottom:.5rem;opacity:.3;"></i>
+                        No approved devices yet. Register a device and wait for admin approval.
+                    </td>
                 </tr>
             }
+            <tr id="mvpNoResults" style="display:none;">
+                <td colspan="6" class="stu-table-empty">
+                    <i class="bi bi-search" style="font-size:2rem;display:block;margin-bottom:.5rem;opacity:.3;"></i>
+                    No devices match your search or filter.
+                </td>
+            </tr>
         </tbody>
     </table>
 </div>
+
+<!-- Modal -->
+<div class="modal fade pm-modal" id="deviceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-body" id="deviceModalBody">
+                <div class="pm-loading"><div class="pm-spinner"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function(){
+    /* ── Modal ── */
+    var modal = new bootstrap.Modal(document.getElementById('deviceModal'));
+    var body  = document.getElementById('deviceModalBody');
+
+    document.addEventListener('click', function(e){
+        if (e.target.closest('.pm-close-btn, .ddm-close')) { modal.hide(); return; }
+
+        var btn = e.target.closest('.view-details-btn');
+        if (!btn) return;
+        e.preventDefault();
+        body.innerHTML = '<div class="pm-loading"><div class="pm-spinner"></div></div>';
+        modal.show();
+        fetch(btn.getAttribute('data-url'), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(r => r.text())
+            .then(html => { body.innerHTML = html; })
+            .catch(() => { body.innerHTML = '<div style="color:#ff453a;padding:2rem;text-align:center;">Error loading details. Please try again.</div>'; });
+    });
+
+    /* ── Search & Filter ── */
+    var searchInput  = document.getElementById('mvpSearch');
+    var filterSelect = document.getElementById('mvpFilter');
+    var rows         = document.querySelectorAll('#mvpTbody tr[data-status]');
+    var noResults    = document.getElementById('mvpNoResults');
+
+    searchInput.addEventListener('input', applyFilter);
+    filterSelect.addEventListener('change', applyFilter);
+
+    function applyFilter(){
+        var q = searchInput.value.trim().toLowerCase();
+        var activeFilter = filterSelect.value;
+        var visible = 0;
+
+        rows.forEach(function(row){
+            var status  = row.getAttribute('data-status');
+            var name    = row.getAttribute('data-name');
+            var brand   = row.getAttribute('data-brand');
+            var model   = row.getAttribute('data-model');
+            var matchFilter = (activeFilter === 'all' || status === activeFilter);
+            var matchSearch = !q || name.includes(q) || brand.includes(q) || model.includes(q);
+            var show = matchFilter && matchSearch;
+
+            if (show) {
+                row.style.display = '';
+                // Small rAF delay so the browser paints the row before fading in
+                requestAnimationFrame(function(){
+                    row.classList.remove('mvp-hidden');
+                });
+                visible++;
+            } else {
+                row.classList.add('mvp-hidden');
+                // Hide from layout after the fade-out transition completes
+                row.addEventListener('transitionend', function handler(){
+                    if (row.classList.contains('mvp-hidden')) row.style.display = 'none';
+                    row.removeEventListener('transitionend', handler);
+                });
+            }
+        });
+
+        noResults.style.display = visible === 0 ? '' : 'none';
+    }
+})();
+</script>
+}
