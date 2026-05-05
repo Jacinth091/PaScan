@@ -50,11 +50,11 @@
         <div class="adm-card">
             <div class="adm-card-header">
                 <h2 class="adm-card-title">Recent Pending Requests</h2>
-                <a asp-action="Requests" class="adm-btn-ghost adm-btn-sm">View All</a>
+             
             </div>
             @if (Model.RecentPendingRequests.Any())
             {
-                @foreach (var req in Model.RecentPendingRequests)
+                @foreach (var req in Model.RecentPendingRequests.Take(5))
                 {
                     <div class="adm-list-item">
                         <div>
@@ -62,6 +62,12 @@
                             <div class="adm-list-item-sub">@req.Brand @req.Model (@req.DeviceType)</div>
                         </div>
                         <a asp-action="RequestDetail" asp-route-id="@req.Id" class="adm-btn-ghost adm-btn-sm">Review</a>
+                    </div>
+                }
+                @if (Model.PendingRequestCount >= 5)
+                {
+                    <div class="adm-text-center" style="margin-top: 1rem;">
+                        <a asp-action="Requests" class="adm-btn-outline-primary adm-btn-sm">See More</a>
                     </div>
                 }
             }

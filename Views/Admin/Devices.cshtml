@@ -18,9 +18,22 @@
     <div class="adm-alert adm-alert--error adm-rise"><i class="bi bi-exclamation-circle-fill"></i> @TempData["Error"]</div>
 }
 
-<div class="adm-card adm-rise adm-rise-d1">
+<div class="adm-table-actions adm-rise adm-rise-d1">
+    <select id="deviceStatusFilter" class="adm-form-select">
+        <option value="">All Statuses</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+        <option value="revoked">Revoked</option>
+    </select>
+    <div class="adm-search-wrap">
+        <div class="adm-search-icon"><i class="bi bi-search"></i></div>
+        <input type="text" id="deviceSearch" class="adm-form-input" placeholder="Search by Device, Type, or Owner">
+    </div>
+</div>
+
+<div class="adm-card adm-rise adm-rise-d2">
     <div class="adm-table-wrap">
-        <table class="adm-table paginated-table">
+        <table class="adm-table paginated-table" id="deviceTable">
             <thead>
                 <tr>
                     <th>Device</th>
@@ -85,3 +98,38 @@
         </table>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('deviceSearch');
+    const statusFilter = document.getElementById('deviceStatusFilter');
+    const table = document.getElementById('deviceTable');
+    if (!searchInput || !table || !statusFilter) return;
+    const rows = table.querySelectorAll('tbody tr');
+    
+    function filterTable() {
+        const term = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value.toLowerCase();
+        
+        rows.forEach(row => {
+            if (row.cells.length > 1) {
+                const device = row.cells[0].textContent.toLowerCase();
+                const type = row.cells[1].textContent.toLowerCase();
+                const owner = row.cells[2].textContent.toLowerCase();
+                const status = row.cells[3].textContent.toLowerCase();
+                
+                const textMatch = device.includes(term) || type.includes(term) || owner.includes(term);
+                const statusMatch = !statusValue || status.includes(statusValue);
+                
+                if (textMatch && statusMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    }
+    
+    searchInput.addEventListener('keyup', filterTable);
+    statusFilter.addEventListener('change', filterTable);
+});
+</script>
