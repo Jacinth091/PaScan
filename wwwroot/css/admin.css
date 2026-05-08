@@ -71,7 +71,7 @@ body.admin-portal {
 .adm-dock-avatar {
   width:34px; height:34px; border-radius:50%;
   border: 2px solid rgba(255,255,255,0.12);
-  background: linear-gradient(135deg, #2196F3 0%, #00c6ff 100%);
+  background: #2196F3;
   color:#fff; font-weight:700; font-size:0.8rem;
   display:flex; align-items:center; justify-content:center;
   cursor:pointer; transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
@@ -89,7 +89,7 @@ body.admin-portal {
 }
 .adm-dock-popover.show { opacity:1; visibility:visible; transform: translateY(0) scale(1); pointer-events:auto; }
 .adm-dock-popover-header { display:flex; align-items:center; gap:0.7rem; padding:1rem 1rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
-.adm-dock-popover-avatar { width:40px; height:40px; border-radius:50%; background: linear-gradient(135deg,#2196F3,#00c6ff); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:1rem; flex-shrink:0; }
+.adm-dock-popover-avatar { width:40px; height:40px; border-radius:50%; background: #2196F3; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:1rem; flex-shrink:0; }
 .adm-dock-popover-name { color:#e8e8ed; font-size:0.9rem; font-weight:600; line-height:1.3; }
 .adm-dock-popover-role { color:#6e6e73; font-size:0.75rem; margin-top:0.1rem; }
 .adm-dock-popover-logout { display:flex; align-items:center; gap:0.6rem; padding:0.75rem 1rem; color:#a1a1a6; font-size:0.85rem; font-weight:500; text-decoration:none; transition: all 0.2s ease; }
@@ -99,13 +99,13 @@ body.admin-portal {
 .adm-main {
   margin-left:0; min-height:100vh;
   padding: 2rem 2.5rem 6rem;
-  background: radial-gradient(circle at 85% 10%, rgba(33,150,243,0.06), transparent 40%), radial-gradient(circle at 5% 90%, rgba(255,255,255,0.02), transparent 35%), #0a0a0c;
+  background: #0a0a0c;
 }
 
 /* --- Page Header --- */
 .adm-page-header { margin-bottom:2rem; }
 .adm-page-kicker { font-size:0.78rem; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:#2196F3; margin-bottom:0.4rem; }
-.adm-page-title { color:#fff; font-size: clamp(1.8rem,4vw,2.6rem); font-weight:700; line-height:1.1; letter-spacing:-0.03em; background: linear-gradient(135deg,#fff 0%,#a1a1a6 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.adm-page-title { color:#fff; font-size: clamp(1.8rem,4vw,2.6rem); font-weight:700; line-height:1.1; letter-spacing:-0.03em; }
 .adm-page-subtitle { color:#6e6e73; font-size:0.95rem; margin-top:0.4rem; }
 .adm-page-header-row { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
 
