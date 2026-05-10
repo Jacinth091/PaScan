@@ -24,9 +24,16 @@
     <div class="adm-alert adm-alert--error adm-rise"><i class="bi bi-exclamation-circle-fill"></i> @TempData["Error"]</div>
 }
 
-<div class="adm-card adm-rise adm-rise-d1">
+<div class="adm-table-actions adm-rise adm-rise-d1">
+    <div class="adm-search-wrap">
+        <div class="adm-search-icon"><i class="bi bi-search"></i></div>
+        <input type="text" id="requestSearch" class="adm-form-input" placeholder="Search by Student, Device Type, or Brand/Model">
+    </div>
+</div>
+
+<div class="adm-card adm-rise adm-rise-d2">
     <div class="adm-table-wrap">
-        <table class="adm-table paginated-table">
+        <table class="adm-table paginated-table" id="requestTable">
             <thead>
                 <tr>
                     <th>Student</th>
@@ -50,7 +57,7 @@
                             <td>@req.Brand @req.Model</td>
                             <td>@req.SubmittedAt.ToString("MMM dd, yyyy")</td>
                             <td style="text-align:right;">
-                                <a asp-action="RequestDetail" asp-route-id="@req.Id" class="adm-btn-primary adm-btn-sm">Review</a>
+                                <a asp-action="RequestDetail" asp-route-id="@req.Id" class="adm-btn-ghost adm-btn-sm">Review</a>
                             </td>
                         </tr>
                     }
@@ -63,3 +70,29 @@
         </table>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('requestSearch');
+    const table = document.getElementById('requestTable');
+    if (!searchInput || !table) return;
+    const rows = table.querySelectorAll('tbody tr');
+    
+    searchInput.addEventListener('keyup', function() {
+        const term = this.value.toLowerCase();
+        
+        rows.forEach(row => {
+            if (row.cells.length > 1) {
+                const student = row.cells[0].textContent.toLowerCase();
+                const deviceType = row.cells[1].textContent.toLowerCase();
+                const brandModel = row.cells[2].textContent.toLowerCase();
+                
+                if (student.includes(term) || deviceType.includes(term) || brandModel.includes(term)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    });
+});
+</script>

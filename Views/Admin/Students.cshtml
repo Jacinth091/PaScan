@@ -18,9 +18,16 @@
     <div class="adm-alert adm-alert--error adm-rise"><i class="bi bi-exclamation-circle-fill"></i> @TempData["Error"]</div>
 }
 
-<div class="adm-card adm-rise adm-rise-d1">
+<div class="adm-table-actions adm-rise adm-rise-d1">
+    <div class="adm-search-wrap">
+        <div class="adm-search-icon"><i class="bi bi-search"></i></div>
+        <input type="text" id="studentSearch" class="adm-form-input" placeholder="Search by Name, Student Number, or Course">
+    </div>
+</div>
+
+<div class="adm-card adm-rise adm-rise-d2">
     <div class="adm-table-wrap">
-        <table class="adm-table paginated-table">
+        <table class="adm-table paginated-table" id="studentTable">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -79,3 +86,26 @@
         </table>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('studentSearch');
+    const table = document.getElementById('studentTable');
+    if (!searchInput || !table) return;
+    const rows = table.querySelectorAll('tbody tr');
+    searchInput.addEventListener('keyup', function() {
+        const term = this.value.toLowerCase();
+        rows.forEach(row => {
+            if (row.cells.length > 1) {
+                const name = row.cells[0].textContent.toLowerCase();
+                const studentNo = row.cells[1].textContent.toLowerCase();
+                const course = row.cells[2].textContent.toLowerCase();
+                if (name.includes(term) || studentNo.includes(term) || course.includes(term)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    });
+});
+</script>

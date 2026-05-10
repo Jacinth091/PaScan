@@ -40,6 +40,27 @@
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255,255,255,0.08);
         top: 0.75rem;
     }
+
+    .dynamic-nav-links a.is-active {
+        color: #fff;
+        position: relative;
+    }
+
+    .dynamic-nav-links a.is-active::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -0.55rem;
+        height: 2px;
+        border-radius: 999px;
+        background: #0071e3;
+        box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.16);
+    }
+
+    html {
+        scroll-padding-top: 0px;
+    }
     </style>
 </head>
 
@@ -50,14 +71,19 @@
     bool isStudentPage = Context.Request.Path.StartsWithSegments("/student");
     bool isAdminPage = Context.Request.Path.StartsWithSegments("/admin");
     bool isScannerPage = Context.Request.Path.StartsWithSegments("/scanner");
+    bool isPrivacyPage = Context.Request.Path.StartsWithSegments("/Home/Privacy");
     var studentName = Context.Session.GetString("FirstName") ?? "";
     var studentLast = Context.Session.GetString("LastName") ?? "";
     var studentInitial = !string.IsNullOrEmpty(studentName) ? studentName.Substring(0, 1).ToUpper() : "S";
     var adminInitial = "A";
-    var bodyClass = isStudentPage ? " class=\"student-portal\"" : (isAdminPage ? " class=\"admin-portal\"" : (isScannerPage ? " class=\"scanner-portal\"" : ""));
+    var bodyClass = isPrivacyPage ? " class=\"privacy-page\"" : (isStudentPage ? " class=\"student-portal\"" : (isAdminPage ? " class=\"admin-portal\"" : (isScannerPage ? " class=\"scanner-portal\"" : "")));
 }
 
 @Html.Raw("<body" + bodyClass + ">")
+
+    <div id="modal-root">
+        @await RenderSectionAsync("Modals", required: false)
+    </div>
 
     @if (!isAuthPage && !isStudentPage && !isAdminPage && !isScannerPage)
     {
@@ -73,10 +99,10 @@
             </label>
             
             <nav class="dynamic-nav-links" aria-label="Primary navigation">
-                <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                <a href="/#neo-help-title">Help</a>
-                <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                <a href="/#neo-faq-title">FAQ</a>
+                <a asp-area="" asp-controller="Home" asp-action="Index" data-nav-link="home">Home</a>
+                <a href="/#neo-help-section" data-nav-link="help">Help</a>
+                <a asp-area="" asp-controller="Home" asp-action="Privacy" data-nav-link="privacy">Privacy</a>
+                <a href="/#neo-faq-section" data-nav-link="faq">FAQ</a>
                 <a class="dynamic-nav-cta mobile-cta" href="/auth/register/student">Register</a>
                 <a class="dynamic-nav-cta mobile-cta" href="/auth/login">Login</a>
             </nav>
@@ -250,7 +276,7 @@
         </main>
     }
 
-    @if (!isAuthPage && !isStudentPage && !isAdminPage && !isScannerPage)
+    @if (!isAuthPage && !isStudentPage && !isAdminPage && !isScannerPage && !isPrivacyPage)
     {
         <footer class="neo-footer-modern">
             <div class="shell neo-footer-grid">
@@ -297,6 +323,66 @@
             <div class="footer-glow glow-1"></div>
             <div class="footer-glow glow-2"></div>
         </footer>
+    }
+
+    @if (!isAuthPage && !isStudentPage && !isAdminPage && !isScannerPage)
+    {
+        <script>
+            (function () {
+                const links = Array.from(document.querySelectorAll('.dynamic-nav-links a[data-nav-link]'));
+                if (!links.length) return;
+
+                const sectionOrder = [
+                    { id: 'neo-help-section', key: 'help' },
+                    { id: 'neo-faq-section', key: 'faq' }
+                ];
+                const activeOffset = 500;
+
+                const setActive = (key) => {
+                    links.forEach((link) => {
+                        const isActive = link.getAttribute('data-nav-link') === key;
+                        link.classList.toggle('is-active', isActive);
+                        if (isActive) {
+                            link.setAttribute('aria-current', 'page');
+                        } else {
+                            link.removeAttribute('aria-current');
+                        }
+                    });
+                };
+
+                const resolveState = () => {
+                    const path = window.location.pathname.replace(/\/$/, '') || '/';
+
+                    if (path.toLowerCase() === '/home/privacy'.toLowerCase()) {
+                        setActive('privacy');
+                        return;
+                    }
+
+                    if (path === '/' || path === '') {
+                        let activeKey = 'home';
+                        const scrollPosition = window.scrollY + activeOffset;
+
+                        for (const section of sectionOrder) {
+                            const element = document.getElementById(section.id);
+                            if (!element) continue;
+
+                            if (scrollPosition >= element.offsetTop) {
+                                activeKey = section.key;
+                            }
+                        }
+
+                        setActive(activeKey);
+                        return;
+                    }
+
+                    setActive('home');
+                };
+
+                resolveState();
+                window.addEventListener('hashchange', resolveState);
+                window.addEventListener('scroll', resolveState, { passive: true });
+            })();
+        </script>
     }
 
     <!-- Bootstrap 5 JS Bundle -->
