@@ -6,7 +6,7 @@
     var activeDevices = Model.Devices.Count(d => d.Status == PaScan.Enums.DeviceStatus.ACTIVE);
     var lastRequest = Model.Requests.OrderByDescending(r => r.SubmittedAt).FirstOrDefault();
 }
-<div class="db" style="margin: 2rem 2.5rem 6rem;">
+<div class="db">
 
     <!-- HERO -->
     <div class="db-hero stu-rise">
@@ -179,7 +179,7 @@
         <div class="db-card-head">
             <span class="db-card-title"><i class="bi bi-shield-lock-fill"></i> Security Tips</span>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+        <div class="db-tip-grid">
             <div class="db-tip" style="margin-bottom:0;">
                 <i class="bi bi-lock-fill db-tip-icon" style="color:#32d74b;"></i>
                 <p><strong>Keep your QR private.</strong> Never share your gate QR code — it's uniquely tied to your device and student account.</p>

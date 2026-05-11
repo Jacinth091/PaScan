@@ -11,87 +11,211 @@ body.scanner-portal {
   transform-style: flat;
 }
 
-/* --- Scanner Header Bar --- */
-.scn-header {
+/* --- Scanner Floating Glass Dock --- */
+.scn-dock {
   position: fixed;
-  top: 0.8rem;
+  bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.6rem 1.2rem;
-  border-radius: 999px;
-  background: rgba(18, 18, 22, 0.62);
+  gap: 0.35rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 20px;
+  background: rgba(18, 18, 22, 0.65);
   backdrop-filter: blur(32px) saturate(200%);
   -webkit-backdrop-filter: blur(32px) saturate(200%);
-  border: 1px solid rgba(255,255,255,0.10);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 0.5px rgba(255,255,255,0.06) inset;
-  animation: scn-header-drop 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
-  min-width: 300px;
-  max-width: 600px;
-  width: auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  animation: scn-dock-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes scn-header-drop {
-  from { opacity:0; transform: translateX(-50%) translateY(-20px); }
-  to { opacity:1; transform: translateX(-50%) translateY(0); }
+@keyframes scn-dock-rise {
+  from { opacity: 0; transform: translate(-50%, 40px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 
-.scn-header-brand {
+.scn-dock-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  min-width: 60px;
+  text-decoration: none;
+  color: #a1a1a6;
+  border-radius: 14px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.scn-dock-item svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scn-dock-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0.8;
+  transition: opacity 0.25s ease;
+  white-space: nowrap;
+}
+
+.scn-dock-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.scn-dock-item:hover svg {
+  transform: scale(1.1);
+}
+
+.scn-dock-item.active {
+  color: #0071e3;
+}
+
+.scn-dock-item.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0.1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #0071e3;
+  box-shadow: 0 0 8px rgba(0, 113, 227, 0.6);
+}
+
+.scn-dock-item.active svg,
+.scn-dock-item.active .scn-dock-label {
+  opacity: 1;
+}
+
+.scn-dock-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 0.3rem;
+}
+
+.scn-dock-user-wrap {
+  position: relative;
+}
+
+.scn-dock-avatar {
+  background: linear-gradient(135deg, #0071e3 0%, #4facfe 100%);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  padding: 0;
+  margin: 0 0.25rem;
+}
+
+.scn-dock-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 113, 227, 0.4);
+}
+
+.scn-dock-popover {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  right: -6px;
+  min-width: 220px;
+  background: rgba(20, 20, 23, 0.85);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 0;
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: bottom right;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+
+.scn-dock-popover.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.scn-dock-popover-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1rem 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.scn-dock-popover-avatar {
+  background: linear-gradient(135deg, #0071e3 0%, #4facfe 100%);
+  color: #fff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.scn-dock-popover-name {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.scn-dock-popover-role {
+  color: #86868b;
+  font-size: 0.75rem;
+  margin-top: 0.1rem;
+}
+
+.scn-dock-popover-logout {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  text-decoration: none;
-  color: #e8e8ed;
-  font-weight: 700;
-  font-size: 0.92rem;
-}
-
-.scn-header-dot {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2196F3, #00c6ff);
-  flex-shrink: 0;
-}
-
-.scn-header-role {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #6e6e73;
-  padding: 0.2rem 0.6rem;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 999px;
-}
-
-.scn-header-logout {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: #a1a1a6;
-  font-size: 0.82rem;
-  font-weight: 500;
-  text-decoration: none;
-  padding: 0.35rem 0.7rem;
-  border-radius: 999px;
-  transition: all 0.2s ease;
-}
-
-.scn-header-logout:hover {
+  padding: 0.8rem 1rem;
   color: #ff453a;
-  background: rgba(255,69,58,0.08);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background 0.2s ease;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.scn-dock-popover-logout:hover {
+  background: rgba(255, 69, 58, 0.1);
   text-decoration: none;
 }
 
 /* --- Main Content --- */
 .scn-main {
   min-height: 100vh;
-  padding: 5rem 2rem 2rem;
+  padding: 3rem 2rem 8rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -316,23 +440,26 @@ body.scanner-portal {
 
 /* --- Responsive --- */
 @media (max-width: 900px) {
-  .scn-main { padding: 4.5rem 1rem 1.5rem; }
+  .scn-main { padding: 2rem 1rem 6.5rem; }
   .scn-card { border-radius: 20px; }
 }
 
 @media (max-width: 600px) {
-  .scn-header {
-    min-width: auto;
-    padding: 0.5rem 0.8rem;
-    gap: 0.5rem;
-    top: 0.5rem;
+  .scn-dock {
+    bottom: 1rem;
+    padding: 0.5rem 0.6rem;
+    gap: 0.2rem;
+    border-radius: 16px;
   }
-  .scn-header-brand { font-size: 0.82rem; gap: 0.35rem; }
-  .scn-header-dot { width: 18px; height: 18px; }
-  .scn-header-role { font-size: 0.6rem; padding: 0.15rem 0.45rem; }
-  .scn-header-logout { font-size: 0.75rem; padding: 0.3rem 0.5rem; }
-  .scn-header-logout span { display: none; }
-  .scn-main { padding: 4rem 0.6rem 1rem; }
+  .scn-dock-item { padding: 0.4rem 0.5rem; min-width: 50px; }
+  .scn-dock-item svg { width: 18px; height: 18px; }
+  .scn-dock-label { font-size: 0.55rem; }
+  .scn-dock-avatar { width: 32px; height: 32px; font-size: 0.8rem; }
+  .scn-dock-popover {
+    right: -4px;
+    min-width: 200px;
+  }
+  .scn-main { padding: 1.5rem 0.6rem 6rem; }
   .scn-card { border-radius: 16px; }
   .scn-card-header { padding: 0.85rem 1rem; }
   .scn-card-title { font-size: 0.92rem; }
@@ -347,8 +474,12 @@ body.scanner-portal {
 }
 
 @media (max-width: 380px) {
-  .scn-header { top: 0.35rem; padding: 0.4rem 0.6rem; }
-  .scn-main { padding: 3.5rem 0.4rem 0.8rem; }
+  .scn-dock {
+    bottom: 0.5rem;
+    padding: 0.4rem 0.5rem;
+    gap: 0.1rem;
+  }
+  .scn-main { padding: 1rem 0.4rem 5.5rem; }
   .scn-card { border-radius: 14px; }
   .scn-viewport { min-height: 200px; }
 }

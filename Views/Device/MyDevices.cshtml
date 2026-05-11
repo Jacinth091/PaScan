@@ -3,7 +3,7 @@
     ViewData["Title"] = "My Devices";
 }
 
-<div style="margin: 2rem 2.5rem 6rem;">
+<div>
 <div class="stu-page-header-row stu-rise" >
     <div>
         <p class="stu-page-kicker">Device Management</p>
@@ -14,13 +14,12 @@
 
 <!-- Search & Filter Toolbar -->
 <div class="mvp-toolbar stu-rise stu-rise-d1">
-    <div style="display: flex;  justify-content: space-between; align-items: center; gap: 41rem;  flex: 1;">
-          <a asp-controller="Student" asp-action="Dashboard" class="stu-btn-ghost">Back to Dashboard</a>
-    <div class="mvp-search-wrap">
-        
-        <i class="bi bi-search"></i>
-        <input type="text" id="mvpSearch" placeholder="Search by name, brand, model…" style="width: 800px; " autocomplete="off">
-    </div>
+    <div class="mvp-toolbar-main">
+        <a asp-controller="Student" asp-action="Dashboard" class="stu-btn-ghost">Back to Dashboard</a>
+        <div class="mvp-search-wrap">
+            <i class="bi bi-search"></i>
+            <input type="text" id="mvpSearch" placeholder="Search by name, brand, model…" autocomplete="off">
+        </div>
     </div>
    
     <div class="mvp-filters">
