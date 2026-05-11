@@ -89,7 +89,7 @@
     {
         <div class="dynamic-navbar-island">
             <a class="dynamic-brand" asp-area="" asp-controller="Home" asp-action="Index" >
-                <div class="wordmark-dot"></div>
+                <img src="~/images/logo.svg" alt="PaScan Logo" class="brand-logo" style="width: 32px; height: 32px;" />
                 <span class="brand-text">PaScan</span>
             </a>
             
@@ -252,22 +252,52 @@
     }
     else if (isScannerPage)
     {
-        <!-- Scanner Glass Header -->
-        <header class="scn-header">
-            <a class="scn-header-brand" asp-controller="Scanner" asp-action="Dashboard">
-                <div class="scn-header-dot"></div>
-                PaScan
+        <!-- Scanner Floating Glass Dock -->
+        <nav class="scn-dock" id="scnDock" aria-label="Scanner navigation">
+            <a class="scn-dock-item @(ViewData["Title"]?.ToString() == "Scanner Dashboard" ? "active" : "")" asp-controller="Scanner" asp-action="Dashboard" title="Dashboard">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                <span class="scn-dock-label">Dashboard</span>
             </a>
-            <span class="scn-header-role">Scanner</span>
-            <a class="scn-header-logout" asp-controller="Auth" asp-action="Logout">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                <span>Logout</span>
-            </a>
-        </header>
+            <div class="scn-dock-divider"></div>
+
+            <div class="scn-dock-user-wrap">
+                <button class="scn-dock-avatar" id="scnAvatarBtn" aria-label="Scanner menu" type="button">S</button>
+                <div class="scn-dock-popover" id="scnPopover">
+                    <div class="scn-dock-popover-header">
+                        <div class="scn-dock-popover-avatar">S</div>
+                        <div>
+                            <div class="scn-dock-popover-name">Gate Scanner</div>
+                            <div class="scn-dock-popover-role">Scanner</div>
+                        </div>
+                    </div>
+                    <a class="scn-dock-popover-logout" asp-controller="Auth" asp-action="Logout">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </nav>
 
         <main class="scn-main" role="main">
             @RenderBody()
         </main>
+
+        <script>
+            (function () {
+                const btn = document.getElementById('scnAvatarBtn');
+                const pop = document.getElementById('scnPopover');
+                if (!btn || !pop) return;
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    pop.classList.toggle('show');
+                });
+                document.addEventListener('click', function (e) {
+                    if (!pop.contains(e.target) && e.target !== btn) {
+                        pop.classList.remove('show');
+                    }
+                });
+            })();
+        </script>
     }
     else
     {

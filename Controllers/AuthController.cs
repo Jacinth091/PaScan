@@ -163,10 +163,23 @@ public class AuthController : Controller
         await HttpContext.SignInAsync("Cookies", principal);
     }
 
-    [HttpPost("logout")]
+    [HttpGet("logout")]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync("Cookies");
+        HttpContext.Session.Clear();
+        Response.Cookies.Delete("refreshToken");
+        TempData["SuccessMessage"] = "You have been logged out successfully.";
+        return RedirectToAction("Index", "Home");
+    }
+
+    [HttpPost("logout-post")]
+    public async Task<IActionResult> LogoutPost()
+    {
+        await HttpContext.SignOutAsync("Cookies");
+        HttpContext.Session.Clear();
+        Response.Cookies.Delete("refreshToken");
+        TempData["SuccessMessage"] = "You have been logged out successfully.";
         return RedirectToAction("Index", "Home");
     }
 
