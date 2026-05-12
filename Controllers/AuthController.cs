@@ -33,23 +33,29 @@ public class AuthController : Controller
     [HttpGet("login/student")]
     public IActionResult StudentLogin()
     {
-        return View();
+        return View(new StudentLoginViewModel());
     }
 
     [HttpPost("login/student")]
-    public async Task<IActionResult> StudentLoginPost(string studentNumber, string password)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> StudentLoginPost(StudentLoginViewModel model)
     {
+        if (!ModelState.IsValid)
+        {
+            return View("StudentLogin", model);
+        }
+
         try
         {
-            var (user, profileId) = await _authService.AuthenticateStudentAsync(studentNumber, password);
+            var (user, profileId) = await _authService.AuthenticateStudentAsync(model.StudentNumber, model.Password);
             HttpContext.Session.SetString("StudentId", profileId);
             await SignInUser(user, profileId);
             return RedirectToAction("Dashboard", "Student");
         }
         catch (UnauthorizedAccessException ex)
         {
-            ViewBag.Error = ex.Message;
-            return View("StudentLogin");
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View("StudentLogin", model);
         }
     }
 

@@ -17,13 +17,14 @@
     </div>
 </div>
 
-<div style="max-width:550px;" class="adm-rise adm-rise-d1">
-    <div class="adm-card adm-text-center" style="margin-bottom:1rem;">
-        <h3 style="color:#fff; font-size:1.1rem; font-weight:600; margin-bottom:0.2rem;">@Model.Student.FirstName @Model.Student.LastName</h3>
-        <p class="adm-text-muted" style="font-size:0.85rem;">@Model.Student.StudentNumber</p>
-    </div>
+<div class="adm-modal-centered adm-rise adm-rise-d1">
+    <div class="adm-modal-card">
+        <div class="adm-card adm-text-center" style="margin-bottom:1rem;">
+            <h3 style="color:#fff; font-size:1.1rem; font-weight:600; margin-bottom:0.2rem;">@Model.Student.FirstName @Model.Student.LastName</h3>
+            <p class="adm-text-muted" style="font-size:0.85rem;">@Model.Student.StudentNumber</p>
+        </div>
 
-    <div class="adm-card" style="border-top:2px solid #ff453a;">
+        <div class="adm-card" style="border-top:2px solid #ff453a;">
         @if (Model.ActiveRfid != null)
         {
             <div class="adm-alert adm-alert--error">
