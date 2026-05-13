@@ -427,6 +427,15 @@
             <div>
               <strong>Validation Error</strong>
               <p>Please correct the highlighted errors below.</p>
+              <ul style="margin: 8px 0 0 18px; color: #b42318; font-size: 13px;">
+                @foreach (var state in ViewData.ModelState.Values)
+                {
+                  foreach (var error in state.Errors)
+                  {
+                    <li>@error.ErrorMessage</li>
+                  }
+                }
+              </ul>
             </div>
           </div>
         </div>
@@ -453,46 +462,59 @@
         <div class="form-row form-row-3">
           <div class="cortex-input-group">
             <label for="firstName">First Name</label>
-            <input class="cortex-input" id="firstName" name="FirstName" placeholder="First name" autocomplete="given-name" required />
+            <input class="cortex-input" id="firstName" name="FirstName" value="@Model?.FirstName" placeholder="First name" autocomplete="given-name" required />
           </div>
           <div class="cortex-input-group">
             <label for="lastName">Last Name</label>
-            <input class="cortex-input" id="lastName" name="LastName" placeholder="Last name" autocomplete="family-name" required />
+            <input class="cortex-input" id="lastName" name="LastName" value="@Model?.LastName" placeholder="Last name" autocomplete="family-name" required />
           </div>
           <div class="cortex-input-group">
             <label for="middleName">Middle Name</label>
-            <input class="cortex-input" id="middleName" name="MiddleName" placeholder="Middle name (optional)" autocomplete="additional-name" />
+            <input class="cortex-input" id="middleName" name="MiddleName" value="@Model?.MiddleName" placeholder="Middle name (optional)" autocomplete="additional-name" />
           </div>
         </div>
 
         <div class="form-row form-row-3">
           <div class="cortex-input-group">
             <label for="studentNumber">Student ID</label>
-            <input class="cortex-input" id="studentNumber" name="StudentNumber" placeholder="e.g. 2024-00001" autocomplete="off" required />
+            <input class="cortex-input" id="studentNumber" name="StudentNumber" value="@Model?.StudentNumber" placeholder="e.g. 2024-00001" autocomplete="off" required />
           </div>
           <div class="cortex-input-group">
             <label for="courseId">Course</label>
             <select class="cortex-input select-input" id="courseId" name="CourseId" required>
-              <option value="">Select a course</option>
+              <option value="" selected="@(Model == null || Model.CourseId == Guid.Empty)">Select a course</option>
               @if (ViewBag.Courses != null)
               {
                 foreach (var c in ViewBag.Courses)
                 {
-                  <option value="@c.Id">@c.Code — @c.Name</option>
+                  <option value="@c.Id" selected="@(Model != null && Model.CourseId == c.Id)">@c.Code — @c.Name</option>
                 }
               }
             </select>
           </div>
           <div class="cortex-input-group">
             <label for="contactNo">Contact No.</label>
-            <input class="cortex-input" id="contactNo" name="ContactNo" type="tel" placeholder="e.g. 09XX XXX XXXX" autocomplete="tel" required />
+            <input class="cortex-input" id="contactNo" name="ContactNumber" value="@Model?.ContactNumber" type="tel" placeholder="e.g. 09XX XXX XXXX" autocomplete="tel" required />
+          </div>
+        </div>
+
+        <div class="form-row form-row-1">
+          <div class="cortex-input-group">
+            <label for="yearLevel">Year Level</label>
+            <select class="cortex-input select-input" id="yearLevel" name="YearLevel" required>
+              <option value="" selected="@(Model == null || Model.YearLevel == 0)">Select year level</option>
+              @for (var year = 1; year <= 6; year++)
+              {
+                <option value="@year" selected="@(Model != null && Model.YearLevel == year)">Year @year</option>
+              }
+            </select>
           </div>
         </div>
 
         <div class="form-row form-row-1">
           <div class="cortex-input-group">
             <label for="email">Email Address</label>
-            <input class="cortex-input" id="email" name="Email" type="email" placeholder="you@school.edu" autocomplete="email" required />
+            <input class="cortex-input" id="email" name="Email" value="@Model?.Email" type="email" placeholder="you@school.edu" autocomplete="email" required />
           </div>
         </div>
 

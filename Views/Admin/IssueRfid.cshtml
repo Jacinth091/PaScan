@@ -18,14 +18,24 @@
     </div>
 </div>
 
-<div style="max-width:550px;" class="adm-rise adm-rise-d1">
-    <div class="adm-card adm-text-center" style="margin-bottom:1rem;">
-        <div class="adm-avatar adm-avatar--md" style="margin:0 auto 0.75rem;">@Model.Student.FirstName[0]@Model.Student.LastName[0]</div>
-        <h3 style="color:#fff; font-size:1.1rem; font-weight:600; margin-bottom:0.2rem;">@Model.Student.FirstName @Model.Student.LastName</h3>
-        <p class="adm-text-muted" style="font-size:0.85rem;">@Model.Student.StudentNumber &bull; @(Model.Student.Course?.Name ?? "N/A")</p>
-    </div>
+<div class="adm-modal-centered adm-rise adm-rise-d1">
+    @if (TempData["Success"] != null)
+    {
+        <div class="adm-alert adm-alert--success"><i class="bi bi-check-circle-fill"></i> @TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="adm-alert adm-alert--error"><i class="bi bi-exclamation-circle-fill"></i> @TempData["Error"]</div>
+    }
 
-    <div class="adm-card" style="border-top:2px solid #2196F3;">
+    <div class="adm-modal-card">
+        <div class="adm-card adm-text-center" style="margin-bottom:1rem;">
+            <div class="adm-avatar adm-avatar--md" style="margin:0 auto 0.75rem;">@Model.Student.FirstName[0]@Model.Student.LastName[0]</div>
+            <h3 style="color:#fff; font-size:1.1rem; font-weight:600; margin-bottom:0.2rem;">@Model.Student.FirstName @Model.Student.LastName</h3>
+            <p class="adm-text-muted" style="font-size:0.85rem;">@Model.Student.StudentNumber &bull; @(Model.Student.Course?.Name ?? "N/A")</p>
+        </div>
+
+        <div class="adm-card" style="border-top:2px solid #2196F3;">
         <div id="scanStatus" class="adm-scan-status waiting">
             <div class="adm-spinner"></div>
             <span>Waiting for physical card tap...</span>

@@ -343,7 +343,6 @@ public class AdminService : IAdminService
             .Include(l => l.Scanner)
             .Include(l => l.Device)
             .OrderByDescending(l => l.ScannedAt)
-            .Take(10)
             .Select(l => new ScanLogListItem
             {
                 Id = l.Id,

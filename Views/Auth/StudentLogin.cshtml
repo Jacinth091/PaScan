@@ -1,3 +1,4 @@
+@model StudentLoginViewModel
 @{ ViewData["Title"] = "Student Login"; }
 
 <style>
@@ -282,6 +283,20 @@
     line-height: 1.4;
   }
 
+  .validation-summary ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+
+  .validation-summary li {
+    margin: 2px 0;
+  }
+
+  .validation-message {
+    font-size: 12px;
+    color: #c81d25;
+  }
+
   /* Form */
   .login-form { display: flex; flex-direction: column; gap: 16px; }
 
@@ -496,26 +511,25 @@
       <h1 class="card-title">Sign in</h1>
       <p class="card-subtitle">Student Portal</p>
 
-      @if (ViewBag.Error != null)
+      @if (!ViewData.ModelState.IsValid)
       {
         <div class="auth-alert">
           <span class="alert-icon">⚠</span>
           <div>
             <strong>Login Failed</strong>
-            <p>@ViewBag.Error</p>
+            <div class="validation-summary" asp-validation-summary="ModelOnly"></div>
           </div>
         </div>
       }
 
-      <form method="post" class="login-form">
+      <form asp-action="StudentLoginPost" asp-controller="Auth" method="post" class="login-form">
 
         <div class="field-group">
-          <label for="studentNumber">Student ID</label>
+          <label asp-for="StudentNumber">Student ID</label>
           <div class="input-wrap">
             <input
+              asp-for="StudentNumber"
               class="cortex-input"
-              id="studentNumber"
-              name="studentNumber"
               placeholder="Student ID"
               autocomplete="username"
               required />
@@ -524,15 +538,15 @@
               <circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
+          <span asp-validation-for="StudentNumber" class="validation-message"></span>
         </div>
 
         <div class="field-group">
-          <label for="password">Password</label>
+          <label asp-for="Password">Password</label>
           <div class="input-wrap">
             <input
+              asp-for="Password"
               class="cortex-input"
-              id="password"
-              name="password"
               type="password"
               placeholder="••••••••"
               autocomplete="current-password"
@@ -542,6 +556,7 @@
               <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
             </svg>
           </div>
+          <span asp-validation-for="Password" class="validation-message"></span>
           <div class="field-footer">
             <a href="#" class="forgot-link">Forgot password?</a>
           </div>
@@ -560,3 +575,7 @@
   </div>
 
 </div>
+
+@section Scripts {
+  @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

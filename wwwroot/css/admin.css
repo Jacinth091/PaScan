@@ -116,3 +116,18 @@ body.admin-portal {
 .adm-rise-d3 { animation-delay:260ms; }
 .adm-rise-d4 { animation-delay:340ms; }
 @keyframes adm-rise { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+/* --- Modal/Dialog Centering --- */
+.adm-modal-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.adm-modal-card {
+  width: 100%;
+  max-width: 600px;
+}
